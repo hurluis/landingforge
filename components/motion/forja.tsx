@@ -68,12 +68,21 @@ function HeroScrub() {
   const trTitular = useMotionTemplate`translateY(${yTitular}px)`;
   const opPrompt = useTransform(p, [0.06, 0.16], [0, 1]);
 
-  /* Beat 1 (0 → .35): el material se enfoca. */
-  const blur = useTransform(p, [0, 0.35], [30, 0]);
-  const grano = useTransform(p, [0, 0.45], [0.7, 0.05]);
+  /* Beat 1 (0 → .35): el material se enfoca.
+     Va en DOS capas y no en una. La de abajo es el material en bruto y no
+     lleva máscara nunca: si el clip empezara en inset(100%) el fotograma
+     estaría literalmente vacío en la primera pantalla, que es lo contrario de
+     lo que tiene que decir. La de arriba es la pieza ya formada, y es esa la
+     que la máscara descubre de abajo hacia arriba. */
+  const blur = useTransform(p, [0, 0.35], [26, 0]);
+  const grano = useTransform(p, [0, 0.45], [0.55, 0.05]);
   /* Beat 2 (.15 → .55): entra el color. La imagen nace desaturada. */
-  const sat = useTransform(p, [0.15, 0.55], [0, 1]);
-  const brillo = useTransform(p, [0, 0.5], [0.85, 1]);
+  const sat = useTransform(p, [0.15, 0.55], [0.12, 1]);
+  /* El bodegón es una foto de estudio oscura: desenfocarla 26px la promedia
+     a casi negro. Sin levantar la exposición el fotograma se lee como una caja
+     vacía en vez de como material sin trabajar, que es lo contrario de lo que
+     tiene que decir la primera pantalla. */
+  const brillo = useTransform(p, [0, 0.5], [1.6, 1]);
   /* Beat 3 (.30 → .70): la máscara descubre el fotograma de abajo hacia arriba. */
   const inset = useTransform(p, [0.3, 0.7], [100, 0]);
   /* Beat 4 (.70 → .88): se asientan los elementos de la sección. */
@@ -82,6 +91,13 @@ function HeroScrub() {
   /* Beat 5 (.88 → 1): la pieza queda templada. Aparece el borde metálico. */
   const metal = useTransform(p, [0.88, 1], [0, 1]);
 
+  /* La capa en bruto se apaga a medida que la pieza formada la cubre. */
+  const opBruto = useTransform(p, [0.45, 0.75], [1, 0]);
+  const blurBruto = useTransform(p, [0, 0.45], [26, 10]);
+
+  /* Contraste bajo a propósito: sin él las altas luces se queman y el
+     material deja de leerse como material para leerse como una lámpara. */
+  const filtroBruto = useMotionTemplate`blur(${blurBruto}px) saturate(0.08) brightness(1.35) contrast(0.7)`;
   const filtro = useMotionTemplate`blur(${blur}px) saturate(${sat}) brightness(${brillo})`;
   const recorte = useMotionTemplate`inset(${inset}% 0 0 0)`;
   const trUI = useMotionTemplate`translateY(${uiY}px)`;
@@ -149,6 +165,24 @@ function HeroScrub() {
           {/* ---- Columna derecha: el fotograma ---- */}
           <div className="relative mx-auto w-[min(70vw,280px)] lg:mx-0 lg:w-full lg:max-w-[360px]">
             <div className="relative aspect-[9/16] overflow-hidden rounded-[14px] border border-scale bg-sunk">
+              {/* Capa de abajo: el material en bruto. Sin máscara. */}
+              <motion.div
+                aria-hidden
+                style={{ filter: filtroBruto, opacity: opBruto, willChange: "filter, opacity" }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src="/pieza/frasco.png"
+                  alt=""
+                  width={540}
+                  height={960}
+                  priority
+                  sizes="(max-width: 1024px) 70vw, 360px"
+                  className="size-full object-cover"
+                />
+              </motion.div>
+
+              {/* Capa de arriba: la pieza formada, que la máscara descubre. */}
               <motion.div
                 style={{ filter: filtro, clipPath: recorte, willChange: "filter, clip-path" }}
                 className="absolute inset-0"

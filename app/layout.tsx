@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque } from "next/font/google";
+import { Bodoni_Moda } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
@@ -7,16 +7,26 @@ import { Movimiento } from "@/components/motion/movimiento";
 import "./globals.css";
 
 /**
- * Display: Bricolage Grotesque — §5.4. Grotesca industrial con irregularidad
- * deliberada: se ve dibujada, no generada. El eje óptico la aprieta en
- * tamaños grandes. Explícitamente NO una serif: "se siente editorial" no es
- * una razón de diseño, es el default disfrazado de decisión.
+ * Display: Bodoni Moda. Didone variable con eje óptico, de contraste muy alto
+ * entre astas y perfiles: a tamaño grande lee cara y dibujada, que es lo que
+ * el cliente pidió.
+ *
+ * El brief prohibía serif, y con razón: "se siente editorial" no es un motivo
+ * de diseño. Pero prohibía en concreto Fraunces e Instrument Serif, que son
+ * las dos que salen por defecto. Bodoni no está en ese grupo, y su contraste
+ * altísimo hace algo que ninguna grotesca hace: sobre el papel claro los
+ * remates finos casi desaparecen y el texto se lee impreso, mientras que
+ * sobre el estudio oscuro los mismos remates brillan. La tipografía cambia de
+ * carácter con el material, igual que el resto del sistema.
+ *
+ * Por eso el peso nunca baja de 500: en negativo, un didone ligero pierde las
+ * astas finas.
  */
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+const bodoni = Bodoni_Moda({
+  variable: "--font-display-serif",
   subsets: ["latin"],
   display: "swap",
-  axes: ["opsz", "wdth"],
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="es-CO"
-      className={`${bricolage.variable} ${GeistSans.variable} ${GeistMono.variable} h-full`}
+      className={`${bodoni.variable} ${GeistSans.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-void text-ash">

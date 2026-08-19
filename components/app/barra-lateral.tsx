@@ -46,7 +46,7 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
           href="/"
           aria-label="LandingForge, ir al inicio"
           className={cn(
-            "font-[family-name:var(--font-fraunces)] text-[1rem] leading-none tracking-[-0.02em] text-ash no-underline",
+            "font-[family-name:var(--font-display-serif)] text-[1rem] leading-none tracking-[-0.02em] text-ash no-underline",
             colapsada && "lg:sr-only",
           )}
         >
@@ -116,7 +116,7 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
         >
           <p className="mono-sm text-slag">Plan {def.nombre}</p>
           <p className="mt-1 flex items-baseline gap-1.5">
-            <span className="font-[family-name:var(--font-fraunces)] text-[1.5rem] font-[350] leading-none tabular-nums text-ash">
+            <span className="font-[family-name:var(--font-display-serif)] text-[1.5rem] font-[350] leading-none tabular-nums text-ash">
               {usuario.creditosDisponibles}
             </span>
             <span className="mono-sm text-slag">créditos</span>

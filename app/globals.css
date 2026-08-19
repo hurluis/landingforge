@@ -16,17 +16,17 @@
 
   /* Base: grafito frío. El sesgo azul es deliberado: maximiza el
      contraste de temperatura contra el naranja. */
-  --void:        #0A0B0D;
-  --anvil:       #121417;
-  --anvil-hi:    #1A1D22;
-  --sunk:        #06070A;
-  --scale:       #23272E;
-  --scale-hi:    #333941;
+  --void:        #101216;
+  --anvil:       #181B21;
+  --anvil-hi:    #222630;
+  --sunk:        #0A0C10;
+  --scale:       #2B3038;
+  --scale-hi:    #3D444F;
 
   /* Tinta: blanco frío, no cálido. */
   --ash:         #F4F5F7;
   --smoke:       #9BA3AE;
-  --slag:        #6B737E;
+  --slag:        #838892;
 
   /* CALIENTE = en proceso. El único color de acción. */
   --heat:        #FF5C2B;
@@ -102,13 +102,76 @@
 
   --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-serif), ui-serif, Georgia, serif;
 
   --shadow-elev-1: var(--elev-1);
   --shadow-elev-2: var(--elev-2);
 
   --radius-control: 10px;
   --radius-panel:   14px;
+}
+
+
+/* ------------------------------------------------------------
+   EL SEGUNDO MATERIAL · el papel
+
+   El producto vive entre dos superficies: el estudio, oscuro, donde se
+   miran las imágenes sin que el entorno contamine el juicio de color; y el
+   papel, claro, donde el trabajo se imprime y se entrega. La página alterna
+   entre las dos, y esa alternancia no es decoración: es la diferencia entre
+   mirar y llevarse.
+
+   Está resuelto redefiniendo los MISMOS tokens semánticos dentro de un
+   ámbito. Como `@theme inline` hace que las utilidades de Tailwind resuelvan
+   a `var(--token)` en el sitio de uso, poner `.papel` en una sección invierte
+   el subárbol entero sin tocar un solo componente.
+
+   El papel es caliza fría, no crema: crema con serif de alto contraste y
+   terracota es la paleta de la que el brief manda huir, y esto no es eso. El
+   naranja se oscurece a --heat-lo sobre papel para no bajar del piso de
+   contraste; sobre el estudio vuelve a ser incandescente.
+   ------------------------------------------------------------ */
+.papel {
+  position: relative;
+  isolation: isolate;
+  --void:      #E4E2DC;
+  --anvil:     #EDEBE5;
+  --anvil-hi:  #F6F4EF;
+  --sunk:      #D5D2CA;
+  --scale:     #C7C3B9;
+  --scale-hi:  #A8A398;
+
+  --ash:       #14161A;
+  --smoke:     #494E57;
+  --slag:      #5C616A;
+
+  --heat:      #B93A11;
+  --heat-lo:   #8E2B0A;
+  --ember:     #D9501F;
+
+  --quench:    #17618E;
+
+  --ok:        #17603C;
+  --warn:      #8A6100;
+  --danger:    #B02A1C;
+
+  --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
+  --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+
+  background: var(--void);
+  color: var(--ash);
+}
+
+/* El papel tiene fibra. Grano real, muy bajo, para que no lea como un div. */
+.papel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/textura/grano.png");
+  background-size: 128px 128px;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
 /* ------------------------------------------------------------
@@ -121,8 +184,10 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+html { background: var(--void); }
+
 body {
-  background: var(--void);
+  background: transparent;
   color: var(--ash);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
@@ -172,31 +237,31 @@ a {
    ------------------------------------------------------------ */
 
 .display-xl {
-  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(2.75rem, 5vw, 4.75rem);
-  font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 0.95;
-  font-variation-settings: "opsz" 96, "wdth" 100;
+  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
+  font-size: clamp(2.75rem, 5.2vw, 5rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  font-variation-settings: "opsz" 96;
   text-wrap: balance;
 }
 
 .display-lg {
-  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variation-settings: "opsz" 72, "wdth" 100;
+  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
+  font-size: clamp(2.25rem, 4.8vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-variation-settings: "opsz" 72;
   text-wrap: balance;
 }
 
 .display-md {
-  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
+  font-size: clamp(1.625rem, 2.6vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
   font-variation-settings: "opsz" 40;
   text-wrap: balance;
 }

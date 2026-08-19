@@ -19,12 +19,12 @@ export function Wordmark({
     <span
       style={{ fontSize: tamano }}
       className={cn(
-        "font-[family-name:var(--font-bricolage)] leading-none tracking-[-0.03em] text-ash",
+        "font-[family-name:var(--font-display-serif)] leading-none tracking-[-0.02em] text-ash",
         className,
       )}
     >
-      <span style={{ fontWeight: 300 }}>Landing</span>
-      <span style={{ fontWeight: 700 }}>Forge</span>
+      <span style={{ fontWeight: 400 }}>Landing</span>
+      <span style={{ fontWeight: 800 }}>Forge</span>
     </span>
   );
 

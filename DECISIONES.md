@@ -122,6 +122,50 @@ fuera de alcance, así que esas imágenes todavía no existen. Se resolvió así
 
 ---
 
+## Los dos materiales, y por qué el fondo dejó de ser negro
+
+El cliente pidió que la página no fuera toda negra y que el fondo se moviera
+con el scroll y con el mouse. Eso choca de frente con tres prohibiciones del
+brief: el gradiente de malla tipo Stripe, los blobs abstractos sin relación
+con el producto, y la inversión de tema a mitad de página. El cliente manda
+sobre el documento, pero la salida no fue montar un aurora genérico, que es
+justo el AI-tell contra el que el propio brief avisa. Se derivó del sujeto.
+
+**El campo de luz.** El fondo es un aparejo de iluminación de estudio, con el
+mismo esquema que la metodología prescribe en cada prompt: luz clave cálida,
+relleno suave, luz de contorno fría y grano. El puntero mueve la clave, porque
+mover una luz por un estudio es un gesto real del oficio, y va con un resorte
+sobreamortiguado para que la luz tenga masa en vez de pegarse al cursor. El
+scroll sube la temperatura: arriba la página está fría, del color del material
+sin trabajar, y se calienta hacia el método y el estudio en vivo. Es una capa
+fija con MotionValues, así que no provoca un render de React.
+
+**Los dos materiales.** La página alterna entre el estudio, oscuro, donde se
+miran las imágenes sin que el entorno contamine el juicio de color; y el
+papel, claro, donde el trabajo se imprime y se entrega. No es un modo claro
+pegado encima: es la diferencia entre mirar y llevarse. Van en papel el
+problema, la metodología (los sellos templados sobre caliza leen como un
+certificado, que es lo que son) y los precios (un contrato se imprime).
+
+Está resuelto redefiniendo los mismos tokens semánticos dentro de `.papel`.
+Como `@theme inline` hace que las utilidades resuelvan a `var(--token)` en el
+sitio de uso, poner esa clase en una sección invierte el subárbol entero sin
+tocar un solo componente. Los dos materiales se auditan por separado.
+
+El papel es caliza fría, no crema: crema con serif de alto contraste y
+terracota es la paleta número uno de la que el brief manda huir, y esto no es
+eso.
+
+**La tipografía.** Bodoni Moda. El brief prohibía serif con razón, pero
+prohibía en concreto Fraunces e Instrument Serif, que son las dos que salen
+por defecto. Bodoni no está en ese grupo, y hace algo que ninguna grotesca
+hace: su contraste altísimo cambia de carácter con el material. Sobre papel
+los remates finos casi desaparecen y el texto se lee impreso; sobre el estudio
+oscuro los mismos remates brillan. El peso nunca baja de 500, porque en
+negativo un didone ligero pierde las astas.
+
+---
+
 ## Hallazgos durante la construcción
 
 ### El revelado por máscara no disparaba nunca
@@ -149,6 +193,31 @@ más según el gap y el padding.
 3.55:1 sobre el canvas. Se usaba como color de texto en tres sitios. Ahora va
 solo en icono y borde, donde el piso es 3:1, y el texto va en tinta. El token
 no se tocó: el brief lo fija.
+
+### El audit de contraste estaba mal, y por eso daba luz verde
+
+`luminancia()` linealizaba los canales rojo y verde pero multiplicaba el azul
+en bruto, sin pasarlo por la curva sRGB. Todos los ratios que este proyecto
+reportó antes de esa corrección eran inválidos. Al arreglarlo aparecieron
+cinco pares por debajo del piso que llevaban tiempo pasando por buenos, y hubo
+que ajustar `--slag` en los dos materiales y `--ok` en el papel.
+
+Ahora el script se comprueba a sí mismo antes de medir nada: tres pares de
+ratio conocido, negro sobre blanco a 21:1 entre ellos, y si el medidor falla
+la calibración el proceso se cae. Un audit que no se verifica puede firmar una
+paleta ilegible, que es exactamente lo que pasó.
+
+### El fotograma del hero estaba vacío en la primera pantalla
+
+El `clip-path` de la máscara arrancaba en `inset(100% 0 0 0)`, así que a
+reposo la imagen estaba recortada entera y el fotograma se leía como una caja
+negra. Justo lo contrario de lo que tiene que decir la primera pantalla.
+
+Van dos capas: la de abajo es el material en bruto, muy desenfocado, con grano
+y sin máscara nunca; la de arriba es la pieza formada, y es esa la que la
+máscara descubre de abajo hacia arriba. Además hubo que levantar la exposición
+del material en bruto, porque el bodegón es una foto de estudio oscura y
+desenfocarla 26px la promedia a negro.
 
 ### La ruta de la base de datos hacía que el build trazara todo el proyecto
 

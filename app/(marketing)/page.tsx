@@ -101,7 +101,7 @@ export default function Home() {
       <Marquesina />
 
       {/* 3 · El problema, editorial de dos columnas con filete vertical */}
-      <section aria-labelledby="problema-titulo" className="py-32 lg:py-36">
+      <section aria-labelledby="problema-titulo" className="papel py-32 lg:py-36">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1px_1.1fr] lg:gap-16">
             <RevealLineas
@@ -153,7 +153,7 @@ export default function Home() {
              Fondo hundido: la sección más oscura de la página. */}
       <section
         aria-labelledby="metodologia-titulo"
-        className="border-y border-scale bg-sunk py-32 lg:py-36"
+        className="papel border-y border-scale py-32 lg:py-36"
       >
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
           <RevealLineas
@@ -181,7 +181,7 @@ export default function Home() {
                 <li>
                   <span
                     aria-hidden
-                    className="font-[family-name:var(--font-bricolage)] text-[3.5rem] font-[600] leading-none tracking-[-0.03em] text-slag"
+                    className="font-[family-name:var(--font-display-serif)] text-[3.5rem] font-[500] leading-none tracking-[-0.02em] text-slag"
                   >
                     {i + 1}
                   </span>
