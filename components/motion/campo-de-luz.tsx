@@ -12,6 +12,7 @@ import {
 } from "motion/react";
 import { SPRING } from "@/lib/motion";
 import { usePunteroFino } from "@/components/motion/medios";
+import { PiezaForjada } from "@/components/motion/pieza-forjada";
 
 /**
  * EL CAMPO DE LUZ · el fondo del estudio.
@@ -88,6 +89,11 @@ export function CampoDeLuz() {
 
       {/* Relleno suave: una lámina difusa que evita que las sombras se cierren. */}
       <div className="absolute inset-0 bg-[radial-gradient(80vmax_60vmax_at_50%_120%,rgba(120,132,150,0.10)_0%,transparent_60%)]" />
+
+      {/* La pieza va aquí y no en el layout: entra después de las luces, así
+          que el relleno no la lava, y antes del grano, así que la recibe. Es
+          un objeto del estudio, no una capa encima del estudio. */}
+      <PiezaForjada />
 
       {/* Grano real. Capa fija y sin eventos, como manda el piso de rendimiento. */}
       <div className="grano absolute inset-0 opacity-[0.09]" />

@@ -120,6 +120,49 @@ fuera de alcance, así que esas imágenes todavía no existen. Se resolvió así
   preferible a un mockup con foto de banco que fingiría una funcionalidad no
   conectada.
 
+### La pieza 3D del fondo: malla prestada, material propio
+
+El cliente pidió una animación 3D gratuita, tomada de internet, que se moviera
+con el scroll. La malla es **Cross Pein Hammer** de Poly Haven, **CC0 1.0**
+(dominio público: uso comercial libre, sin atribución obligatoria; se acredita
+igual en `scripts/preparar-pieza3d.mjs` porque no acreditar es de mal gusto,
+no porque la licencia lo exija). Autor: Tics.
+
+**Por qué un martillo de forja y no una escena de catálogo.** El objeto tenía
+que significar algo o sobraba. LandingForge es una forja; el martillo de bola
+cruzada es la herramienta con la que se trabaja el metal caliente. Un casco de
+videojuego o un donut girando habrían sido igual de gratis y no habrían dicho
+nada.
+
+**Qué se descartó del paquete original.** Venían 1,5 MB: 58 KB de malla y
+1,45 MB de texturas JPG. Las texturas se tiraron enteras, y no por peso —eso
+fue la consecuencia agradable— sino por paleta: el mango es madera marrón, y
+en un sistema donde el color significa estado del trabajo, un marrón fotográfico
+no significa nada. La pieza se pinta con un acero de la paleta y su temperatura
+la escribe el scroll: fría arriba, incandescente en el método, templada al
+cerrar. Es la misma curva del campo de luz.
+
+**Por qué three.js a pelo y no react-three-fiber.** El componente hace una
+sola cosa: cargar una malla, mover dos grupos y pintar. R3F habría añadido un
+reconciliador y un árbol de React para un objeto que no tiene estado y que a
+propósito no toca React ni una vez por frame. Se paga peso y superficie de
+fallo a cambio de nada.
+
+**Lo que costó una segunda mirada.** La primera versión salía a escala real,
+con emisivo alto y el mapa de entorno saturado: un martillo azul y cobre del
+tamaño de la pantalla, cruzando por delante del titular. Eso no es un fondo,
+es un competidor. La corrección fue toda en la misma dirección —30 % del alto
+del viewport, opacidad 0,5, emisivo un tercio, entorno a la mitad— y en
+vertical se retira más todavía (72 % del tamaño y opacidad 0,3), porque en un
+teléfono el texto ocupa el ancho entero y la pieza no tiene por dónde pasar
+sin cruzarlo. El teléfono es donde se lee y donde se compra.
+
+**Lo que no hace.** No se monta con movimiento reducido, ni sin WebGL, ni si
+el `.gltf` no carga; en los tres casos queda el campo de luz, que ya era un
+fondo completo. `three` entra por `import()` en tiempo ocioso, así que no pesa
+en el bundle inicial ni compite con el LCP, y el bucle se apaga solo con la
+pestaña oculta y ~1,5 s después de que el scroll se detenga.
+
 ---
 
 ## Los dos materiales, y por qué el fondo dejó de ser negro
