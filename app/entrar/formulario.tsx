@@ -52,7 +52,7 @@ export function FormularioEntrada() {
       <h1 className="display-md">
         {modo === "entrar" ? "Entra a tu cuenta" : "Crea tu cuenta"}
       </h1>
-      <p className="mt-3 cuerpo text-mid">
+      <p className="mt-3 cuerpo text-smoke">
         {modo === "entrar"
           ? "Tus campañas te esperan donde las dejaste."
           : `Empiezas con ${CREDITOS_BIENVENIDA} créditos gratis. No pedimos tarjeta.`}
@@ -89,7 +89,7 @@ export function FormularioEntrada() {
 
         <Boton
           type="submit"
-          variante="primario"
+          variante="heat"
           tamano="lg"
           cargando={enviando}
           textoCargando={modo === "entrar" ? "Entrando…" : "Creando la cuenta…"}
@@ -98,7 +98,7 @@ export function FormularioEntrada() {
         </Boton>
       </form>
 
-      <p className="mt-6 cuerpo text-mid">
+      <p className="mt-6 cuerpo text-smoke">
         {modo === "entrar" ? "¿Todavía no tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
         <button
           type="button"
@@ -107,8 +107,8 @@ export function FormularioEntrada() {
             setError(null);
           }}
           className={cn(
-            "text-hi underline underline-offset-[0.2em] decoration-1",
-            "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-[var(--key)]",
+            "text-ash underline underline-offset-[0.2em] decoration-1",
+            "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-[var(--heat)]",
           )}
         >
           {modo === "entrar" ? "Créala aquí" : "Entra aquí"}

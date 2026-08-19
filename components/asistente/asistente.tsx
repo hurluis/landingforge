@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { MessageSquare, X, ArrowUp } from "lucide-react";
+import { ChatCircle, X, ArrowUp } from "@phosphor-icons/react/dist/ssr";
 import type { Mensaje } from "@/lib/datos/tipos";
 import { cn } from "@/lib/utils";
 
@@ -97,13 +97,13 @@ export function Asistente() {
           aria-label="Abrir el asistente de LandingForge"
           className={cn(
             "fixed bottom-6 right-6 z-40 grid size-12 place-items-center rounded-full",
-            "bg-[var(--surface-2)] text-mid border border-[var(--line)] shadow-elev-1",
+            "bg-[var(--anvil-hi)] text-smoke border border-[var(--scale)] shadow-elev-1",
             "transition-[border-color,color,transform] duration-[140ms] ease-[var(--ease-out)]",
-            "hf:border-[var(--key)] hf:text-hi active:scale-[0.97]",
+            "hf:border-[var(--heat)] hf:text-ash active:scale-[0.97]",
             "data-[state=open]:opacity-0 data-[state=open]:pointer-events-none",
           )}
         >
-          <MessageSquare strokeWidth={1.5} className="size-5" />
+          <ChatCircle  className="size-5" />
         </button>
       </RadixDialog.Trigger>
 
@@ -115,7 +115,7 @@ export function Asistente() {
             entradaRef.current?.focus();
           }}
           className={cn(
-            "fixed z-50 flex flex-col bg-[var(--surface-2)] shadow-elev-2",
+            "fixed z-50 flex flex-col bg-[var(--anvil-hi)] shadow-elev-2",
             // Móvil: hoja a pantalla completa que sube desde abajo.
             "inset-x-0 bottom-0 top-0 rounded-none",
             "data-[state=open]:animate-[hoja-entra_320ms_var(--ease-drawer)]",
@@ -127,18 +127,18 @@ export function Asistente() {
             "sm:data-[state=closed]:animate-[menu-sale_150ms_var(--ease-out)]",
           )}
         >
-          <header className="flex items-center justify-between gap-4 border-b border-[var(--line)] px-4 py-3">
-            <RadixDialog.Title className="etiqueta text-hi">
+          <header className="flex items-center justify-between gap-4 border-b border-[var(--scale)] px-4 py-3">
+            <RadixDialog.Title className="etiqueta text-ash">
               Asistente LandingForge
             </RadixDialog.Title>
             <RadixDialog.Close
               aria-label="Cerrar el asistente"
               className={cn(
-                "grid size-8 place-items-center rounded-[8px] text-mid",
-                "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
+                "grid size-8 place-items-center rounded-[8px] text-smoke",
+                "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
               )}
             >
-              <X strokeWidth={1.5} className="size-4" />
+              <X className="size-4" />
             </RadixDialog.Close>
           </header>
 
@@ -147,7 +147,7 @@ export function Asistente() {
             aria-live="polite"
             aria-atomic="false"
           >
-            <p className="cuerpo text-mid">{SALUDO}</p>
+            <p className="cuerpo text-smoke">{SALUDO}</p>
 
             {mensajes.length === 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -157,9 +157,9 @@ export function Asistente() {
                     type="button"
                     onClick={() => enviar(s)}
                     className={cn(
-                      "rounded-full border border-[var(--line)] px-3 h-8 text-[0.8125rem] text-mid",
+                      "rounded-full border border-[var(--scale)] px-3 h-8 text-[0.8125rem] text-smoke",
                       "transition-[border-color,color,transform] duration-[140ms] ease-[var(--ease-out)]",
-                      "hf:border-[var(--line-strong)] hf:text-hi active:scale-[0.97]",
+                      "hf:border-[var(--scale-hi)] hf:text-ash active:scale-[0.97]",
                     )}
                   >
                     {s}
@@ -175,15 +175,15 @@ export function Asistente() {
                   className={cn(
                     "cuerpo",
                     m.rol === "usuario"
-                      ? "self-end max-w-[85%] rounded-[12px] bg-[var(--surface-1)] px-3 py-2 text-hi"
-                      : "text-mid whitespace-pre-wrap",
+                      ? "self-end max-w-[85%] rounded-[12px] bg-[var(--anvil)] px-3 py-2 text-ash"
+                      : "text-smoke whitespace-pre-wrap",
                   )}
                 >
                   {m.texto ||
                     (escribiendo && i === mensajes.length - 1 ? (
                       <span
                         aria-label="Escribiendo"
-                        className="barrido-rim inline-block h-4 w-24 rounded-[4px] bg-[var(--surface-1)]"
+                        className="barrido-calor inline-block h-4 w-24 rounded-[4px] bg-[var(--anvil)]"
                       />
                     ) : null)}
                 </li>
@@ -204,10 +204,10 @@ export function Asistente() {
               e.preventDefault();
               enviar(borrador);
             }}
-            className="border-t border-[var(--line)] p-3"
+            className="border-t border-[var(--scale)] p-3"
           >
             {agotado ? (
-              <p className="cuerpo text-mid px-1 py-2">
+              <p className="cuerpo text-smoke px-1 py-2">
                 Esta conversación llegó a su límite de {LIMITE_MENSAJES} mensajes. Recarga la
                 página para empezar otra.
               </p>
@@ -232,10 +232,10 @@ export function Asistente() {
                   maxLength={1000}
                   className={cn(
                     "min-h-10 max-h-32 flex-1 resize-none rounded-[10px] px-3 py-2",
-                    "bg-[var(--surface-1)] text-hi text-[0.9375rem] placeholder:text-lo",
-                    "border border-[var(--line)]",
+                    "bg-[var(--anvil)] text-ash text-[0.9375rem] placeholder:text-slag",
+                    "border border-[var(--scale)]",
                     "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                    "focus:border-[var(--line-strong)]",
+                    "focus:border-[var(--scale-hi)]",
                   )}
                 />
                 <button
@@ -244,13 +244,13 @@ export function Asistente() {
                   aria-label="Enviar pregunta"
                   className={cn(
                     "grid size-10 shrink-0 place-items-center rounded-[10px]",
-                    "bg-[var(--surface-1)] text-hi border border-[var(--line)]",
+                    "bg-[var(--anvil)] text-ash border border-[var(--scale)]",
                     "transition-[border-color,background-color,transform] duration-[140ms] ease-[var(--ease-out)]",
-                    "hf:border-[var(--key)] active:scale-[0.97]",
+                    "hf:border-[var(--heat)] active:scale-[0.97]",
                     "disabled:opacity-40 disabled:pointer-events-none",
                   )}
                 >
-                  <ArrowUp strokeWidth={1.5} className="size-4" />
+                  <ArrowUp className="size-4" />
                 </button>
               </div>
             )}

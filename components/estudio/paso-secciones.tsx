@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check } from "@phosphor-icons/react/dist/ssr";
 import type { TipologiaSeccion } from "@/lib/datos/tipos";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
 import { Lamina } from "@/components/marketing/lamina";
@@ -33,7 +33,7 @@ export function PasoSecciones({
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="cuerpo text-mid medida">
+      <p className="cuerpo text-smoke medida">
         Vienen marcadas las cuatro de mayor impacto. Cada sección consume un crédito.
       </p>
 
@@ -53,26 +53,26 @@ export function PasoSecciones({
               >
                 <span
                   className={cn(
-                    "relative block aspect-[9/16] overflow-hidden rounded-[12px] bg-[var(--surface-sunk)]",
+                    "relative block aspect-[9/16] overflow-hidden rounded-[12px] bg-[var(--sunk)]",
                     "transition-opacity duration-[200ms] ease-[var(--ease-out)]",
                     elegida
-                      ? "borde-metal opacity-100"
-                      : "border border-[var(--line)] opacity-55 hf:opacity-80",
+                      ? "borde-templado opacity-100"
+                      : "border border-[var(--scale)] opacity-55 hf:opacity-80",
                   )}
                 >
                   <Lamina tipologia={t.id} paleta={paleta} />
                   {elegida && (
-                    <span className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-[var(--key)] text-[#17120A]">
-                      <Check strokeWidth={2} className="size-3" />
+                    <span className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-[var(--heat)] text-[#17120A]">
+                      <Check weight="bold" className="size-3" />
                     </span>
                   )}
                 </span>
                 <span className="mt-2 flex items-baseline gap-1.5">
-                  <span className="mono-sm text-lo">{String(t.numero).padStart(2, "0")}</span>
+                  <span className="mono-sm text-slag">{String(t.numero).padStart(2, "0")}</span>
                   <span
                     className={cn(
                       "etiqueta transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                      elegida ? "text-hi" : "text-lo",
+                      elegida ? "text-ash" : "text-slag",
                     )}
                   >
                     {t.nombre}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { TipologiaSeccion, Usuario } from "@/lib/datos/tipos";
 import { nombreTipologia } from "@/lib/metodologia/tipologias";
@@ -17,7 +17,7 @@ import { CLAVE_ALMACEN, ESTADO_INICIAL, pasoCompleto, type EstadoEstudio } from 
 /**
  * F1 — Estudio de prompts (§7.1).
  *
- * Un paso por pantalla, barra de progreso superior de 2px en --key. El paso
+ * Un paso por pantalla, barra de progreso superior de 2px en --heat. El paso
  * vive en la URL (?paso=2) y el resto del estado en sessionStorage, así que
  * recargar no borra nada y volver atrás no pierde datos.
  *
@@ -196,22 +196,22 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      {/* Barra de progreso de 2px en --key. */}
+      {/* Barra de progreso de 2px en --heat. */}
       <div
         aria-hidden
-        className="sticky top-0 z-10 h-0.5 w-full bg-[var(--line)]"
+        className="sticky top-0 z-10 h-0.5 w-full bg-[var(--scale)]"
       >
         <span
           style={{ width: `${(paso / 4) * 100}%` }}
-          className="block h-full bg-[var(--key)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
+          className="block h-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
         />
       </div>
 
       <div className="mx-auto w-full max-w-[900px] flex-1 px-4 py-8 pt-20 sm:px-8 lg:pt-10">
         <header className="mb-10">
-          <p className="mono-sm text-lo">paso {paso} de 4</p>
+          <p className="mono-sm text-slag">paso {paso} de 4</p>
           <h1 className="display-md mt-2">{TITULOS[paso - 1].titulo}</h1>
-          <p className="mt-2 cuerpo text-mid">{TITULOS[paso - 1].sub}</p>
+          <p className="mt-2 cuerpo text-smoke">{TITULOS[paso - 1].sub}</p>
         </header>
 
         {paso === 1 && <PasoProducto estado={estado} cambiar={cambiar} />}
@@ -223,31 +223,31 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
       {/* En móvil los botones de avance quedan fijos abajo (§13). */}
       <div
         className={cn(
-          "sticky bottom-0 border-t border-[var(--line)] bg-[var(--canvas)]",
+          "sticky bottom-0 border-t border-[var(--scale)] bg-[var(--void)]",
           "lg:static lg:border-0 lg:bg-transparent",
         )}
       >
         <div className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-8">
           {paso > 1 ? (
             <Boton variante="fantasma" onClick={() => irA(paso - 1)}>
-              <ArrowLeft strokeWidth={1.5} /> Atrás
+              <ArrowLeft /> Atrás
             </Boton>
           ) : (
             <span />
           )}
 
           {paso < 4 ? (
-            <Boton variante="primario" disabled={!completo} onClick={() => irA(paso + 1)}>
+            <Boton variante="heat" disabled={!completo} onClick={() => irA(paso + 1)}>
               Continuar
             </Boton>
           ) : (
             <div className="flex items-center gap-4">
-              <span className="mono-sm text-lo">
+              <span className="mono-sm text-slag">
                 {costo} {costo === 1 ? "sección" : "secciones"} · {costo}{" "}
                 {costo === 1 ? "crédito" : "créditos"}
               </span>
               <Boton
-                variante="primario"
+                variante="heat"
                 disabled={costo === 0 || faltan > 0}
                 onClick={generar}
               >
@@ -267,13 +267,13 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 function EsqueletoWizard() {
   return (
     <div className="mx-auto w-full max-w-[900px] px-4 py-8 pt-20 sm:px-8 lg:pt-10">
-      <div className="h-4 w-24 rounded-full bg-[var(--surface-1)]" />
-      <div className="mt-4 h-8 w-56 rounded-[8px] bg-[var(--surface-1)]" />
+      <div className="h-4 w-24 rounded-full bg-[var(--anvil)]" />
+      <div className="mt-4 h-8 w-56 rounded-[8px] bg-[var(--anvil)]" />
       <div className="mt-10 grid gap-8 md:grid-cols-[280px_1fr]">
-        <div className="aspect-[9/16] rounded-[12px] bg-[var(--surface-1)]" />
+        <div className="aspect-[9/16] rounded-[12px] bg-[var(--anvil)]" />
         <div className="flex flex-col gap-5">
-          <div className="h-10 rounded-[10px] bg-[var(--surface-1)]" />
-          <div className="h-24 rounded-[10px] bg-[var(--surface-1)]" />
+          <div className="h-10 rounded-[10px] bg-[var(--anvil)]" />
+          <div className="h-24 rounded-[10px] bg-[var(--anvil)]" />
         </div>
       </div>
     </div>
@@ -291,7 +291,7 @@ function PantallaGenerando({
   return (
     <div className="mx-auto w-full max-w-[560px] px-4 py-24 sm:px-8">
       <h1 className="display-md">Construyendo la campaña</h1>
-      <p className="mt-2 cuerpo text-mid">
+      <p className="mt-2 cuerpo text-smoke">
         Cada sección se valida contra las siete reglas antes de guardarse.
       </p>
 
@@ -305,17 +305,17 @@ function PantallaGenerando({
               key={s}
               className={cn(
                 "flex items-center justify-between gap-4 rounded-[10px] px-4 h-12",
-                "border border-[var(--line)]",
-                activa && "barrido-rim",
+                "border border-[var(--scale)]",
+                activa && "barrido-calor",
               )}
             >
-              <span className={cn("cuerpo", hecha || activa ? "text-hi" : "text-lo")}>
+              <span className={cn("cuerpo", hecha || activa ? "text-ash" : "text-slag")}>
                 {activa ? `Construyendo ${nombreTipologia(s)}…` : nombreTipologia(s)}
               </span>
               <span className="mono-sm">
                 {hecha && <span className="text-[var(--ok)]">lista</span>}
                 {fallida && <span className="text-[var(--danger)]">falló · crédito devuelto</span>}
-                {!hecha && !fallida && !activa && <span className="text-lo">en cola</span>}
+                {!hecha && !fallida && !activa && <span className="text-slag">en cola</span>}
               </span>
             </li>
           );

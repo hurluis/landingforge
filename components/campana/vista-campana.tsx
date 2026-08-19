@@ -2,15 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  Check,
-  Copy,
-  Download,
-  ImageOff,
-  Paperclip,
-  RotateCw,
-  Save,
-} from "lucide-react";
+import { Check, Copy, DownloadSimple, ImageBroken, Paperclip, ArrowsClockwise, FloppyDisk } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { Campana, TipologiaSeccion } from "@/lib/datos/tipos";
 import { TIPOLOGIAS, nombreTipologia } from "@/lib/metodologia/tipologias";
@@ -150,7 +142,7 @@ export function VistaCampana({
   return (
     <div className="flex min-h-dvh flex-col">
       {/* ---- Cabecera: nombre editable y paleta con hex copiables ---- */}
-      <header className="border-b border-[var(--line)] px-4 py-6 pt-20 sm:px-8 lg:pt-6">
+      <header className="border-b border-[var(--scale)] px-4 py-6 pt-20 sm:px-8 lg:pt-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <label htmlFor="nombre-campana" className="sr-only">
@@ -169,21 +161,21 @@ export function VistaCampana({
                 "display-md w-full max-w-[28ch] rounded-[8px] bg-transparent px-2 -mx-2",
                 "border border-transparent",
                 "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                "hf:border-[var(--line)] focus:border-[var(--line-strong)] focus:bg-[var(--surface-1)]",
+                "hf:border-[var(--scale)] focus:border-[var(--scale-hi)] focus:bg-[var(--anvil)]",
               )}
             />
-            <p className="mt-2 cuerpo text-mid">
+            <p className="mt-2 cuerpo text-smoke">
               {campana.prompts.length} de {pedidas.length} secciones ·{" "}
               <span className="mono-sm">{campana.paleta.nombre}</span>
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Boton variante="secundario" tamano="sm" onClick={() => exportar("md")}>
-              <Download strokeWidth={1.5} /> .md
+            <Boton variante="contorno" tamano="sm" onClick={() => exportar("md")}>
+              <DownloadSimple  /> .md
             </Boton>
-            <Boton variante="secundario" tamano="sm" onClick={() => exportar("json")}>
-              <Download strokeWidth={1.5} /> .json
+            <Boton variante="contorno" tamano="sm" onClick={() => exportar("json")}>
+              <DownloadSimple  /> .json
             </Boton>
           </div>
         </div>
@@ -196,19 +188,19 @@ export function VistaCampana({
                 type="button"
                 onClick={() => copiar(s.hex, s.hex)}
                 className={cn(
-                  "flex items-center gap-2 rounded-full border border-[var(--line)] pl-1.5 pr-3 h-8",
+                  "flex items-center gap-2 rounded-full border border-[var(--scale)] pl-1.5 pr-3 h-8",
                   "transition-[border-color,transform] duration-[140ms] ease-[var(--ease-out)]",
-                  "hf:border-[var(--line-strong)] active:scale-[0.97]",
+                  "hf:border-[var(--scale-hi)] active:scale-[0.97]",
                 )}
               >
                 <span
                   aria-hidden
                   style={{ background: s.hex }}
-                  className="size-5 rounded-full border border-[var(--line)]"
+                  className="size-5 rounded-full border border-[var(--scale)]"
                 />
-                <span className="mono-sm text-mid">{s.hex}</span>
+                <span className="mono-sm text-smoke">{s.hex}</span>
                 {copiado === s.hex && (
-                  <Check strokeWidth={1.5} className="size-3.5 text-[var(--ok)]" />
+                  <Check className="size-3.5 text-[var(--ok)]" />
                 )}
               </button>
             </li>
@@ -216,8 +208,8 @@ export function VistaCampana({
         </ul>
 
         {campana.seccionesFallidas.length > 0 && (
-          <p className="mt-4 flex flex-wrap items-center gap-2 cuerpo text-[var(--warn)]">
-            <RotateCw strokeWidth={1.5} className="size-4" />
+          <p className="mt-4 flex flex-wrap items-center gap-2 cuerpo text-ash">
+            <ArrowsClockwise  className="size-4" />
             {campana.seccionesFallidas.length}{" "}
             {campana.seccionesFallidas.length === 1 ? "sección falló" : "secciones fallaron"} y
             sus créditos volvieron a tu cuenta. Puedes generarlas de nuevo desde una campaña
@@ -227,7 +219,7 @@ export function VistaCampana({
       </header>
 
       {/* Pestañas en móvil. */}
-      <div className="flex gap-1 border-b border-[var(--line)] px-4 lg:hidden">
+      <div className="flex gap-1 border-b border-[var(--scale)] px-4 lg:hidden">
         {(["secciones", "prompt"] as const).map((p) => (
           <button
             key={p}
@@ -237,12 +229,12 @@ export function VistaCampana({
             className={cn(
               "relative px-4 py-3 etiqueta capitalize",
               "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-              panel === p ? "text-hi" : "text-lo",
+              panel === p ? "text-ash" : "text-slag",
             )}
           >
             {p}
             {panel === p && (
-              <span aria-hidden className="absolute inset-x-2 bottom-0 h-0.5 bg-[var(--key)]" />
+              <span aria-hidden className="absolute inset-x-2 bottom-0 h-0.5 bg-[var(--heat)]" />
             )}
           </button>
         ))}
@@ -253,7 +245,7 @@ export function VistaCampana({
         <nav
           aria-label="Secciones de la campaña"
           className={cn(
-            "border-[var(--line)] p-3 lg:border-r",
+            "border-[var(--scale)] p-3 lg:border-r",
             panel === "secciones" ? "block" : "hidden lg:block",
           )}
         >
@@ -276,13 +268,13 @@ export function VistaCampana({
                       "flex w-full items-center justify-between gap-3 rounded-[10px] px-3 h-12 text-left",
                       "transition-colors duration-[140ms] ease-[var(--ease-out)]",
                       seleccionada
-                        ? "bg-[var(--surface-2)] text-hi"
-                        : "text-mid hf:bg-[var(--surface-1)] hf:text-hi",
+                        ? "bg-[var(--anvil-hi)] text-ash"
+                        : "text-smoke hf:bg-[var(--anvil)] hf:text-ash",
                       fallida && "opacity-50 cursor-not-allowed",
                     )}
                   >
                     <span className="flex items-baseline gap-2 min-w-0">
-                      <span className="mono-sm text-mid">
+                      <span className="mono-sm text-smoke">
                         {String(t.numero).padStart(2, "0")}
                       </span>
                       <span className="etiqueta truncate">{t.nombre}</span>
@@ -315,31 +307,31 @@ export function VistaCampana({
                 <div className="flex flex-wrap items-center gap-2">
                   {prompt.requiereImagenReferencia && (
                     <Badge tono="maquina">
-                      <Paperclip strokeWidth={1.5} className="size-3" />
+                      <Paperclip className="size-3" />
                       adjunta la foto del producto
                     </Badge>
                   )}
                   <Boton
-                    variante="secundario"
+                    variante="contorno"
                     tamano="sm"
                     onClick={() => copiar(texto, "Prompt")}
                   >
                     {copiado === "Prompt" ? (
-                      <Check strokeWidth={1.5} className="text-[var(--ok)]" />
+                      <Check className="text-[var(--ok)]" />
                     ) : (
-                      <Copy strokeWidth={1.5} />
+                      <Copy />
                     )}
                     Copiar
                   </Boton>
                   <Boton
-                    variante={sucio ? "primario" : "secundario"}
+                    variante={sucio ? "heat" : "contorno"}
                     tamano="sm"
                     disabled={!sucio}
                     cargando={guardando}
                     textoCargando="Guardando…"
                     onClick={guardar}
                   >
-                    <Save strokeWidth={1.5} />
+                    <FloppyDisk  />
                     {sucio ? "Guardar cambios" : "Guardado"}
                   </Boton>
                 </div>
@@ -357,11 +349,11 @@ export function VistaCampana({
                 spellCheck={false}
                 className={cn(
                   "min-h-[380px] w-full flex-1 resize-y rounded-[12px] p-4",
-                  "bg-[var(--surface-sunk)] text-mid",
+                  "bg-[var(--sunk)] text-smoke",
                   "font-[family-name:var(--font-geist-mono)] text-[0.8125rem] leading-relaxed",
-                  "border border-[var(--line)]",
+                  "border border-[var(--scale)]",
                   "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                  "focus:border-[var(--line-strong)]",
+                  "focus:border-[var(--scale-hi)]",
                 )}
               />
 
@@ -371,13 +363,13 @@ export function VistaCampana({
               />
 
               {/* F4: interfaz construida, deshabilitada tras bandera (§7). */}
-              <div className="flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-6">
-                <Boton variante="secundario" disabled={!generacionImagenesActiva}>
-                  <ImageOff strokeWidth={1.5} />
+              <div className="flex flex-wrap items-center gap-3 border-t border-[var(--scale)] pt-6">
+                <Boton variante="contorno" disabled={!generacionImagenesActiva}>
+                  <ImageBroken  />
                   Generar la imagen
                 </Boton>
                 {!generacionImagenesActiva && (
-                  <p className="cuerpo text-lo max-w-[52ch]">
+                  <p className="cuerpo text-slag max-w-[52ch]">
                     La generación de imágenes todavía no está conectada en esta versión. El
                     prompt ya está listo: cópialo y córrelo donde quieras.
                   </p>
@@ -387,7 +379,7 @@ export function VistaCampana({
           ) : (
             <div className="m-auto max-w-[40ch] text-center">
               <h2 className="display-md">Esta campaña no tiene prompts</h2>
-              <p className="mt-3 cuerpo text-mid">
+              <p className="mt-3 cuerpo text-smoke">
                 Todas las secciones fallaron y sus créditos volvieron a tu cuenta. Vuelve a
                 intentarlo desde una campaña nueva.
               </p>

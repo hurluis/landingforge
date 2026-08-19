@@ -59,7 +59,7 @@ function CampoPrecio({
           alCambiar(n);
         }}
         placeholder="$99.900"
-        className="h-10 w-full rounded-[10px] border border-[var(--line)] bg-[var(--surface-1)] px-3 font-[family-name:var(--font-geist-mono)] text-[0.9375rem] tabular-nums text-hi placeholder:text-lo transition-colors duration-[140ms] ease-[var(--ease-out)] focus:border-[var(--line-strong)] hf:border-[var(--line-strong)]"
+        className="h-10 w-full rounded-[10px] border border-[var(--scale)] bg-[var(--anvil)] px-3 font-[family-name:var(--font-geist-mono)] text-[0.9375rem] tabular-nums text-ash placeholder:text-slag transition-colors duration-[140ms] ease-[var(--ease-out)] focus:border-[var(--scale-hi)] hf:border-[var(--scale-hi)]"
       />
     </Envoltorio>
   );
@@ -78,7 +78,7 @@ export function PasoMercado({
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-2">
-        <label htmlFor="tipo" className="etiqueta text-mid">
+        <label htmlFor="tipo" className="etiqueta text-smoke">
           Tipo de producto
         </label>
         <Select
@@ -96,13 +96,13 @@ export function PasoMercado({
             ))}
           </SelectContent>
         </Select>
-        <p className="text-[0.8125rem] text-lo">
+        <p className="text-[0.8125rem] text-slag">
           Es la primera dimensión de la matriz que asigna tu paleta.
         </p>
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="etiqueta text-mid mb-2">Audiencia</legend>
+        <legend className="etiqueta text-smoke mb-2">Audiencia</legend>
         <div className="flex flex-wrap gap-2">
           {GENEROS.map((g) => (
             <Chip

@@ -33,7 +33,7 @@ export function KitInteractivo() {
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Escribe algo"
-          ayuda="El texto de ayuda vive debajo, en --text-lo."
+          ayuda="El texto de ayuda vive debajo, en --slag."
         />
         <Campo
           id="kit-error"
@@ -54,7 +54,7 @@ export function KitInteractivo() {
 
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-2">
-          <span className="etiqueta text-mid">Select</span>
+          <span className="etiqueta text-smoke">Select</span>
           <Select defaultValue="hero">
             <SelectTrigger aria-label="Tipología">
               <SelectValue />
@@ -66,13 +66,13 @@ export function KitInteractivo() {
               <SelectItem value="testimonios">Testimonios</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-[0.8125rem] text-lo">
+          <span className="text-[0.8125rem] text-slag">
             Escala desde el disparador, no desde el centro.
           </span>
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="etiqueta text-mid">Chips</span>
+          <span className="etiqueta text-smoke">Chips</span>
           <div className="flex flex-wrap gap-2">
             {["uno", "dos", "tres"].map((c) => (
               <Chip key={c} activo={chip === c} onClick={() => setChip(c)}>
@@ -83,7 +83,7 @@ export function KitInteractivo() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="etiqueta text-mid">Diálogo</span>
+          <span className="etiqueta text-smoke">Diálogo</span>
           <Dialogo>
             <DialogoDisparador asChild>
               <Boton variante="peligro" className="self-start">
@@ -96,7 +96,7 @@ export function KitInteractivo() {
             >
               <div className="flex justify-end gap-2">
                 <DialogoCierre asChild>
-                  <Boton variante="secundario">Conservar</Boton>
+                  <Boton variante="contorno">Conservar</Boton>
                 </DialogoCierre>
                 <DialogoCierre asChild>
                   <Boton variante="peligro">Eliminar la campaña</Boton>
@@ -104,7 +104,7 @@ export function KitInteractivo() {
               </div>
             </DialogoContenido>
           </Dialogo>
-          <span className="text-[0.8125rem] text-lo">
+          <span className="text-[0.8125rem] text-slag">
             El único modal del producto: destructivo y con foco protegido.
           </span>
         </div>

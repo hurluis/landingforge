@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { ImageUp, X } from "lucide-react";
+import { ImageSquare, X } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import { Campo, AreaTexto } from "@/components/ui/campo";
 import { cn } from "@/lib/utils";
@@ -75,9 +75,9 @@ export function PasoProducto({
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* Zona de carga */}
         <div className="flex flex-col gap-2">
-          <span className="etiqueta text-mid">Foto del producto</span>
+          <span className="etiqueta text-smoke">Foto del producto</span>
           {estado.imagenUrl ? (
-            <div className="relative aspect-[9/16] overflow-hidden rounded-[12px] border border-[var(--line)] bg-[var(--surface-sunk)]">
+            <div className="relative aspect-[9/16] overflow-hidden rounded-[12px] border border-[var(--scale)] bg-[var(--sunk)]">
               <Image
                 src={estado.imagenUrl}
                 alt="Vista previa de la foto de tu producto"
@@ -92,11 +92,11 @@ export function PasoProducto({
                 aria-label="Quitar la foto"
                 className={cn(
                   "absolute right-2 top-2 grid size-8 place-items-center rounded-[8px]",
-                  "bg-[var(--surface-2)] text-mid border border-[var(--line)]",
-                  "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
+                  "bg-[var(--anvil-hi)] text-smoke border border-[var(--scale)]",
+                  "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
                 )}
               >
-                <X strokeWidth={1.5} className="size-4" />
+                <X className="size-4" />
               </button>
             </div>
           ) : (
@@ -115,19 +115,19 @@ export function PasoProducto({
               }}
               className={cn(
                 "flex aspect-[9/16] flex-col items-center justify-center gap-3 rounded-[12px] p-6 text-center",
-                "border border-dashed bg-[var(--surface-1)]",
+                "border border-dashed bg-[var(--anvil)]",
                 "transition-[border-color,background-color] duration-[140ms] ease-[var(--ease-out)]",
                 arrastrando
-                  ? "border-[var(--key)] bg-[var(--surface-2)]"
-                  : "border-[var(--line-strong)] hf:border-[var(--key)]",
-                procesando && "barrido-rim",
+                  ? "border-[var(--heat)] bg-[var(--anvil-hi)]"
+                  : "border-[var(--scale-hi)] hf:border-[var(--heat)]",
+                procesando && "barrido-calor",
               )}
             >
-              <ImageUp strokeWidth={1.5} className="size-6 text-lo" />
-              <span className="cuerpo text-mid">
+              <ImageSquare  className="size-6 text-slag" />
+              <span className="cuerpo text-smoke">
                 {procesando ? "Procesando la imagen…" : "Arrastra la foto o haz clic"}
               </span>
-              <span className="mono-sm text-lo">JPG · PNG · WebP · hasta 8MB</span>
+              <span className="mono-sm text-slag">JPG · PNG · WebP · hasta 8MB</span>
             </button>
           )}
           <input
@@ -159,7 +159,7 @@ export function PasoProducto({
             ayuda="Una o dos líneas. Se usa para describir el sujeto en cada prompt."
             opcional={Boolean(estado.imagenUrl)}
           />
-          <p className="mono-sm text-lo">
+          <p className="mono-sm text-slag">
             Se requiere la foto o la descripción. Con las dos, las piezas salen más fieles.
           </p>
         </div>

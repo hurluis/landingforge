@@ -11,12 +11,12 @@ import { contarCaracteres } from "@/lib/formato";
  */
 
 const SUPERFICIE = [
-  "w-full bg-[var(--surface-1)] text-hi",
-  "border border-[var(--line)] rounded-[10px]",
-  "placeholder:text-lo",
+  "w-full bg-[var(--anvil)] text-ash",
+  "border border-[var(--scale)] rounded-[10px]",
+  "placeholder:text-slag",
   "transition-[border-color,background-color] duration-[140ms] ease-[var(--ease-out)]",
-  "hf:border-[var(--line-strong)]",
-  "focus:border-[var(--line-strong)]",
+  "hf:border-[var(--scale-hi)]",
+  "focus:border-[var(--scale-hi)]",
   "disabled:opacity-40 disabled:cursor-not-allowed",
   "aria-[invalid=true]:border-[var(--danger)]",
 ].join(" ");
@@ -44,15 +44,15 @@ export function Envoltorio({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-4">
-        <label htmlFor={id} className="etiqueta text-mid">
+        <label htmlFor={id} className="etiqueta text-smoke">
           {etiqueta}
-          {opcional && <span className="text-lo"> · opcional</span>}
+          {opcional && <span className="text-slag"> · opcional</span>}
         </label>
-        {contador && <span className="mono-sm text-lo tabular-nums">{contador}</span>}
+        {contador && <span className="mono-sm text-slag tabular-nums">{contador}</span>}
       </div>
       {children}
       {ayuda && !error && (
-        <p id={`${id}-ayuda`} className="text-[0.8125rem] text-lo">
+        <p id={`${id}-ayuda`} className="text-[0.8125rem] text-slag">
           {ayuda}
         </p>
       )}

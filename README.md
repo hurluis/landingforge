@@ -5,7 +5,7 @@ landing page de e-commerce: paleta de marca asignada por matriz, copy de convers
 prompts validados de hasta nueve secciones de arte.
 
 El motor no es «una IA que hace imágenes bonitas». El motor es una **metodología de
-ingeniería de prompts** —estructurada, versionada y probada en el mercado colombiano— que
+ingeniería de prompts** , estructurada, versionada y probada en el mercado colombiano, que
 se ejecuta sobre un modelo generativo intercambiable. El modelo se puede cambiar. La
 metodología es el activo.
 
@@ -38,7 +38,7 @@ Rutas útiles:
 | `/precios` | Planes y la letra pequeña, en grande |
 | `/kit` | Página interna del sistema de diseño: todas las primitivas en todos sus estados |
 | `/app` | Biblioteca de campañas (requiere sesión) |
-| `/app/nueva` | El Estudio — wizard de cuatro pasos |
+| `/app/nueva` | El Estudio, wizard de cuatro pasos |
 
 ---
 
@@ -53,6 +53,7 @@ Rutas útiles:
 | `npm run verificar:clave` | Compila con una clave centinela y comprueba que no aparece en el bundle del cliente |
 | `npm run verificar:contraste` | Audita los pares de color reales contra el piso de WCAG |
 | `npm run assets` | Regenera las texturas y el bodegón de producto |
+| `npm run mirar` | Levanta Chromium, recorre la home y guarda fotogramas en `.capturas/` |
 
 `npm run e2e` necesita el servidor levantado en otra terminal.
 
@@ -65,7 +66,7 @@ Rutas útiles:
 | **F1** | Estudio de prompts: wizard de 4 pasos, generación en streaming, validador de 7 reglas | Funcional completa |
 | **F2** | Cuenta, biblioteca con CRUD, créditos transaccionales | Funcional completa |
 | **F3** | Asistente acotado al dominio, en streaming, con guardarraíles | Funcional completa |
-| F4 | Generación de imágenes | Fuera de alcance — interfaz construida, tras bandera de entorno |
+| F4 | Generación de imágenes | Fuera de alcance: interfaz construida, tras bandera de entorno |
 | F5 | Exportación de landing HTML | Backlog |
 | F6 | Pasarela de pago | Simulada, y la pantalla lo declara |
 
@@ -85,10 +86,12 @@ app/
   entrar/               login y registro
   kit/                  sistema de diseño, página interna
   api/                  prompts (streaming), chat (streaming), campanas, auth, cuenta
-proxy.ts                guardia de /app/* — solo verifica la firma del token
+proxy.ts                guardia de /app/*: solo verifica la firma del token
 components/
-  ui/                   primitivas: botón, campo, select, diálogo, acordeón, fotograma…
-  marketing/            Forja, TiraContactos, BloqueMetodologia, TablaPrecios, Lamina
+  ui/                   primitivas: botón, campo, select, diálogo, acordeón, fotograma
+  motion/               LaForja, TiraPinned, StickyStack, Marquesina, Reveal, Parallax,
+                        Spotlight, Magnetico, ContadorScroll, Trazo, Movimiento
+  marketing/            Nav, Pie, EstudioVivo, TablaPrecios, Preguntas, Lamina
   estudio/              los cuatro pasos del wizard
   campana/              visor de prompt y validador
   asistente/            F3
@@ -131,23 +134,51 @@ scripts/                generación de assets y las verificaciones
 Todo sale de `app/globals.css`. La paleta, la escala tipográfica y los tokens de movimiento
 son variables CSS; Tailwind las consume. No hay una segunda copia del sistema.
 
-**El principio rector:** el chrome es desaturado para que el color del cliente sea el único
-color fuerte en pantalla. La interfaz es un entorno de visualización de imágenes, como
-Lightroom o Capture One, y su cromo tiene que desaparecer.
+**El color significa estado del trabajo, y eso es todo lo que significa:**
 
-**El elemento firma** es *La Forja* (`components/marketing/forja.tsx`): en el hero, un
-fotograma 9:16 pasa de material en bruto —casi negro, con grano y desenfoque fuerte— a
-pieza terminada mientras el prompt se escribe solo a su izquierda. Corre una vez al entrar
-en viewport, tiene control para repetirla, y **no provoca un solo render de React**: el
-progreso vive en un `MotionValue` y tanto el texto como el estado final se escriben
-directamente sobre el DOM.
+| | Qué dice | Dónde aparece |
+|---|---|---|
+| `--heat` naranja incandescente | en proceso | CTA, barra de progreso, estado generando |
+| rampa `--forged-*` templada | terminado | sellos, borde del fotograma cuando la pieza queda lista |
+| `--quench` azul de temple | información y foco | anillos de foco, enlaces |
 
-**Movimiento.** Hay un inventario cerrado de diez movimientos autorizados. Cada sección de
-la home entra de una forma distinta, derivada de su contenido: la lista de reglas se revela
-de arriba abajo como una hoja que se imprime, la tira de fotogramas de izquierda a derecha
-como una tira de negativo, las columnas de precios con stagger porque son comparables, y el
-bloque de cierre no se mueve. `prefers-reduced-motion` y el gating de puntero
-(`hover: hover` **y** `pointer: fine`) van con cada animación, no después.
+Nada más lleva color. El usuario lee el estado por el material, no por una etiqueta. La
+base es grafito frío con sesgo azul a propósito: el contraste de temperatura hace que el
+naranja pegue el doble, que es el mismo principio que la metodología le enseña a sus
+usuarios cuando habla de luz clave cálida contra contorno frío.
+
+**Por qué oscuro:** la interfaz es un entorno de visualización de imágenes. Lightroom y
+Capture One son oscuros porque un entorno de baja luminancia no contamina el juicio de
+color de lo que estás mirando. Las paletas del cliente se muestran a plena saturación y son
+las únicas manchas de color libre en pantalla.
+
+**Tipografía:** Bricolage Grotesque para display, Geist para UI, Geist Mono para datos.
+Deliberadamente no una serif: «se siente editorial» no es una razón de diseño.
+
+**El momento focal** es *La Forja* (`components/motion/forja.tsx`): el hero es un
+contenedor de 400vh con la columna pinned. El titular cede el sitio al prompt, que se
+escribe solo atado al scroll, mientras el fotograma pasa de material en bruto a pieza
+terminada en cinco beats: se enfoca, entra el color, la máscara lo descubre, se asientan
+los elementos de la sección, y la hairline pasa a la rampa templada. Esa última es la única
+vez que el metal aparece en el hero.
+
+No provoca un solo render de React: el progreso vive en un `MotionValue`, las propiedades
+se derivan de él con `useMotionTemplate`, y el texto se escribe directo al `textContent`.
+El texto completo está en el DOM desde el primer render, con el nodo animado `aria-hidden`
+y una copia accesible en `sr-only`.
+
+**La coreografía completa** vive en `components/motion/`: revelado por máscara, pan
+horizontal pinned de las nueve secciones, sticky stack de la metodología, marquesina que
+acelera con la velocidad de scroll, parallax de dos capas, spotlight de cursor, botón
+magnético (uno solo en toda la página), contador atado al scroll y el barrido de calor en
+CSS puro. Ninguna sección entra igual que otra, y el cierre no se mueve: después de una
+página en movimiento, que algo esté quieto es lo que le da peso.
+
+`MotionConfig reducedMotion="user"` va montado en el root, y cada componente de scroll
+ramifica su valor: el CSS de `prefers-reduced-motion` no hace nada contra un
+`useTransform(scrollYProgress, ...)`, porque ese motion value sigue recalculando cada
+frame. Lenis da la sensación de peso, y no se monta en absoluto si el usuario pidió
+movimiento reducido.
 
 ---
 
@@ -157,7 +188,7 @@ bloque de cierre no se mueve. `prefers-reduced-motion` y el gating de puntero
 
 - Tipos, lint y build pasan sin errores ni warnings. `npm audit`: 0 vulnerabilidades.
 - La clave de API no aparece en el bundle del cliente (verificado con centinela).
-- Los 17 pares de color reales pasan el piso de contraste.
+- Los 17 pares de color reales pasan el piso de contraste, incluido el CTA contra su fondo.
 - 66/66 comprobaciones de extremo a extremo: registro, streaming, créditos transaccionales
   con devolución, CRUD completo, persistencia entre sesiones, las siete reglas del
   validador, resistencia del asistente a la extracción del system prompt, y rate limiting.

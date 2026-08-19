@@ -1,116 +1,114 @@
 @import "tailwindcss";
 
 /* ============================================================
-   LandingForge — sistema de diseño
-   Tokens de §4.2 (paleta) y §5.2 (movimiento) del brief maestro.
-   Regla rectora: el chrome es desaturado para que el color del
-   cliente sea el único color fuerte en pantalla.
+   LandingForge — sistema de diseño v2
+   Tokens de §5.3 (color) y §6.2 (movimiento).
+
+   El concepto es la forja, y el color significa estado del trabajo:
+     naranja incandescente = en proceso
+     metal templado        = terminado
+     azul de temple        = información y foco
+   Nada más lleva color. El usuario lee el estado por el material.
    ============================================================ */
 
 :root {
   color-scheme: dark;
 
-  /* Superficies — neutro cálido de baja croma. El entorno de visualización. */
-  --canvas:        #0B0B0C;
-  --surface-1:     #121214;
-  --surface-2:     #1A1A1D;
-  --surface-sunk:  #080809;
+  /* Base: grafito frío. El sesgo azul es deliberado: maximiza el
+     contraste de temperatura contra el naranja. */
+  --void:        #0A0B0D;
+  --anvil:       #121417;
+  --anvil-hi:    #1A1D22;
+  --sunk:        #06070A;
+  --scale:       #23272E;
+  --scale-hi:    #333941;
 
-  /* Líneas — nunca bordes gruesos. Solo hairlines. */
-  --line:          #26262B;
-  --line-strong:   #35353C;
+  /* Tinta: blanco frío, no cálido. */
+  --ash:         #F4F5F7;
+  --smoke:       #9BA3AE;
+  --slag:        #6B737E;
 
-  /* Tinta — blanco cálido de papel fotográfico, no blanco puro.
-     REGLA DE USO (verificada por scripts/verificar-contraste.mjs):
-     --text-lo cumple 4.5:1 sobre --canvas (8.13), --surface-1 (4.99) y
-     --surface-sunk (10.65), pero NO sobre --surface-2 (3.47). En superficies
-     elevadas —menús, popovers, campos activos, tarjetas destacadas— el texto
-     secundario va en --text-mid. Sobre --surface-2, --text-lo solo vale para
-     iconos y bordes, donde el piso es 3:1. */
-  --text-hi:       #F2EFEA;
-  --text-mid:      #A7A29B;
-  --text-lo:       #6E6A65;
+  /* CALIENTE = en proceso. El único color de acción. */
+  --heat:        #FF5C2B;
+  --heat-lo:     #C43D12;
+  --ember:       #FFA05C;
 
-  /* Luz clave — el metal. Firma de la marca. */
-  --key-hi:        #F3D9A4;
-  --key:           #D6A75C;
-  --key-lo:        #9A6B36;
+  /* TEMPLADO = terminado. Solo material sobre objetos físicos. */
+  --forged-hi:   #F0DCB4;
+  --forged:      #C9A063;
+  --forged-lo:   #8A6634;
 
-  /* Luz de contorno — frío. Estado de máquina. */
-  --rim:           #6E9BFF;
-  --rim-soft:      #A9C2FF;
+  /* TEMPLE = información, foco, enlaces. Frío. */
+  --quench:      #5CC8FF;
+  --quench-lo:   #2A93C7;
 
   /* Semánticos */
-  --ok:            #4FB286;
-  --warn:          #E0A53F;
-  --danger:        #E2574C;
+  --ok:          #3FBF7F;
+  --warn:        #F0B429;
+  --danger:      #F4523B;
 
-  /* Degradado metálico — ángulo fijo 135°, solo sobre superficies físicas */
-  --metal: linear-gradient(135deg, var(--key-hi) 0%, var(--key) 46%, var(--key-lo) 100%);
+  /* Metal templado. Solo como gradiente a 135° sobre objetos. Nunca texto. */
+  --templado: linear-gradient(135deg, var(--forged-hi) 0%, var(--forged) 45%, var(--forged-lo) 100%);
 
-  /* Elevación — se declara UNA vez: o borde o sombra, nunca ambos. */
-  --elev-1: 0 8px 24px -8px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.5);
-  --elev-2: 0 24px 64px -16px rgb(0 0 0 / 0.85);
+  /* Elevación: borde O sombra, nunca las dos. La luz viene de arriba. */
+  --elev-1: 0 10px 30px -10px rgb(0 0 0 / 0.8), 0 2px 8px -3px rgb(0 0 0 / 0.6);
+  --elev-2: 0 28px 70px -20px rgb(0 0 0 / 0.9);
 
-  /* Movimiento — §5.2 */
-  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* ---- Movimiento · §6.2 ---- */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-hard: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer:   cubic-bezier(0.32, 0.72, 0, 1);
 
   --dur-press:   160ms;
-  --dur-tooltip: 125ms;
-  --dur-menu:    200ms;
-  --dur-modal:   260ms;
-  --dur-reveal:  600ms;
+  --dur-hover:   200ms;
+  --dur-menu:    220ms;
+  --dur-overlay: 320ms;
+  --dur-focal:   700ms;
 }
 
-/* Gating de puntero — §5.5. Todo el hover motion vive aquí.
-   Tailwind v4 ya envuelve `hover:` en (hover: hover), pero el brief pide
-   también (pointer: fine): un stylus o un trackpad de TV pasan el primer
-   test y no el segundo. */
+/* Gating de puntero. Tailwind v4 solo comprueba (hover: hover); el brief
+   pide también (pointer: fine), porque un stylus pasa la primera y falla
+   la segunda. */
 @custom-variant hf {
   @media (hover: hover) and (pointer: fine) {
     &:hover { @slot; }
   }
 }
-
-/* La misma puerta, para hijos que reaccionan al hover de su contenedor. */
 @custom-variant hf-grupo {
   @media (hover: hover) and (pointer: fine) {
     &:is(:where(.grupo):hover *) { @slot; }
   }
 }
 
-/* Puente hacia las utilidades de Tailwind v4 */
 @theme inline {
-  --color-canvas:       var(--canvas);
-  --color-surface-1:    var(--surface-1);
-  --color-surface-2:    var(--surface-2);
-  --color-surface-sunk: var(--surface-sunk);
-  --color-line:         var(--line);
-  --color-line-strong:  var(--line-strong);
-  --color-hi:           var(--text-hi);
-  --color-mid:          var(--text-mid);
-  --color-lo:           var(--text-lo);
-  --color-key:          var(--key);
-  --color-key-hi:       var(--key-hi);
-  --color-key-lo:       var(--key-lo);
-  --color-rim:          var(--rim);
-  --color-rim-soft:     var(--rim-soft);
-  --color-ok:           var(--ok);
-  --color-warn:         var(--warn);
-  --color-danger:       var(--danger);
+  --color-void:     var(--void);
+  --color-anvil:    var(--anvil);
+  --color-anvil-hi: var(--anvil-hi);
+  --color-sunk:     var(--sunk);
+  --color-scale:    var(--scale);
+  --color-scale-hi: var(--scale-hi);
+  --color-ash:      var(--ash);
+  --color-smoke:    var(--smoke);
+  --color-slag:     var(--slag);
+  --color-heat:     var(--heat);
+  --color-heat-lo:  var(--heat-lo);
+  --color-ember:    var(--ember);
+  --color-forged:   var(--forged);
+  --color-quench:   var(--quench);
+  --color-ok:       var(--ok);
+  --color-warn:     var(--warn);
+  --color-danger:   var(--danger);
 
   --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
 
   --shadow-elev-1: var(--elev-1);
   --shadow-elev-2: var(--elev-2);
 
-  --radius-campo:   10px;
-  --radius-panel:   12px;
-  --radius-tarjeta: 16px;
+  --radius-control: 10px;
+  --radius-panel:   14px;
 }
 
 /* ------------------------------------------------------------
@@ -118,156 +116,143 @@
    ------------------------------------------------------------ */
 
 html {
-  scrollbar-color: var(--line-strong) transparent;
+  scrollbar-color: var(--scale-hi) transparent;
   scrollbar-width: thin;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--canvas);
-  color: var(--text-hi);
+  background: var(--void);
+  color: var(--ash);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.9375rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
-/* Superficies del navegador — §4.6. Lo más barato y lo que más se olvida. */
+/* Superficies del navegador · §5.7 */
 ::selection {
-  background: color-mix(in oklab, var(--key) 30%, transparent);
-  color: var(--text-hi);
+  background: color-mix(in oklab, var(--heat) 35%, transparent);
+  color: var(--ash);
 }
 
 :focus-visible {
-  outline: 2px solid var(--rim);
-  outline-offset: 2px;
+  outline: 2px solid var(--quench);
+  outline-offset: 3px;
   border-radius: inherit;
 }
-
 :focus:not(:focus-visible) { outline: none; }
 
 input, textarea, select {
-  caret-color: var(--key);
-  accent-color: var(--key);
-}
-
-input[type="checkbox"], input[type="radio"], progress, meter {
-  accent-color: var(--key);
+  caret-color: var(--heat);
+  accent-color: var(--heat);
 }
 
 a {
   color: inherit;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.25em;
   text-decoration-thickness: 1px;
 }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background-color: var(--line-strong);
+  background-color: var(--scale-hi);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background-color: var(--text-lo); background-clip: content-box; }
 
 /* ------------------------------------------------------------
-   Escala tipográfica — §4.3. Tope display 6rem, tracking mín -0.04em.
+   Tipografía · §5.4
+   Bricolage Grotesque para display. Su nombre significa literalmente
+   trabajo hecho a mano con lo que hay, y se ve dibujada, no generada.
    ------------------------------------------------------------ */
 
 .display-xl {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
-  font-size: clamp(3rem, 7vw, 5.5rem);
-  font-weight: 300;
-  letter-spacing: -0.03em;
-  line-height: 0.98;
-  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 0;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.75rem, 5vw, 4.75rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  font-variation-settings: "opsz" 96, "wdth" 100;
   text-wrap: balance;
 }
 
 .display-lg {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
-  font-size: clamp(2.25rem, 4.5vw, 3.5rem);
-  font-weight: 350;
-  letter-spacing: -0.025em;
-  line-height: 1.05;
-  font-variation-settings: "opsz" 100, "SOFT" 0, "WONK" 0;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variation-settings: "opsz" 72, "wdth" 100;
   text-wrap: balance;
 }
 
 .display-md {
-  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
-  font-size: 1.75rem;
-  font-weight: 400;
+  font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.15;
-  font-variation-settings: "opsz" 48, "SOFT" 0, "WONK" 0;
+  line-height: 1.1;
+  font-variation-settings: "opsz" 40;
   text-wrap: balance;
 }
 
 .titulo {
-  font-size: 1.25rem;
-  font-weight: 550;
+  font-size: 1.375rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
 
-.cuerpo-lg { font-size: 1.0625rem; line-height: 1.6; }
-.cuerpo    { font-size: 0.9375rem; line-height: 1.6; }
+.cuerpo-lg { font-size: 1.125rem; line-height: 1.65; }
+.cuerpo    { font-size: 1rem; line-height: 1.65; }
 
 .etiqueta {
   font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   line-height: 1.4;
 }
 
 .mono-sm {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.8125rem;
-  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
-/* Medida de lectura 65–75ch */
 .medida { max-width: 68ch; }
-
 table, .cifras { font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------------
-   Movimiento — inventario cerrado de §5.3
+   Movimiento
    ------------------------------------------------------------ */
 
-/* 5 · Reveal diferenciado. La dirección la manda el contenido:
-   `data-desde` es el borde por el que empieza a aparecer la sección. */
-.revelar {
-  clip-path: inset(0 0 100% 0);          /* desde arriba, como una hoja que se imprime */
-  transition: clip-path var(--dur-reveal) var(--ease-in-out);
-}
-.revelar[data-desde="izquierda"] { clip-path: inset(0 100% 0 0); }
-.revelar[data-desde="derecha"]   { clip-path: inset(0 0 0 100%); }
-.revelar[data-desde="abajo"]     { clip-path: inset(100% 0 0 0); }
-.revelar[data-visible="true"]    { clip-path: inset(0 0 0 0); }
-
-/* Sin JavaScript el observador nunca dispara: el contenido tiene que verse
-   igual. Un reveal no puede ser la razón por la que una sección no exista. */
-@media (scripting: none) {
-  .revelar { clip-path: none; }
+/* M5 · revelado por línea con máscara. El contenedor recorta, el span sube.
+   Reemplaza al fade-up genérico que hunde las páginas generadas. */
+.linea-mascara {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
 }
 
-/* 9 · Barrido de luz de contorno. CSS, no JS: sigue fluido con la página ocupada. */
-@property --barrido-pos {
+/* M13 · barrido de calor. CSS puro: corre fuera del hilo principal, así que
+   sigue fluido justo cuando la página está ocupada llamando a la API. */
+@property --barrido {
   syntax: "<percentage>";
   inherits: false;
   initial-value: -40%;
 }
 
-.barrido-rim {
+.barrido-calor {
   position: relative;
   isolation: isolate;
 }
-.barrido-rim::after {
+.barrido-calor::after {
   content: "";
   position: absolute;
   inset: -1px;
@@ -275,9 +260,9 @@ table, .cifras { font-variant-numeric: tabular-nums; }
   padding: 1px;
   background: linear-gradient(
     100deg,
-    transparent calc(var(--barrido-pos) - 18%),
-    var(--rim) var(--barrido-pos),
-    transparent calc(var(--barrido-pos) + 18%)
+    transparent calc(var(--barrido) - 16%),
+    var(--heat) var(--barrido),
+    transparent calc(var(--barrido) + 16%)
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -287,41 +272,56 @@ table, .cifras { font-variant-numeric: tabular-nums; }
   pointer-events: none;
 }
 
-@keyframes barrido {
-  to { --barrido-pos: 140%; }
+@keyframes barrido { to { --barrido: 140%; } }
+
+/* Borde templado: la pieza terminada. Gradiente a 135° sobre el borde. */
+.borde-templado {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--anvil), var(--anvil)) padding-box,
+    var(--templado) border-box;
+}
+.anillo-templado {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--templado);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
-/* 6 · Stagger de entrada. Máximo 8 escalonados; el resto entra junto.
-   El escalonado es decorativo: nunca bloquea la interacción mientras corre. */
-.escalonado > * {
-  opacity: 0;
-  transform: translateY(8px);
+/* M4 · marquesina. La animación base es CSS para que corra fuera del hilo
+   principal; JS solo modula su duración según la velocidad de scroll. */
+@keyframes deslizar {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
 }
-.escalonado[data-visible="true"] > * {
-  animation: entrar 300ms var(--ease-out) forwards;
+.marquesina-pista {
+  display: flex;
+  width: max-content;
+  animation: deslizar var(--vel, 48s) linear infinite;
+  will-change: transform;
 }
-.escalonado[data-visible="true"] > *:nth-child(2)   { animation-delay: 40ms; }
-.escalonado[data-visible="true"] > *:nth-child(3)   { animation-delay: 80ms; }
-.escalonado[data-visible="true"] > *:nth-child(4)   { animation-delay: 120ms; }
-.escalonado[data-visible="true"] > *:nth-child(5)   { animation-delay: 160ms; }
-.escalonado[data-visible="true"] > *:nth-child(6)   { animation-delay: 200ms; }
-.escalonado[data-visible="true"] > *:nth-child(7)   { animation-delay: 240ms; }
-.escalonado[data-visible="true"] > *:nth-child(n+8) { animation-delay: 280ms; }
-
-/* Las columnas de precios: elementos comparables, stagger de 60ms (§5.3). */
-.escalonado-lento[data-visible="true"] > *:nth-child(2) { animation-delay: 60ms; }
-.escalonado-lento[data-visible="true"] > *:nth-child(3) { animation-delay: 120ms; }
-
-@media (scripting: none) {
-  .escalonado > * { opacity: 1; transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  .marquesina:hover .marquesina-pista { animation-play-state: paused; }
 }
 
-@keyframes entrar {
-  to { opacity: 1; transform: translateY(0); }
+/* Acordeón: único lugar donde se anima height, porque no hay equivalente
+   con transform. */
+@keyframes acordeon-abre {
+  from { height: 0; opacity: 0; }
+  to   { height: var(--radix-accordion-content-height); opacity: 1; }
+}
+@keyframes acordeon-cierra {
+  from { height: var(--radix-accordion-content-height); opacity: 1; }
+  to   { height: 0; opacity: 0; }
 }
 
-/* 7 · Menús, selects, popovers: escala desde el disparador.
-   Nunca scale(0) — nada aparece de la nada (§5.4). */
+/* Popovers y menús: escalan desde su disparador. Nunca scale(0). */
 @keyframes menu-entra {
   from { opacity: 0; transform: scale(0.95); }
   to   { opacity: 1; transform: scale(1); }
@@ -330,9 +330,6 @@ table, .cifras { font-variant-numeric: tabular-nums; }
   from { opacity: 1; transform: scale(1); }
   to   { opacity: 0; transform: scale(0.95); }
 }
-
-/* 8 · Modal — solo confirmación destructiva. Origen centrado: exento de la
-   regla de origen porque no está anclado a un disparador. */
 @keyframes modal-entra {
   from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
@@ -343,93 +340,31 @@ table, .cifras { font-variant-numeric: tabular-nums; }
 }
 @keyframes velo-entra { from { opacity: 0; } to { opacity: 1; } }
 @keyframes velo-sale  { from { opacity: 1; } to { opacity: 0; } }
+@keyframes hoja-entra { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes hoja-sale  { from { transform: translateY(0); } to { transform: translateY(100%); } }
+@keyframes cajon-entra { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
-/* Cajón lateral de la app en móvil — §13. */
-@keyframes cajon-entra {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(0); }
-}
-
-/* Hoja móvil — sube desde abajo con la curva de cajón. */
-@keyframes hoja-entra {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-@keyframes hoja-sale {
-  from { transform: translateY(0); }
-  to   { transform: translateY(100%); }
-}
-
-/* Acordeón — el único sitio donde se permite animar height, porque no hay
-   equivalente con transform (§6.2.9). Corto: cuesta layout en cada frame. */
-@keyframes acordeon-abre {
-  from { height: 0; opacity: 0; }
-  to   { height: var(--radix-accordion-content-height); opacity: 1; }
-}
-@keyframes acordeon-cierra {
-  from { height: var(--radix-accordion-content-height); opacity: 1; }
-  to   { height: 0; opacity: 0; }
-}
-
-/* Grano real — asset de ruido, no feTurbulence (§4.8) */
-.grano::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+/* Grano real: textura superpuesta, nunca feTurbulence. */
+.grano {
   background-image: url("/textura/grano.png");
   background-size: 128px 128px;
-  opacity: var(--grano-opacidad, 0.18);
   mix-blend-mode: overlay;
   pointer-events: none;
-  z-index: 2;
 }
 
-/* El fotograma de La Forja. En el instante en que la pieza queda terminada,
-   la hairline pasa de --line a la rampa metálica: la única vez que el oro
-   aparece en todo el hero (§4.7). El estado lo escribe el propio bucle de
-   animación sobre el dataset, no un render de React. */
-.marco-forja {
-  border: 1px solid var(--line);
-  transition: border-color 400ms var(--ease-out);
-}
-.marco-forja::after {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: var(--metal);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 400ms var(--ease-out);
-  pointer-events: none;
-  z-index: 4;
-}
-.marco-forja[data-terminado="true"] { border-color: transparent; }
-.marco-forja[data-terminado="true"]::after { opacity: 1; }
-
-/* Hairline metálica — solo sobre superficies físicas, nunca sobre texto */
-.borde-metal {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(var(--surface-1), var(--surface-1)) padding-box,
-    var(--metal) border-box;
-}
-
-/* Scroll-snap horizontal de la tira de contactos */
-.tira {
-  scroll-snap-type: x mandatory;
+/* Scroll horizontal nativo de la tira en móvil. */
+.tira-nativa {
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
 }
-.tira::-webkit-scrollbar { display: none; }
-.tira > * { scroll-snap-align: center; }
+.tira-nativa::-webkit-scrollbar { display: none; }
+.tira-nativa > * { scroll-snap-align: center; }
 
 /* ------------------------------------------------------------
-   Movimiento reducido — §5.5. Menos y más suave, no cero.
+   Movimiento reducido.
+   MotionConfig reducedMotion="user" cubre lo de Motion; esto cubre el CSS.
+   Se conservan opacidad y color, se elimina el desplazamiento.
    ------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -438,14 +373,11 @@ table, .cifras { font-variant-numeric: tabular-nums; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .revelar {
-    clip-path: none !important;
-    opacity: 0;
-    transition: opacity 200ms var(--ease-out) !important;
-  }
-  .revelar[data-visible="true"] { opacity: 1; }
-  /* El escalonado conserva la opacidad y pierde el desplazamiento. */
-  .escalonado > * { transform: none; }
-  .escalonado[data-visible="true"] > * { opacity: 1; animation: none; }
-  .barrido-rim::after { animation: none; opacity: 0.5; }
+  .marquesina-pista { animation: none; transform: none; }
+  .barrido-calor::after { animation: none; opacity: 0.6; }
+}
+
+/* Sin JavaScript nada puede quedar invisible por culpa de un reveal. */
+@media (scripting: none) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
 }

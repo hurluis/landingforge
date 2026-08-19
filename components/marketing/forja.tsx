@@ -11,7 +11,7 @@ import {
   useTransform,
   motion,
 } from "motion/react";
-import { RotateCcw } from "lucide-react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
 /**
@@ -160,7 +160,7 @@ export function Forja({ className }: { className?: string }) {
           className="order-2 sm:order-1 min-w-0"
           aria-label="Prompt construido por LandingForge"
         >
-          <ol className="flex flex-col gap-2.5 mono-sm leading-relaxed text-mid">
+          <ol className="flex flex-col gap-2.5 mono-sm leading-relaxed text-smoke">
             {FRASES.map((_, i) => (
               <li key={i} className="min-h-[1.4em]">
                 <span
@@ -173,7 +173,7 @@ export function Forja({ className }: { className?: string }) {
                     "data-[activa=true]:after:content-[''] data-[activa=true]:after:inline-block",
                     "data-[activa=true]:after:w-[0.5em] data-[activa=true]:after:h-[1em]",
                     "data-[activa=true]:after:translate-y-[0.15em]",
-                    "data-[activa=true]:after:bg-[var(--rim)] data-[activa=true]:after:ml-0.5",
+                    "data-[activa=true]:after:bg-[var(--quench)] data-[activa=true]:after:ml-0.5",
                   )}
                 />
               </li>
@@ -187,9 +187,9 @@ export function Forja({ className }: { className?: string }) {
                 <span
                   aria-hidden
                   style={{ background: s.hex }}
-                  className="size-3.5 rounded-[3px] border border-[var(--line)]"
+                  className="size-3.5 rounded-[3px] border border-[var(--scale)]"
                 />
-                <span className="mono-sm text-lo">{s.hex}</span>
+                <span className="mono-sm text-slag">{s.hex}</span>
               </div>
             ))}
           </div>
@@ -197,7 +197,7 @@ export function Forja({ className }: { className?: string }) {
 
         {/* ---------- El fotograma ---------- */}
         <div className="order-1 sm:order-2 mx-auto sm:mx-0 w-full max-w-[268px]">
-          <div ref={marco} className="marco-forja relative aspect-[9/16] w-full overflow-hidden rounded-[12px] bg-[var(--surface-sunk)]">
+          <div ref={marco} className="marco-forja relative aspect-[9/16] w-full overflow-hidden rounded-[12px] bg-[var(--sunk)]">
             <motion.div
               ref={capa}
               style={{ filter: filtro, transform: escalaPieza }}
@@ -249,17 +249,16 @@ export function Forja({ className }: { className?: string }) {
 
           {/* Control discreto para volver a verlo. */}
           <div className="mt-3 flex items-center justify-between gap-3">
-            <span className="mono-sm text-lo">9:16 · 2K</span>
+            <span className="mono-sm text-slag">9:16 · 2K</span>
             <button
               type="button"
               onClick={() => forjar()}
               className={cn(
-                "grupo inline-flex items-center gap-1.5 mono-sm text-lo",
-                "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-mid",
+                "grupo inline-flex items-center gap-1.5 mono-sm text-slag",
+                "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-smoke",
               )}
             >
-              <RotateCcw
-                strokeWidth={1.5}
+              <ArrowCounterClockwise 
                 aria-hidden
                 className="size-3.5 transition-transform duration-[300ms] ease-[var(--ease-out)] hf-grupo:-rotate-90"
               />

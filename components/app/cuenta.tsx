@@ -59,18 +59,18 @@ export function Cuenta({
   return (
     <div className="mx-auto max-w-[900px] px-4 py-8 pt-20 sm:px-8 lg:pt-8">
       <h1 className="display-md">Cuenta</h1>
-      <p className="mt-2 cuerpo text-mid">{usuario.email}</p>
+      <p className="mt-2 cuerpo text-smoke">{usuario.email}</p>
 
       {/* Créditos */}
       <section
         aria-labelledby="creditos-titulo"
-        className="mt-10 rounded-[16px] border border-[var(--line)] bg-[var(--surface-1)] p-6"
+        className="mt-10 rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-6"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-4">
           <h2 id="creditos-titulo" className="titulo">
             Plan {def.nombre}
           </h2>
-          <span className="mono-sm text-lo">
+          <span className="mono-sm text-slag">
             renueva el {fechaLarga(usuario.renuevaEn)}
           </span>
         </div>
@@ -79,20 +79,20 @@ export function Cuenta({
           <span className="font-[family-name:var(--font-fraunces)] text-[3rem] font-[300] leading-none tabular-nums">
             {usuario.creditosDisponibles}
           </span>
-          <span className="mono-sm text-lo">de {def.creditosMes} créditos</span>
+          <span className="mono-sm text-slag">de {def.creditosMes} créditos</span>
         </p>
 
         <div
           aria-hidden
-          className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]"
+          className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--anvil-hi)]"
         >
           <span
             style={{ width: `${porcentaje}%` }}
-            className="block h-full rounded-full bg-[var(--key)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
+            className="block h-full rounded-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
           />
         </div>
 
-        <p className="mt-4 cuerpo text-lo">
+        <p className="mt-4 cuerpo text-slag">
           Los créditos del plan no se acumulan entre meses. Los que compras aparte, sí.
         </p>
       </section>
@@ -102,7 +102,7 @@ export function Cuenta({
         <h2 id="planes-titulo" className="titulo">
           Cambiar de plan
         </h2>
-        <p className="mt-2 cuerpo text-mid medida">
+        <p className="mt-2 cuerpo text-smoke medida">
           En esta versión el cambio es una simulación: ajusta tu plan y recarga los créditos
           sin cobrar nada. Todavía no hay pasarela de pago conectada.
         </p>
@@ -116,12 +116,12 @@ export function Cuenta({
                 className={cn(
                   "flex flex-col rounded-[16px] p-5",
                   actual
-                    ? "border border-[var(--key)] bg-[var(--surface-2)]"
-                    : "border border-[var(--line)] bg-[var(--surface-1)]",
+                    ? "border border-[var(--heat)] bg-[var(--anvil-hi)]"
+                    : "border border-[var(--scale)] bg-[var(--anvil)]",
                 )}
               >
                 <h3 className="titulo">{p.nombre}</h3>
-                <p className="mt-2 mono-sm text-mid">
+                <p className="mt-2 mono-sm text-smoke">
                   {formatoCOP(p.precioMensualCOP)} · {p.creditosMes} créditos
                 </p>
                 <div className="mt-4">
@@ -129,7 +129,7 @@ export function Cuenta({
                     <Badge tono="metal">plan actual</Badge>
                   ) : (
                     <Boton
-                      variante="secundario"
+                      variante="contorno"
                       tamano="sm"
                       cargando={cambiando === p.id}
                       textoCargando="Cambiando…"
@@ -152,35 +152,35 @@ export function Cuenta({
           Consumo
         </h2>
         {movimientos.length === 0 ? (
-          <p className="mt-4 cuerpo text-mid">Todavía no has consumido créditos.</p>
+          <p className="mt-4 cuerpo text-smoke">Todavía no has consumido créditos.</p>
         ) : (
           <table className="mt-4 w-full text-left">
             <thead>
-              <tr className="border-b border-[var(--line)]">
-                <th scope="col" className="etiqueta text-lo py-2 font-medium">
+              <tr className="border-b border-[var(--scale)]">
+                <th scope="col" className="etiqueta text-slag py-2 font-medium">
                   Fecha
                 </th>
-                <th scope="col" className="etiqueta text-lo py-2 font-medium">
+                <th scope="col" className="etiqueta text-slag py-2 font-medium">
                   Concepto
                 </th>
-                <th scope="col" className="etiqueta text-lo py-2 font-medium">
+                <th scope="col" className="etiqueta text-slag py-2 font-medium">
                   Campaña
                 </th>
-                <th scope="col" className="etiqueta text-lo py-2 text-right font-medium">
+                <th scope="col" className="etiqueta text-slag py-2 text-right font-medium">
                   Créditos
                 </th>
               </tr>
             </thead>
             <tbody>
               {movimientos.map((m) => (
-                <tr key={m.id} className="border-b border-[var(--line)]">
-                  <td className="mono-sm text-lo py-3">{fechaCorta(m.fecha)}</td>
-                  <td className="cuerpo text-mid py-3">{MOTIVO[m.motivo]}</td>
-                  <td className="cuerpo text-mid py-3">{m.campanaNombre}</td>
+                <tr key={m.id} className="border-b border-[var(--scale)]">
+                  <td className="mono-sm text-slag py-3">{fechaCorta(m.fecha)}</td>
+                  <td className="cuerpo text-smoke py-3">{MOTIVO[m.motivo]}</td>
+                  <td className="cuerpo text-smoke py-3">{m.campanaNombre}</td>
                   <td
                     className={cn(
                       "mono-sm py-3 text-right tabular-nums",
-                      m.delta < 0 ? "text-mid" : "text-[var(--ok)]",
+                      m.delta < 0 ? "text-smoke" : "text-[var(--ok)]",
                     )}
                   >
                     {m.delta > 0 ? `+${m.delta}` : m.delta}
@@ -193,9 +193,9 @@ export function Cuenta({
       </section>
 
       {/* Honestidad sobre qué está corriendo debajo. */}
-      <section className="mt-12 rounded-[16px] border border-[var(--line)] p-5">
-        <h2 className="etiqueta text-mid">Motor de esta instancia</h2>
-        <p className="mt-2 cuerpo text-lo medida">
+      <section className="mt-12 rounded-[16px] border border-[var(--scale)] p-5">
+        <h2 className="etiqueta text-smoke">Motor de esta instancia</h2>
+        <p className="mt-2 cuerpo text-slag medida">
           {modeloReal
             ? "Los prompts los redacta Gemini sobre el esqueleto de la metodología. La clave vive solo en el servidor."
             : "No hay clave de Gemini configurada, así que los prompts los construye el motor local con la misma metodología, sin modelo generativo. El resultado es válido; lo que falta es la redacción del modelo."}

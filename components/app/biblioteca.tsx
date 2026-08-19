@@ -3,13 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Copy, Search, Trash2, Pencil } from "lucide-react";
+import { Copy, MagnifyingGlass, Trash, PencilSimple } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { Campana } from "@/lib/datos/tipos";
 import { Lamina } from "@/components/marketing/lamina";
 import { Boton } from "@/components/ui/boton";
 import { Badge } from "@/components/ui/piezas";
-import { Escalonado } from "@/components/ui/revelar";
 import {
   Dialogo,
   DialogoCierre,
@@ -89,12 +88,12 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
     return (
       <div className="mx-auto max-w-[520px] py-24 text-center">
         <h2 className="display-md">Sube la foto de tu primer producto</h2>
-        <p className="mt-3 cuerpo text-mid">
+        <p className="mt-3 cuerpo text-smoke">
           En cuatro preguntas tienes la paleta asignada y los prompts de las secciones que
           elijas.
         </p>
         <div className="mt-8 flex justify-center">
-          <Boton asChild variante="primario" tamano="lg">
+          <Boton asChild variante="heat" tamano="lg">
             <Link href="/app/nueva">Crear mi primera campaña</Link>
           </Boton>
         </div>
@@ -106,10 +105,9 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
     <>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative min-w-[240px] flex-1 max-w-[360px]">
-          <Search
-            strokeWidth={1.5}
+          <MagnifyingGlass 
             aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-lo"
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slag"
           />
           <label htmlFor="buscar" className="sr-only">
             Buscar campañas
@@ -122,25 +120,24 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
             placeholder="Buscar por producto o paleta"
             className={cn(
               "h-10 w-full rounded-[10px] pl-9 pr-3 text-[0.9375rem]",
-              "bg-[var(--surface-1)] text-hi placeholder:text-lo",
-              "border border-[var(--line)]",
+              "bg-[var(--anvil)] text-ash placeholder:text-slag",
+              "border border-[var(--scale)]",
               "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-              "focus:border-[var(--line-strong)]",
+              "focus:border-[var(--scale-hi)]",
             )}
           />
         </div>
-        <Boton asChild variante="primario" tamano="md">
+        <Boton asChild variante="heat" tamano="md">
           <Link href="/app/nueva">Nueva campaña</Link>
         </Boton>
       </div>
 
       {filtradas.length === 0 ? (
-        <p className="mt-16 text-center cuerpo text-mid">
+        <p className="mt-16 text-center cuerpo text-smoke">
           Ninguna campaña coincide con «{busqueda}».
         </p>
       ) : (
-        <Escalonado
-          as="ul"
+        <ul
           className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
           {filtradas.map((c) => {
@@ -149,17 +146,17 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
             return (
               <li
                 key={c.id}
-                className="flex flex-col rounded-[16px] border border-[var(--line)] bg-[var(--surface-1)] p-3"
+                className="flex flex-col rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-3"
               >
                 <Link
                   href={`/app/c/${c.id}`}
-                  className="relative block aspect-[9/16] overflow-hidden rounded-[10px] bg-[var(--surface-sunk)] no-underline"
+                  className="relative block aspect-[9/16] overflow-hidden rounded-[10px] bg-[var(--sunk)] no-underline"
                 >
                   <Lamina tipologia={c.prompts[0]?.tipologia ?? "hero"} paleta={c.paleta} />
                 </Link>
 
                 <div className="mt-3 flex items-start justify-between gap-2">
-                  <Link href={`/app/c/${c.id}`} className="titulo text-hi no-underline hf:text-[var(--key)]">
+                  <Link href={`/app/c/${c.id}`} className="titulo text-ash no-underline hf:text-[var(--heat)]">
                     {c.nombre}
                   </Link>
                   <Badge tono={parcial ? "aviso" : estado.tono}>
@@ -167,7 +164,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                   </Badge>
                 </div>
 
-                <p className="mt-1 mono-sm text-lo">
+                <p className="mt-1 mono-sm text-slag">
                   {c.prompts.length} de {c.prompts.length + c.seccionesFallidas.length} secciones ·{" "}
                   {fechaCorta(c.actualizadaEn)}
                 </p>
@@ -179,17 +176,17 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                         key={hex}
                         aria-hidden
                         style={{ background: hex }}
-                        className="size-3 rounded-full border border-[var(--line)]"
+                        className="size-3 rounded-full border border-[var(--scale)]"
                       />
                     ),
                   )}
-                  <span className="ml-1 mono-sm text-lo">{c.paleta.nombre}</span>
+                  <span className="ml-1 mono-sm text-slag">{c.paleta.nombre}</span>
                 </div>
 
-                <div className="mt-4 flex items-center gap-1 border-t border-[var(--line)] pt-3">
+                <div className="mt-4 flex items-center gap-1 border-t border-[var(--scale)] pt-3">
                   <Boton asChild variante="fantasma" tamano="sm">
                     <Link href={`/app/c/${c.id}`} aria-label={`Abrir ${c.nombre}`}>
-                      <Pencil strokeWidth={1.5} />
+                      <PencilSimple  />
                     </Link>
                   </Boton>
                   <Boton
@@ -199,7 +196,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                     disabled={ocupada === c.id}
                     aria-label={`Duplicar ${c.nombre}`}
                   >
-                    <Copy strokeWidth={1.5} />
+                    <Copy />
                   </Boton>
 
                   {/* El ÚNICO modal del producto: destructivo y con foco
@@ -213,7 +210,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                         disabled={ocupada === c.id}
                         aria-label={`Eliminar ${c.nombre}`}
                       >
-                        <Trash2 strokeWidth={1.5} />
+                        <Trash  />
                       </Boton>
                     </DialogoDisparador>
                     <DialogoContenido
@@ -222,7 +219,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                     >
                       <div className="flex justify-end gap-2">
                         <DialogoCierre asChild>
-                          <Boton variante="secundario">Conservar</Boton>
+                          <Boton variante="contorno">Conservar</Boton>
                         </DialogoCierre>
                         <DialogoCierre asChild>
                           <Boton variante="peligro" onClick={() => borrar(c)}>
@@ -236,7 +233,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
               </li>
             );
           })}
-        </Escalonado>
+        </ul>
       )}
     </>
   );

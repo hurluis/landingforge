@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { Prompt } from "@/lib/datos/tipos";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
@@ -14,7 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Revelar } from "@/components/ui/revelar";
+import { RevealLineas } from "@/components/motion/reveal";
+import { Parallax } from "@/components/motion/interacciones";
+import { Lamina } from "@/components/marketing/lamina";
+import { asignarPaleta } from "@/lib/metodologia/paletas";
 import { cn } from "@/lib/utils";
 
 /**
@@ -25,6 +28,16 @@ import { cn } from "@/lib/utils";
  * ese borde, y la dirección responde a que el resultado aparece a la derecha
  * del formulario.
  */
+const FONDO = ["hero", "testimonios", "antes-despues", "precios", "estilo-de-vida", "confianza"] as const;
+const PALETAS_FONDO = [
+  asignarPaleta("cosmetica", { genero: "f", edadMin: 30, edadMax: 55 }),
+  asignarPaleta("suplemento-deportivo", { genero: "m", edadMin: 20, edadMax: 34 }),
+  asignarPaleta("skincare-lujo", { genero: "f", edadMin: 28, edadMax: 50 }),
+  asignarPaleta("electronica", { genero: "mixto", edadMin: 25, edadMax: 45 }),
+  asignarPaleta("capilar", { genero: "f", edadMin: 22, edadMax: 40 }),
+  asignarPaleta("clinico", { genero: "mixto", edadMin: 35, edadMax: 65 }),
+];
+
 export function EstudioVivo() {
   const [descripcion, setDescripcion] = React.useState("");
   const [tipologia, setTipologia] = React.useState("hero");
@@ -67,18 +80,37 @@ export function EstudioVivo() {
   }
 
   return (
-    <Revelar as="section" desde="derecha" aria-labelledby="estudio-titulo" className="py-24">
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
-        <h2 id="estudio-titulo" className="display-lg medida">
-          Pruébalo con tu producto ahora.
-        </h2>
+    <section aria-labelledby="estudio-titulo" className="relative overflow-hidden py-32 lg:py-36">
+      {/* M8 · Capa de fondo a 0.6x: la obra detrás, la herramienta delante.
+          Dos capas y no más: tres o más no lee como riqueza, lee como mareo. */}
+      <Parallax
+        velocidad={0.6}
+        recorrido={120}
+        className="pointer-events-none absolute inset-0 opacity-[0.38]"
+      >
+        <div aria-hidden className="flex gap-8 px-10 pt-16">
+          {FONDO.map((id, i) => (
+            <div key={id} className="w-[240px] shrink-0 blur-[2px]">
+              <div className="aspect-[9/16] overflow-hidden rounded-[14px]">
+                <Lamina tipologia={id} paleta={PALETAS_FONDO[i]} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Parallax>
+      <div className="relative z-[1] mx-auto max-w-[1400px] px-6 lg:px-10">
+        <RevealLineas
+          as="h2"
+          className="display-lg max-w-[16ch]"
+          lineas={["Pruébalo con tu producto", "ahora."]}
+        />
 
         {agotado && !prompt ? (
           <div className="mt-12 max-w-[560px]">
-            <p className="cuerpo-lg text-mid">
+            <p className="cuerpo-lg text-smoke">
               Ya viste cómo se ve. Crea tu cuenta para generar la campaña de nueve secciones.
             </p>
-            <Boton asChild variante="primario" tamano="lg" className="mt-6">
+            <Boton asChild variante="heat" tamano="lg" className="mt-6">
               <Link href="/entrar?modo=registro">Crear mi cuenta</Link>
             </Boton>
           </div>
@@ -86,7 +118,7 @@ export function EstudioVivo() {
           <div className="mt-12 grid gap-8 lg:grid-cols-2">
             <form onSubmit={generar} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label htmlFor="prueba-desc" className="etiqueta text-mid">
+                <label htmlFor="prueba-desc" className="etiqueta text-smoke">
                   Describe tu producto en una línea
                 </label>
                 <textarea
@@ -100,17 +132,17 @@ export function EstudioVivo() {
                   placeholder="Faja reductora de compresión media para uso diario"
                   className={cn(
                     "w-full resize-none rounded-[10px] p-3 text-[1.0625rem]",
-                    "bg-[var(--surface-1)] text-hi placeholder:text-lo",
-                    "border border-[var(--line)]",
+                    "bg-[var(--anvil)] text-ash placeholder:text-slag",
+                    "border border-[var(--scale)]",
                     "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                    "focus:border-[var(--line-strong)]",
+                    "focus:border-[var(--scale-hi)]",
                   )}
                 />
-                <span className="mono-sm text-lo self-end">{descripcion.length} / 200</span>
+                <span className="mono-sm text-slag self-end">{descripcion.length} / 200</span>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="prueba-tipo" className="etiqueta text-mid">
+                <label htmlFor="prueba-tipo" className="etiqueta text-smoke">
                   Qué sección quieres ver
                 </label>
                 <Select value={tipologia} onValueChange={setTipologia}>
@@ -129,7 +161,7 @@ export function EstudioVivo() {
 
               <Boton
                 type="submit"
-                variante="primario"
+                variante="heat"
                 tamano="lg"
                 cargando={cargando}
                 textoCargando="Construyendo…"
@@ -138,7 +170,7 @@ export function EstudioVivo() {
                 Generar un prompt
               </Boton>
 
-              <p className="mono-sm text-lo">un prompt por visitante · sin cuenta</p>
+              <p className="mono-sm text-slag">un prompt por visitante · sin cuenta</p>
 
               {error && !agotado && (
                 <p role="alert" className="cuerpo text-[var(--danger)]">
@@ -150,39 +182,39 @@ export function EstudioVivo() {
             {/* El resultado, en un fotograma hundido: es material, no interfaz. */}
             <div
               className={cn(
-                "relative flex min-h-[280px] flex-col rounded-[12px] bg-[var(--surface-sunk)] p-4",
-                "border border-[var(--line)]",
-                cargando && "barrido-rim",
+                "relative flex min-h-[280px] flex-col rounded-[12px] bg-[var(--sunk)] p-4",
+                "border border-[var(--scale)]",
+                cargando && "barrido-calor",
               )}
             >
               {prompt ? (
                 <>
                   <div className="flex items-center justify-between gap-4 pb-3">
-                    <span className="mono-sm text-lo">
+                    <span className="mono-sm text-slag">
                       {prompt.palabras} palabras · {prompt.advertencias.length} avisos
                     </span>
                     <button
                       type="button"
                       onClick={copiar}
                       className={cn(
-                        "inline-flex items-center gap-1.5 mono-sm text-mid",
-                        "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
+                        "inline-flex items-center gap-1.5 mono-sm text-smoke",
+                        "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
                       )}
                     >
                       {copiado ? (
-                        <Check strokeWidth={1.5} className="size-3.5 text-[var(--ok)]" />
+                        <Check className="size-3.5 text-[var(--ok)]" />
                       ) : (
-                        <Copy strokeWidth={1.5} className="size-3.5" />
+                        <Copy className="size-3.5" />
                       )}
                       {copiado ? "Copiado" : "Copiar"}
                     </button>
                   </div>
-                  <pre className="mono-sm whitespace-pre-wrap text-mid leading-relaxed">
+                  <pre className="mono-sm whitespace-pre-wrap text-smoke leading-relaxed">
                     {prompt.texto}
                   </pre>
                 </>
               ) : (
-                <p className="m-auto max-w-[36ch] text-center cuerpo text-lo">
+                <p className="m-auto max-w-[36ch] text-center cuerpo text-slag">
                   {cargando
                     ? "Construyendo el prompt con la metodología…"
                     : "El prompt aparece aquí, en prosa narrativa y con su bloque de paleta al inicio."}
@@ -192,6 +224,6 @@ export function EstudioVivo() {
           </div>
         )}
       </div>
-    </Revelar>
+    </section>
   );
 }

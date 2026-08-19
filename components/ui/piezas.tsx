@@ -23,8 +23,8 @@ export function Chip({
         "transition-[background-color,border-color,color,transform] duration-[140ms] ease-[var(--ease-out)]",
         "active:scale-[0.97]",
         activo
-          ? "bg-[var(--surface-2)] text-hi border-[var(--key)]"
-          : "bg-transparent text-mid border-[var(--line)] hf:text-hi hf:border-[var(--line-strong)]",
+          ? "bg-[var(--anvil-hi)] text-ash border-[var(--heat)]"
+          : "bg-transparent text-smoke border-[var(--scale)] hf:text-ash hf:border-[var(--scale-hi)]",
         className,
       )}
       {...props}
@@ -37,13 +37,14 @@ export function Chip({
 type TonoBadge = "neutro" | "ok" | "aviso" | "peligro" | "maquina" | "metal";
 
 const TONOS: Record<TonoBadge, string> = {
-  neutro: "text-mid border-[var(--line)]",
+  neutro: "text-smoke border-[var(--scale)]",
   ok: "text-[var(--ok)] border-[color-mix(in_oklab,var(--ok)_40%,transparent)]",
-  aviso: "text-[var(--warn)] border-[color-mix(in_oklab,var(--warn)_40%,transparent)]",
+  // --warn no llega a 4.5:1 sobre el canvas: va en el borde, y el texto en tinta.
+  aviso: "text-ash border-[var(--warn)]",
   peligro:
     "text-[var(--danger)] border-[color-mix(in_oklab,var(--danger)_40%,transparent)]",
-  maquina: "text-[var(--rim-soft)] border-[color-mix(in_oklab,var(--rim)_40%,transparent)]",
-  metal: "text-[var(--key-hi)] border-[var(--key-lo)]",
+  maquina: "text-[var(--quench)] border-[color-mix(in_oklab,var(--quench)_40%,transparent)]",
+  metal: "text-[var(--ember)] border-[var(--heat-lo)]",
 };
 
 export function Badge({
@@ -67,7 +68,7 @@ export function Badge({
 /* ---------- Hairline ---------- */
 
 export function Hairline({ className }: { className?: string }) {
-  return <div aria-hidden className={cn("h-px w-full bg-[var(--line)]", className)} />;
+  return <div aria-hidden className={cn("h-px w-full bg-[var(--scale)]", className)} />;
 }
 
 /* ---------- Sello metálico ----------
@@ -89,7 +90,7 @@ export function Sello({
       style={{ width: tamano, height: tamano }}
       className={cn(
         "relative inline-grid place-items-center rounded-full shrink-0",
-        "bg-[var(--metal)] text-[#1A1206]",
+        "bg-[var(--templado)] text-[#1A1206]",
         // Sombra con desplazamiento y desenfoque: la luz viene de arriba.
         "shadow-[0_6px_16px_-6px_rgba(0,0,0,0.8)]",
         className,
@@ -122,8 +123,8 @@ export function Fotograma({
       data-activo={activo || undefined}
       className={cn(
         "relative aspect-[9/16] overflow-hidden rounded-[12px]",
-        "bg-[var(--surface-sunk)]",
-        activo ? "borde-metal" : "border border-[var(--line)]",
+        "bg-[var(--sunk)]",
+        activo ? "borde-templado" : "border border-[var(--scale)]",
         className,
       )}
       {...props}
@@ -142,5 +143,5 @@ export function Dato({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <span className={cn("mono-sm text-lo", className)}>{children}</span>;
+  return <span className={cn("mono-sm text-slag", className)}>{children}</span>;
 }

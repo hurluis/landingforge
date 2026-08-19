@@ -14,7 +14,7 @@ export default function Precios() {
       <section className="pt-16">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
           <h1 className="display-xl max-w-[16ch]">Pagas por lo que generas.</h1>
-          <p className="mt-8 cuerpo-lg text-mid medida">
+          <p className="mt-8 cuerpo-lg text-smoke medida">
             No hay plan ilimitado porque cada imagen tiene un costo real. Un modelo plano
             haría que el usuario más pesado se comiera el margen de los otros veinte, y eso
             termina pagándolo todo el mundo con un producto peor.
@@ -28,24 +28,24 @@ export default function Precios() {
           mejor que enterarse después. */}
       <section aria-labelledby="letra-chica" className="pb-8">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
-          <div className="rounded-[16px] border border-[var(--line)] bg-[var(--surface-1)] p-6">
+          <div className="rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-6">
             <h2 id="letra-chica" className="titulo">
               La letra pequeña, en grande
             </h2>
             <ul className="mt-4 flex flex-col gap-3">
-              <li className="cuerpo text-mid">
+              <li className="cuerpo text-smoke">
                 Los créditos incluidos en el plan no se acumulan entre meses. Los que compras
                 aparte, sí.
               </li>
-              <li className="cuerpo text-mid">
+              <li className="cuerpo text-smoke">
                 Si una sección falla al generarse, su crédito vuelve a tu cuenta
                 automáticamente. No hay que reclamarlo.
               </li>
-              <li className="cuerpo text-mid">
+              <li className="cuerpo text-smoke">
                 Estos precios son de la primera versión del producto y están sujetos a la
                 tarifa de la API de imagen. Si cambian, se avisa antes del siguiente cobro.
               </li>
-              <li className="cuerpo text-mid">
+              <li className="cuerpo text-smoke">
                 El cambio de plan en esta versión es una simulación: ajusta tu plan y recarga
                 créditos sin cobrar nada. Todavía no hay pasarela de pago conectada.
               </li>

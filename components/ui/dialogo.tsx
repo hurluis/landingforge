@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { X } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { Boton } from "@/components/ui/boton";
 
@@ -35,7 +35,7 @@ export function DialogoContenido({
       <RadixDialog.Overlay
         className={cn(
           "fixed inset-0 z-50 bg-black/70",
-          "data-[state=open]:animate-[velo-entra_var(--dur-modal)_var(--ease-out)]",
+          "data-[state=open]:animate-[velo-entra_var(--dur-overlay)_var(--ease-out)]",
           "data-[state=closed]:animate-[velo-sale_200ms_var(--ease-out)]",
         )}
       />
@@ -44,23 +44,23 @@ export function DialogoContenido({
           "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-32px)] max-w-md",
           "-translate-x-1/2 -translate-y-1/2",
           // Nivel 2: sombra, sin borde.
-          "bg-[var(--surface-2)] rounded-[16px] shadow-elev-2 p-6",
+          "bg-[var(--anvil-hi)] rounded-[16px] shadow-elev-2 p-6",
           "origin-center",
-          "data-[state=open]:animate-[modal-entra_var(--dur-modal)_var(--ease-out)]",
+          "data-[state=open]:animate-[modal-entra_var(--dur-overlay)_var(--ease-out)]",
           "data-[state=closed]:animate-[modal-sale_200ms_var(--ease-out)]",
           className,
         )}
         {...props}
       >
         <div className="flex items-start justify-between gap-4">
-          <RadixDialog.Title className="titulo text-hi">{titulo}</RadixDialog.Title>
+          <RadixDialog.Title className="titulo text-ash">{titulo}</RadixDialog.Title>
           <RadixDialog.Close asChild>
             <Boton variante="fantasma" tamano="sm" aria-label="Cerrar" className="-mr-2 -mt-1 px-2">
-              <X strokeWidth={1.5} />
+              <X />
             </Boton>
           </RadixDialog.Close>
         </div>
-        <RadixDialog.Description className="mt-2 cuerpo text-mid">
+        <RadixDialog.Description className="mt-2 cuerpo text-smoke">
           {descripcion}
         </RadixDialog.Description>
         <div className="mt-6">{children}</div>

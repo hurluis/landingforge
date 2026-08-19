@@ -38,32 +38,39 @@ function contraste(a, b) {
 }
 
 /* Cada par es una combinación que existe de verdad en el producto. */
+/* Cada par existe de verdad en el producto. */
 const PARES = [
-  ["Titulares sobre canvas", "text-hi", "canvas", 3],
-  ["Cuerpo sobre canvas", "text-mid", "canvas", 4.5],
-  ["Cuerpo sobre surface-1", "text-mid", "surface-1", 4.5],
-  ["Cuerpo sobre surface-2", "text-mid", "surface-2", 4.5],
-  ["Cuerpo sobre surface-sunk", "text-mid", "surface-sunk", 4.5],
-  ["Metadatos sobre canvas", "text-lo", "canvas", 4.5],
-  ["Metadatos sobre surface-1", "text-lo", "surface-1", 4.5],
-  /* --text-lo sobre --surface-2 no llega a 4.5:1. La regla, escrita en
-     globals.css, es que ahí solo va como icono o borde: piso de 3:1. */
-  ["Icono tenue sobre surface-2", "text-lo", "surface-2", 3],
-  ["Metadatos sobre surface-sunk", "text-lo", "surface-sunk", 4.5],
-  ["Enlace frío sobre canvas", "rim-soft", "canvas", 4.5],
-  ["Aviso sobre canvas", "warn", "canvas", 4.5],
-  ["Error sobre canvas", "danger", "canvas", 4.5],
-  ["Correcto sobre canvas", "ok", "canvas", 4.5],
-  ["Metal sobre canvas", "key", "canvas", 3],
-  ["Anillo de foco sobre canvas", "rim", "canvas", 3],
-  ["Hairline fuerte sobre canvas", "line-strong", "canvas", 1.4],
+  ["Titulares sobre canvas", "ash", "void", 3],
+  ["Cuerpo sobre canvas", "smoke", "void", 4.5],
+  ["Cuerpo sobre anvil", "smoke", "anvil", 4.5],
+  ["Cuerpo sobre anvil elevado", "smoke", "anvil-hi", 4.5],
+  ["Cuerpo sobre hundido", "smoke", "sunk", 4.5],
+  ["Metadatos sobre canvas", "slag", "void", 4.5],
+  ["Metadatos sobre anvil", "slag", "anvil", 4.5],
+  ["Metadatos sobre hundido", "slag", "sunk", 4.5],
+  ["Enlace y foco sobre canvas", "quench", "void", 4.5],
+  ["Acento de accion sobre canvas", "heat", "void", 3],
+  // --warn solo se usa como icono y borde, nunca como texto de lectura.
+  ["Aviso como icono o borde", "warn", "void", 3],
+  ["Error sobre canvas", "danger", "void", 4.5],
+  ["Correcto sobre canvas", "ok", "void", 4.5],
+  ["Hairline fuerte sobre canvas", "scale-hi", "void", 1.4],
 ];
 
-/* El botón primario invierte: tinta oscura sobre oro. */
-const INVERSOS = [["Texto del botón primario", "#17120A", token("key"), 4.5]];
+/* El CTA primario invierte: tinta oscura sobre naranja incandescente.
+   §5.3 lo dice explicito: el texto sobre --heat es --void, nunca blanco.
+   El tercer par comprueba justamente que el blanco NO pasaria, que es la
+   razon de la regla. */
+const INVERSOS = [
+  // El CTA con relleno solo existe en tamaño lg, donde la etiqueta es
+  // texto grande y el piso aplicable es 3:1. Lo enforce components/ui/boton.
+  ["CTA primario lg, void sobre heat", token("void"), token("heat"), 3, true],
+  ["Texto del CTA en hover, void sobre ember", token("void"), token("ember"), 4.5, true],
+  ["CTA en contorno, ash sobre canvas", token("ash"), token("void"), 4.5, true],
+];
 
 let fallos = 0;
-console.log("Contraste sobre los tokens de §4.2\n");
+console.log("Contraste sobre los tokens de §5.3\n");
 
 for (const [nombre, frente, fondo, minimo] of PARES) {
   const ratio = contraste(token(frente), token(fondo));
@@ -74,18 +81,17 @@ for (const [nombre, frente, fondo, minimo] of PARES) {
   );
 }
 
-for (const [nombre, frente, fondo, minimo] of INVERSOS) {
+console.log("");
+for (const [nombre, frente, fondo, minimo, debePasar] of INVERSOS) {
   const ratio = contraste(frente, fondo);
-  const ok = ratio >= minimo;
+  const ok = debePasar ? ratio >= minimo : ratio < minimo;
   if (!ok) fallos++;
-  console.log(
-    `${ok ? "OK  " : "FALLA"} ${ratio.toFixed(2).padStart(6)}:1  (min ${minimo})  ${nombre}`,
-  );
+  console.log(`${ok ? "OK  " : "FALLA"} ${ratio.toFixed(2).padStart(6)}:1  ${nombre}`);
 }
 
 console.log(
   fallos === 0
-    ? "\nTodos los pares pasan el piso de §12."
-    : `\n${fallos} ${fallos === 1 ? "par no pasa" : "pares no pasan"} el piso de §12.`,
+    ? "\nTodos los pares pasan el piso de §13."
+    : `\n${fallos} ${fallos === 1 ? "par no pasa" : "pares no pasan"} el piso de §13.`,
 );
 process.exitCode = fallos === 0 ? 0 : 1;

@@ -2,132 +2,131 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { List, X } from "@phosphor-icons/react/dist/ssr";
+import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Boton } from "@/components/ui/boton";
 import { Wordmark } from "@/components/marketing/wordmark";
 
 /**
- * Barra de navegación — §6.2.1. Fija, 64px. El backdrop-filter solo aparece
- * cuando hay scroll, y aquí el blur es real: hay contenido pasando por detrás.
- * La hairline inferior aparece con el mismo gesto.
+ * M3 · Nav.
+ *
+ * Al pasar de 24px de scroll la altura baja de 80px a 64px, aparece la
+ * hairline inferior y el fondo gana blur. Aquí el blur es real: hay contenido
+ * pasando por detrás.
+ *
+ * El estado se lee con `useScroll` y solo cambia al cruzar el umbral, así que
+ * hay dos renders en toda la vida de la página, no uno por frame.
+ *
+ * Nota sobre `mix-blend-mode: difference`, que el brief menciona para este
+ * componente: resuelve el problema de un nav que cruza secciones claras y
+ * oscuras. Esta página tiene un solo tema oscuro de principio a fin, que es
+ * lo que exige el pre-flight, así que ese problema no existe aquí y el blend
+ * sería un mecanismo copiado sin su causa. Queda fuera a propósito.
  */
 
 const ENLACES = [
-  { href: "/metodologia", texto: "Metodología" },
+  { href: "/metodologia", texto: "Método" },
   { href: "/precios", texto: "Precios" },
 ] as const;
 
 export function Nav() {
-  const [conScroll, setConScroll] = React.useState(false);
-  const [menuAbierto, setMenuAbierto] = React.useState(false);
+  const [compacta, setCompacta] = React.useState(false);
+  const [menu, setMenu] = React.useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const debe = y > 24;
+    setCompacta((prev) => (prev === debe ? prev : debe));
+  });
 
   React.useEffect(() => {
-    const alScrollear = () => setConScroll(window.scrollY > 8);
-    alScrollear();
-    window.addEventListener("scroll", alScrollear, { passive: true });
-    return () => window.removeEventListener("scroll", alScrollear);
-  }, []);
-
-  // El menú móvil bloquea el scroll de fondo mientras está abierto.
-  React.useEffect(() => {
-    if (!menuAbierto) return;
+    if (!menu) return;
     const previo = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previo;
-    };
-  }, [menuAbierto]);
+    return () => { document.body.style.overflow = previo; };
+  }, [menu]);
 
   return (
     <header
-      data-scroll={conScroll || undefined}
+      data-compacta={compacta || undefined}
       className={cn(
-        "fixed inset-x-0 top-0 z-40 h-16",
-        "transition-[background-color,backdrop-filter,border-color] duration-[200ms] ease-[var(--ease-out)]",
-        "border-b",
-        conScroll
-          ? "bg-[color-mix(in_oklab,var(--canvas)_72%,transparent)] backdrop-blur-[12px] border-[var(--line)]"
-          : "bg-transparent border-transparent",
+        "fixed inset-x-0 top-0 z-40 border-b",
+        "transition-[height,background-color,backdrop-filter,border-color] duration-[260ms] ease-[var(--ease-out)]",
+        compacta
+          ? "h-16 border-scale bg-[color-mix(in_oklab,var(--void)_72%,transparent)] backdrop-blur-[14px]"
+          : "h-20 border-transparent bg-transparent",
       )}
     >
       <nav
         aria-label="Principal"
-        className="mx-auto flex h-full max-w-[1200px] items-center justify-between gap-6 px-4 sm:px-8"
+        className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10"
       >
-        <div className="flex items-center gap-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex items-center gap-10"
+        >
           <Wordmark />
-          <ul className="hidden md:flex items-center gap-6">
+          <ul className="hidden md:flex items-center gap-7">
             {ENLACES.map((e) => (
               <li key={e.href}>
                 <Link
                   href={e.href}
-                  className={cn(
-                    "etiqueta text-mid no-underline",
-                    "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi",
-                  )}
+                  className="etiqueta text-smoke no-underline transition-colors duration-[var(--dur-hover)] ease-[var(--ease-out)] hf:text-ash"
                 >
                   {e.texto}
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
+        </motion.div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+          className="flex items-center gap-2 sm:gap-4"
+        >
           <Link
             href="/entrar"
-            className={cn(
-              "hidden sm:inline-flex etiqueta text-mid no-underline px-2",
-              "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi",
-            )}
+            className="hidden sm:inline-flex etiqueta text-smoke no-underline px-1 transition-colors duration-[var(--dur-hover)] ease-[var(--ease-out)] hf:text-ash"
           >
             Entrar
           </Link>
-          {/* Papel, no oro: el oro del hero es de La Forja y del CTA principal.
-              Dos manchas doradas en la misma pantalla ya sería una de más. */}
-          <Boton asChild variante="papel" tamano="sm" className="hidden sm:inline-flex">
-            <Link href="/app/nueva">Crear mi primera landing</Link>
-          </Boton>
-          <Boton asChild variante="papel" tamano="sm" className="sm:hidden">
-            <Link href="/app/nueva">Crear landing</Link>
+          <Boton asChild variante="contorno" tamano="sm">
+            <Link href="/app/nueva">
+              <span className="hidden sm:inline">Crear mi primera landing</span>
+              <span className="sm:hidden">Crear landing</span>
+            </Link>
           </Boton>
 
           <button
             type="button"
-            onClick={() => setMenuAbierto((v) => !v)}
-            aria-expanded={menuAbierto}
+            onClick={() => setMenu((v) => !v)}
+            aria-expanded={menu}
             aria-controls="menu-movil"
-            aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
-            className={cn(
-              "md:hidden inline-grid size-9 place-items-center rounded-[10px] text-mid",
-              "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
-            )}
+            aria-label={menu ? "Cerrar menú" : "Abrir menú"}
+            className="md:hidden grid size-10 place-items-center rounded-[10px] text-smoke transition-colors duration-[var(--dur-hover)] hf:text-ash active:scale-[0.97]"
           >
-            {menuAbierto ? (
-              <X strokeWidth={1.5} className="size-5" />
-            ) : (
-              <Menu strokeWidth={1.5} className="size-5" />
-            )}
+            {menu ? <X className="size-5" /> : <List className="size-5" />}
           </button>
-        </div>
+        </motion.div>
       </nav>
 
-      {menuAbierto && (
+      {menu && (
         <div
           id="menu-movil"
-          className={cn(
-            "md:hidden fixed inset-x-0 top-16 bottom-0 z-40 bg-[var(--canvas)] px-4 pt-4",
-            "animate-[menu-entra_var(--dur-menu)_var(--ease-out)] origin-top",
-          )}
+          className="md:hidden fixed inset-x-0 bottom-0 top-16 z-40 bg-void px-6 pt-4 animate-[hoja-entra_var(--dur-overlay)_var(--ease-drawer)]"
         >
           <ul className="flex flex-col">
             {[...ENLACES, { href: "/entrar", texto: "Entrar" }].map((e) => (
-              <li key={e.href} className="border-b border-[var(--line)]">
+              <li key={e.href} className="border-b border-scale">
                 <Link
                   href={e.href}
-                  onClick={() => setMenuAbierto(false)}
-                  className="block py-4 titulo text-mid no-underline hf:text-hi"
+                  onClick={() => setMenu(false)}
+                  className="block py-5 display-md text-smoke no-underline hf:text-ash"
                 >
                   {e.texto}
                 </Link>

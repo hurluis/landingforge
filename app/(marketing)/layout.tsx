@@ -8,7 +8,7 @@ export default function LayoutMarketing({ children }: { children: React.ReactNod
     <>
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[10px] focus:bg-[var(--surface-2)] focus:px-4 focus:py-2 focus:text-hi"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-[10px] focus:bg-[var(--anvil-hi)] focus:px-4 focus:py-2 focus:text-ash"
       >
         Saltar al contenido
       </a>

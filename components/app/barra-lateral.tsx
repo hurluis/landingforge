@@ -3,16 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  LayoutGrid,
-  PlusCircle,
-  UserRound,
-  PanelLeftClose,
-  PanelLeftOpen,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
+import { SquaresFour, PlusCircle, User, SidebarSimple, Sidebar, SignOut, List, X } from "@phosphor-icons/react/dist/ssr";
 import type { Usuario } from "@/lib/datos/tipos";
 import { plan as definicionPlan } from "@/lib/planes";
 import { cn } from "@/lib/utils";
@@ -25,9 +16,9 @@ import { cn } from "@/lib/utils";
  */
 
 const ENLACES = [
-  { href: "/app", icono: LayoutGrid, texto: "Biblioteca", exacto: true },
+  { href: "/app", icono: SquaresFour, texto: "Biblioteca", exacto: true },
   { href: "/app/nueva", icono: PlusCircle, texto: "Nueva campaña", exacto: false },
-  { href: "/app/cuenta", icono: UserRound, texto: "Cuenta", exacto: false },
+  { href: "/app/cuenta", icono: User, texto: "Cuenta", exacto: false },
 ] as const;
 
 export function BarraLateral({ usuario }: { usuario: Usuario }) {
@@ -55,7 +46,7 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
           href="/"
           aria-label="LandingForge, ir al inicio"
           className={cn(
-            "font-[family-name:var(--font-fraunces)] text-[1rem] leading-none tracking-[-0.02em] text-hi no-underline",
+            "font-[family-name:var(--font-fraunces)] text-[1rem] leading-none tracking-[-0.02em] text-ash no-underline",
             colapsada && "lg:sr-only",
           )}
         >
@@ -67,23 +58,23 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
           onClick={() => setColapsada((v) => !v)}
           aria-label={colapsada ? "Expandir la barra" : "Colapsar la barra"}
           className={cn(
-            "hidden lg:grid size-8 place-items-center rounded-[8px] text-lo",
-            "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
+            "hidden lg:grid size-8 place-items-center rounded-[8px] text-slag",
+            "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
           )}
         >
           {colapsada ? (
-            <PanelLeftOpen strokeWidth={1.5} className="size-4" />
+            <Sidebar  className="size-4" />
           ) : (
-            <PanelLeftClose strokeWidth={1.5} className="size-4" />
+            <SidebarSimple  className="size-4" />
           )}
         </button>
         <button
           type="button"
           onClick={() => setCajon(false)}
           aria-label="Cerrar el menú"
-          className="lg:hidden grid size-8 place-items-center rounded-[8px] text-lo hf:text-hi"
+          className="lg:hidden grid size-8 place-items-center rounded-[8px] text-slag hf:text-ash"
         >
-          <X strokeWidth={1.5} className="size-4" />
+          <X className="size-4" />
         </button>
       </div>
 
@@ -103,11 +94,11 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
                     "flex items-center gap-3 rounded-[10px] px-3 h-10 no-underline",
                     "transition-colors duration-[140ms] ease-[var(--ease-out)]",
                     activo
-                      ? "bg-[var(--surface-2)] text-hi"
-                      : "text-mid hf:bg-[var(--surface-1)] hf:text-hi",
+                      ? "bg-[var(--anvil-hi)] text-ash"
+                      : "text-smoke hf:bg-[var(--anvil)] hf:text-ash",
                   )}
                 >
-                  <Icono strokeWidth={1.5} className="size-4 shrink-0" />
+                  <Icono className="size-4 shrink-0" />
                   <span className={cn("etiqueta", colapsada && "lg:sr-only")}>{e.texto}</span>
                 </Link>
               </li>
@@ -119,26 +110,26 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
       <div className="mt-auto flex flex-col gap-3">
         <div
           className={cn(
-            "rounded-[12px] border border-[var(--line)] p-3",
+            "rounded-[12px] border border-[var(--scale)] p-3",
             colapsada && "lg:hidden",
           )}
         >
-          <p className="mono-sm text-lo">Plan {def.nombre}</p>
+          <p className="mono-sm text-slag">Plan {def.nombre}</p>
           <p className="mt-1 flex items-baseline gap-1.5">
-            <span className="font-[family-name:var(--font-fraunces)] text-[1.5rem] font-[350] leading-none tabular-nums text-hi">
+            <span className="font-[family-name:var(--font-fraunces)] text-[1.5rem] font-[350] leading-none tabular-nums text-ash">
               {usuario.creditosDisponibles}
             </span>
-            <span className="mono-sm text-lo">créditos</span>
+            <span className="mono-sm text-slag">créditos</span>
           </p>
           <div
             aria-hidden
-            className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[var(--surface-2)]"
+            className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[var(--anvil-hi)]"
           >
             <span
               style={{
                 width: `${Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100)}%`,
               }}
-              className="block h-full rounded-full bg-[var(--key)]"
+              className="block h-full rounded-full bg-[var(--heat)]"
             />
           </div>
         </div>
@@ -148,12 +139,12 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
           onClick={salir}
           title={colapsada ? "Cerrar sesión" : undefined}
           className={cn(
-            "flex items-center gap-3 rounded-[10px] px-3 h-10 text-mid",
+            "flex items-center gap-3 rounded-[10px] px-3 h-10 text-smoke",
             "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-            "hf:bg-[var(--surface-1)] hf:text-hi active:scale-[0.97]",
+            "hf:bg-[var(--anvil)] hf:text-ash active:scale-[0.97]",
           )}
         >
-          <LogOut strokeWidth={1.5} className="size-4 shrink-0" />
+          <SignOut  className="size-4 shrink-0" />
           <span className={cn("etiqueta", colapsada && "lg:sr-only")}>Cerrar sesión</span>
         </button>
       </div>
@@ -166,7 +157,7 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
       <aside
         data-colapsada={colapsada || undefined}
         className={cn(
-          "hidden lg:block shrink-0 border-r border-[var(--line)] bg-[var(--canvas)]",
+          "hidden lg:block shrink-0 border-r border-[var(--scale)] bg-[var(--void)]",
           "transition-[width] duration-[var(--dur-menu)] ease-[var(--ease-out)]",
           colapsada ? "w-16" : "w-60",
         )}
@@ -181,11 +172,11 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
         aria-label="Abrir el menú"
         className={cn(
           "lg:hidden fixed left-4 top-4 z-30 grid size-10 place-items-center rounded-[10px]",
-          "bg-[var(--surface-2)] text-mid border border-[var(--line)]",
-          "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-hi active:scale-[0.97]",
+          "bg-[var(--anvil-hi)] text-smoke border border-[var(--scale)]",
+          "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
         )}
       >
-        <Menu strokeWidth={1.5} className="size-5" />
+        <List  className="size-5" />
       </button>
 
       {cajon && (
@@ -198,7 +189,7 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
           />
           <div
             className={cn(
-              "absolute inset-y-0 left-0 w-64 bg-[var(--surface-1)] shadow-elev-2",
+              "absolute inset-y-0 left-0 w-64 bg-[var(--anvil)] shadow-elev-2",
               "animate-[cajon-entra_320ms_var(--ease-drawer)]",
             )}
           >

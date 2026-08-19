@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Ban } from "lucide-react";
+import { Warning, CheckCircle, Prohibit } from "@phosphor-icons/react/dist/ssr";
 import type { Advertencia } from "@/lib/datos/tipos";
 import {
   LIMITE_CARACTERES_TEXTO,
@@ -39,10 +39,10 @@ export function Validador({
   return (
     <section aria-labelledby="validador-titulo" className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 id="validador-titulo" className="etiqueta text-mid">
+        <h3 id="validador-titulo" className="etiqueta text-smoke">
           Validación
         </h3>
-        <span className="mono-sm text-lo tabular-nums">
+        <span className="mono-sm text-slag tabular-nums">
           {palabras} palabras · {advertencias.length}{" "}
           {advertencias.length === 1 ? "hallazgo" : "hallazgos"}
         </span>
@@ -50,14 +50,14 @@ export function Validador({
 
       {advertencias.length === 0 ? (
         <p className="flex items-center gap-2 cuerpo text-[var(--ok)]">
-          <CheckCircle2 strokeWidth={1.5} className="size-4 shrink-0" />
+          <CheckCircle  className="size-4 shrink-0" />
           Pasa las siete reglas. Listo para generar.
         </p>
       ) : (
         <ul className="flex flex-col gap-2">
           {[...bloqueos, ...avisos].map((a, i) => {
             const esBloqueo = a.severidad === "bloqueo";
-            const Icono = esBloqueo ? Ban : AlertTriangle;
+            const Icono = esBloqueo ? Prohibit : Warning;
             return (
               <li
                 key={`${a.regla}-${i}`}
@@ -71,7 +71,6 @@ export function Validador({
                 )}
               >
                 <Icono
-                  strokeWidth={1.5}
                   aria-hidden
                   className={cn(
                     "mt-0.5 size-4 shrink-0",
@@ -79,9 +78,9 @@ export function Validador({
                   )}
                 />
                 <div className="min-w-0">
-                  <p className="mono-sm text-lo">{NOMBRE_REGLA[a.regla]}</p>
-                  <p className="mt-1 cuerpo text-hi">{a.detalle}</p>
-                  {a.sugerencia && <p className="mt-1 cuerpo text-mid">{a.sugerencia}</p>}
+                  <p className="mono-sm text-slag">{NOMBRE_REGLA[a.regla]}</p>
+                  <p className="mt-1 cuerpo text-ash">{a.detalle}</p>
+                  {a.sugerencia && <p className="mt-1 cuerpo text-smoke">{a.sugerencia}</p>}
                 </div>
               </li>
             );

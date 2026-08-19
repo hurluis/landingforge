@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Sparkle, Trash2 } from "lucide-react";
+import { Sparkle, Trash } from "@phosphor-icons/react/dist/ssr";
 import { Boton, BotonEnlace } from "@/components/ui/boton";
 import { Badge, Chip, Dato, Fotograma, Hairline, Sello } from "@/components/ui/piezas";
 import { Acordeon } from "@/components/ui/acordeon";
@@ -34,9 +34,9 @@ function Bloque({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-[var(--line)] py-12">
+    <section className="border-t border-[var(--scale)] py-12">
       <h2 className="display-md">{titulo}</h2>
-      {nota && <p className="mt-2 cuerpo text-mid medida">{nota}</p>}
+      {nota && <p className="mt-2 cuerpo text-smoke medida">{nota}</p>}
       <div className="mt-8">{children}</div>
     </section>
   );
@@ -48,7 +48,7 @@ export default function Kit() {
   return (
     <main className="mx-auto max-w-[1100px] px-4 py-16 sm:px-8">
       <h1 className="display-lg">Kit</h1>
-      <p className="mt-4 cuerpo-lg text-mid medida">
+      <p className="mt-4 cuerpo-lg text-smoke medida">
         Las primitivas del sistema, en todos sus estados. Página interna: si algo aquí se ve
         raro, se ve raro en todo el producto.
       </p>
@@ -59,55 +59,55 @@ export default function Kit() {
           <p className="display-lg">Display LG</p>
           <p className="display-md">Display MD</p>
           <p className="titulo">Título de sección</p>
-          <p className="cuerpo-lg text-mid">
+          <p className="cuerpo-lg text-smoke">
             Cuerpo grande. La medida de lectura se mantiene entre 65 y 75 caracteres para que
             el ojo no tenga que buscar el principio de la línea siguiente.
           </p>
-          <p className="cuerpo text-mid">Cuerpo.</p>
-          <p className="etiqueta text-lo">Etiqueta</p>
-          <p className="mono-sm text-lo">mono-sm · 9:16 · #D6A75C · 1.240 palabras</p>
+          <p className="cuerpo text-smoke">Cuerpo.</p>
+          <p className="etiqueta text-slag">Etiqueta</p>
+          <p className="mono-sm text-slag">mono-sm · 9:16 · #D6A75C · 1.240 palabras</p>
         </div>
       </Bloque>
 
       <Bloque titulo="Color" nota="El chrome es desaturado. El color del cliente es el único fuerte en pantalla.">
         <div className="grid gap-8 sm:grid-cols-2">
           <div>
-            <p className="etiqueta text-mid">Chrome</p>
+            <p className="etiqueta text-smoke">Chrome</p>
             <ul className="mt-3 grid grid-cols-4 gap-2">
               {[
-                ["--canvas", "#0B0B0C"],
-                ["--surface-1", "#121214"],
-                ["--surface-2", "#1A1A1D"],
-                ["--surface-sunk", "#080809"],
-                ["--line", "#26262B"],
-                ["--line-strong", "#35353C"],
-                ["--text-hi", "#F2EFEA"],
-                ["--text-mid", "#A7A29B"],
+                ["--void", "#0B0B0C"],
+                ["--anvil", "#121214"],
+                ["--anvil-hi", "#1A1A1D"],
+                ["--sunk", "#080809"],
+                ["--scale", "#26262B"],
+                ["--scale-hi", "#35353C"],
+                ["--ash", "#F2EFEA"],
+                ["--smoke", "#A7A29B"],
               ].map(([nombre, hex]) => (
                 <li key={nombre} className="flex flex-col gap-1">
                   <span
                     style={{ background: hex }}
-                    className="block h-12 rounded-[6px] border border-[var(--line)]"
+                    className="block h-12 rounded-[6px] border border-[var(--scale)]"
                   />
-                  <span className="mono-sm text-lo text-[0.6875rem]">{hex}</span>
+                  <span className="mono-sm text-slag text-[0.6875rem]">{hex}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="etiqueta text-mid">Paleta del cliente, a plena saturación</p>
+            <p className="etiqueta text-smoke">Paleta del cliente, a plena saturación</p>
             <ul className="mt-3 grid grid-cols-5 gap-2">
               {swatches(PALETA).map((s) => (
                 <li key={s.rol} className="flex flex-col gap-1">
                   <span
                     style={{ background: s.hex }}
-                    className="block h-12 rounded-[6px] border border-[var(--line)]"
+                    className="block h-12 rounded-[6px] border border-[var(--scale)]"
                   />
-                  <span className="mono-sm text-lo text-[0.6875rem]">{s.hex}</span>
+                  <span className="mono-sm text-slag text-[0.6875rem]">{s.hex}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 cuerpo text-lo">{PALETA.nombre} — {PALETA.razon}</p>
+            <p className="mt-3 cuerpo text-slag">{PALETA.nombre}: {PALETA.razon}</p>
           </div>
         </div>
       </Bloque>
@@ -117,9 +117,9 @@ export default function Kit() {
         nota="Seis estados. El hover está gated con (hover: hover) and (pointer: fine); el press vive en :active."
       >
         <div className="flex flex-col gap-6">
-          {(["primario", "papel", "secundario", "fantasma", "peligro"] as const).map((v) => (
+          {(["heat", "contorno", "fantasma", "peligro"] as const).map((v) => (
             <div key={v} className="flex flex-wrap items-center gap-3">
-              <span className="mono-sm text-lo w-24">{v}</span>
+              <span className="mono-sm text-slag w-24">{v}</span>
               <Boton variante={v}>Reposo</Boton>
               <Boton variante={v} disabled>
                 Deshabilitado
@@ -136,7 +136,7 @@ export default function Kit() {
             </div>
           ))}
           <div className="flex items-center gap-3">
-            <span className="mono-sm text-lo w-24">enlace</span>
+            <span className="mono-sm text-slag w-24">enlace</span>
             <BotonEnlace href="#">Ver una campaña completa</BotonEnlace>
           </div>
         </div>
@@ -157,10 +157,10 @@ export default function Kit() {
           <Chip>chip</Chip>
           <Chip activo>chip activo</Chip>
           <Sello tamano={48}>
-            <Sparkle strokeWidth={1.5} className="size-5" />
+            <Sparkle className="size-5" />
           </Sello>
           <Sello tamano={64}>
-            <Trash2 strokeWidth={1.5} className="size-6" />
+            <Trash  className="size-6" />
           </Sello>
           <Dato>9:16 · 2K</Dato>
         </div>
@@ -181,11 +181,11 @@ export default function Kit() {
           <Fotograma>
             <Lamina tipologia="testimonios" paleta={PALETA} />
           </Fotograma>
-          <Fotograma className="barrido-rim">
+          <Fotograma className="barrido-calor">
             <Lamina tipologia="confianza" paleta={PALETA} />
           </Fotograma>
         </div>
-        <p className="mt-3 mono-sm text-lo">
+        <p className="mt-3 mono-sm text-slag">
           El cuarto lleva el barrido de luz de contorno: es el estado «generando».
         </p>
       </Bloque>
@@ -195,7 +195,7 @@ export default function Kit() {
         nota="Corriendo de verdad sobre un prompt mal escrito: keywords, palabras de la lista negra, titular de más de 25 caracteres y sin bloque de paleta."
       >
         <div className="grid gap-6 lg:grid-cols-2">
-          <pre className="rounded-[12px] border border-[var(--line)] bg-[var(--surface-sunk)] p-4 mono-sm whitespace-pre-wrap text-mid">
+          <pre className="rounded-[12px] border border-[var(--scale)] bg-[var(--sunk)] p-4 mono-sm whitespace-pre-wrap text-smoke">
             {PROMPT_ROTO}
           </pre>
           <Validador advertencias={advertencias} palabras={contarPalabras(PROMPT_ROTO)} />

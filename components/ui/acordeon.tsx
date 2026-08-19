@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as RadixAccordion from "@radix-ui/react-accordion";
-import { Plus } from "lucide-react";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,23 +24,22 @@ export function Acordeon({
         <RadixAccordion.Item
           key={item.id}
           value={item.id}
-          className="border-t border-[var(--line)] last:border-b"
+          className="border-t border-[var(--scale)] last:border-b"
         >
           <RadixAccordion.Header>
             <RadixAccordion.Trigger
               className={cn(
                 "grupo flex w-full items-center justify-between gap-6 py-6 text-left",
-                "titulo text-mid",
+                "titulo text-smoke",
                 "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-                "hf:text-hi data-[state=open]:text-hi",
+                "hf:text-ash data-[state=open]:text-ash",
               )}
             >
               <span className="text-balance">{item.pregunta}</span>
               <Plus
-                strokeWidth={1.5}
                 aria-hidden
                 className={cn(
-                  "size-5 shrink-0 text-lo",
+                  "size-5 shrink-0 text-slag",
                   "transition-transform duration-[200ms] ease-[var(--ease-out)]",
                   "group-data-[state=open]:rotate-45",
                 )}
@@ -54,7 +53,7 @@ export function Acordeon({
               "data-[state=closed]:animate-[acordeon-cierra_200ms_var(--ease-out)]",
             )}
           >
-            <div className="medida cuerpo text-mid pb-6 pr-10">{item.respuesta}</div>
+            <div className="medida cuerpo text-smoke pb-6 pr-10">{item.respuesta}</div>
           </RadixAccordion.Content>
         </RadixAccordion.Item>
       ))}

@@ -1,5 +1,5 @@
 import { Acordeon } from "@/components/ui/acordeon";
-import { Revelar } from "@/components/ui/revelar";
+import { RevealLineas } from "@/components/motion/reveal";
 
 /**
  * Preguntas — §6.2.9. Escritas como las haría un operador desconfiado, no
@@ -93,15 +93,17 @@ const PREGUNTAS = [
 
 export function Preguntas() {
   return (
-    <Revelar as="section" desde="abajo" aria-labelledby="preguntas-titulo" className="py-24">
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
-        <h2 id="preguntas-titulo" className="display-lg medida">
-          Lo que preguntan antes de pagar.
-        </h2>
+    <section aria-labelledby="preguntas-titulo" className="py-32 lg:py-36">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+        <RevealLineas
+          as="h2"
+          className="display-lg max-w-[16ch]"
+          lineas={["Lo que preguntan", "antes de pagar."]}
+        />
         <div className="mt-12 max-w-[820px]">
           <Acordeon items={PREGUNTAS} />
         </div>
       </div>
-    </Revelar>
+    </section>
   );
 }

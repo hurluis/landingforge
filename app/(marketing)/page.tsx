@@ -1,18 +1,29 @@
+import { Fragment } from "react";
 import Link from "next/link";
-import { Boton, BotonEnlace } from "@/components/ui/boton";
-import { Forja } from "@/components/marketing/forja";
-import { TiraContactos } from "@/components/marketing/tira-contactos";
-import { BloqueMetodologia } from "@/components/marketing/bloque-metodologia";
+import { Money, SealCheck, UsersThree, TextAa } from "@phosphor-icons/react/dist/ssr";
+import { Boton } from "@/components/ui/boton";
+import { HeroForja } from "@/components/motion/forja";
+import { Marquesina } from "@/components/motion/marquesina";
+import { TiraPinned } from "@/components/motion/tira-pinned";
+import { StickyStack } from "@/components/motion/sticky-stack";
+import { RevealLineas, RevealBloque, RevealLista } from "@/components/motion/reveal";
+import { TrazoConectado } from "@/components/motion/trazo";
+import { ContadorScroll } from "@/components/motion/interacciones";
 import { EstudioVivo } from "@/components/marketing/estudio-vivo";
 import { TablaPrecios } from "@/components/marketing/tabla-precios";
 import { Preguntas } from "@/components/marketing/preguntas";
-import { Revelar, Escalonado } from "@/components/ui/revelar";
 
 /**
- * Home — §6.2. El copy es el definitivo del brief, se usa tal cual.
+ * Home. El copy es definitivo y se usa palabra por palabra.
  *
- * Cada sección entra de una forma distinta, derivada de su contenido (§5.3).
- * Ninguna repite la dirección de otra, y el cierre no se mueve.
+ * Familias de layout, ninguna repetida de forma consecutiva:
+ *   1 hero split asimétrico pinned  ·  2 tira a sangre  ·  3 editorial de dos
+ *   columnas con filete  ·  4 pan horizontal pinned  ·  5 sticky stack  ·
+ *   6 secuencia con trazo  ·  7 herramienta embebida con parallax  ·
+ *   8 tres columnas comparables  ·  9 acordeón  ·  10 tipografía a sangre.
+ *
+ * Ritmo vertical py-32 a py-48: el contenido protagonista son imágenes 9:16 y
+ * las imágenes necesitan aire.
  */
 
 const CONSECUENCIAS = [
@@ -27,6 +38,37 @@ const CONSECUENCIAS = [
   {
     afirmacion: "Cero señales del mercado local",
     consecuencia: "Pagas tráfico que no convierte",
+  },
+];
+
+const TARJETAS = [
+  {
+    id: "contraentrega",
+    titulo: "Contraentrega",
+    texto:
+      "La señal de confianza número uno del país. Tu comprador paga cuando el producto está en su mano. Si tu landing no lo dice, estás dejando ventas sobre la mesa.",
+    sello: <Money className="size-6" weight="bold" />,
+  },
+  {
+    id: "invima",
+    titulo: "INVIMA",
+    texto:
+      "Para suplementos y cosméticos, el registro sanitario no es un trámite: es la diferencia entre parecer un negocio y parecer un riesgo.",
+    sello: <SealCheck className="size-6" weight="bold" />,
+  },
+  {
+    id: "caras",
+    titulo: "Caras de aquí",
+    texto:
+      "Paisa, costeña, rola, afrodescendiente, rasgos indígenas. LandingForge especifica el origen regional en cada prompt, porque un modelo dejado a su suerte devuelve un latino genérico que ningún colombiano reconoce.",
+    sello: <UsersThree className="size-6" weight="bold" />,
+  },
+  {
+    id: "formato",
+    titulo: "Formato y lenguaje",
+    texto:
+      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas que suenan a alguien real: «a mis 42 años», «vale cada peso».",
+    sello: <TextAa className="size-6" weight="bold" />,
   },
 ];
 
@@ -51,132 +93,133 @@ const PASOS = [
 export default function Home() {
   return (
     <>
-      {/* ---------------- Hero (§6.2.2) ---------------- */}
-      <section aria-labelledby="hero-titulo" className="pt-16 pb-24 sm:pt-24">
-        <div className="mx-auto grid max-w-[1200px] gap-16 px-4 sm:px-8 lg:grid-cols-12 lg:items-center">
-          <div className="lg:col-span-5">
-            <h1 id="hero-titulo" className="display-xl">
-              Tu producto no se parece a ningún otro.
-              <br />
-              Tu landing tampoco debería.
-            </h1>
+      {/* 1 · Hero, split asimétrico con panel pinned (M1 y M2) */}
+      <HeroForja />
 
-            <p className="mt-8 cuerpo-lg text-mid max-w-[60ch]">
-              Sube la foto. LandingForge elige la paleta, escribe el copy y construye las nueve
-              secciones que hacen vender en Colombia. Ninguna plantilla de por medio.
-            </p>
+      {/* 2 · Muestrario, tira continua a sangre (M4).
+             Sin titular: su único trabajo es probar que el producto produce. */}
+      <Marquesina />
 
-            <div className="mt-10 flex flex-wrap items-center gap-6">
-              <Boton asChild variante="primario" tamano="lg">
-                <Link href="/app/nueva">Crear mi primera landing</Link>
-              </Boton>
-              <BotonEnlace href="#tira-titulo">Ver una campaña completa</BotonEnlace>
-            </div>
-
-            {/* Especificaciones del producto, no una fila de stats decorativa. */}
-            <p className="mt-10 mono-sm text-lo">
-              9 tipologías de sección · 9:16 · 2K · prompts editables, no bloqueados
-            </p>
+      {/* 3 · El problema, editorial de dos columnas con filete vertical */}
+      <section aria-labelledby="problema-titulo" className="py-32 lg:py-36">
+        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1px_1.1fr] lg:gap-16">
+            <RevealLineas
+              as="h2"
+              className="display-lg"
+              lineas={["Las plantillas venden lo mismo", "diez mil veces."]}
+            />
+            <div aria-hidden className="hidden lg:block w-px bg-scale" />
+            <RevealBloque retraso={0.18}>
+              <p className="cuerpo-lg text-smoke medida">
+                Un constructor de plantillas te da la misma estructura que a tus competidores,
+                con imágenes de stock o caras generadas que se notan a un kilómetro. Y ninguno
+                sabe que en Colombia la venta se cierra con contraentrega, que un suplemento
+                sin INVIMA no genera confianza, y que un precio escrito{" "}
+                <span className="mono-sm text-ash">$99,900</span> en vez de{" "}
+                <span className="mono-sm text-ash">$99.900</span> le dice a tu comprador que no
+                eres de aquí.
+              </p>
+            </RevealBloque>
           </div>
 
-          <div className="lg:col-span-7">
-            <Forja />
+          {/* Ritmo editorial, no rejilla de cards. Las consecuencias entran
+              desde la derecha: el texto acusa, las consecuencias responden. */}
+          <RevealLista
+            className="mt-20"
+            claseItem="grid gap-3 border-t border-scale py-8 sm:grid-cols-2 sm:gap-12"
+            direccion="derecha"
+            paso={0.06}
+            items={CONSECUENCIAS.map((c) => (
+              <Fragment key={c.afirmacion}>
+                <p className="titulo text-ash text-balance">{c.afirmacion}</p>
+                <p className="cuerpo text-slag sm:pl-10">{c.consecuencia}</p>
+              </Fragment>
+            ))}
+          />
+
+          <RevealBloque retraso={0.1} className="mt-12">
+            <p className="mono-sm text-slag">
+              <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
+            </p>
+          </RevealBloque>
+        </div>
+      </section>
+
+      {/* 4 · Las nueve secciones, pan horizontal pinned (M6) */}
+      <TiraPinned />
+
+      {/* 5 · La metodología colombiana, sticky stack (M7).
+             Fondo hundido: la sección más oscura de la página. */}
+      <section
+        aria-labelledby="metodologia-titulo"
+        className="border-y border-scale bg-sunk py-32 lg:py-36"
+      >
+        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+          <RevealLineas
+            as="h2"
+            className="display-lg max-w-[20ch]"
+            lineas={["Lo que ninguna plataforma internacional", "sabe de vender en Colombia."]}
+          />
+          <div className="mt-20">
+            <StickyStack tarjetas={TARJETAS} />
           </div>
         </div>
       </section>
 
-      {/* ---------------- El problema (§6.2.3) ----------------
-          Sección de contraste, no de tarjetas. Entra desde arriba: es un
-          argumento que se lee de arriba abajo. */}
-      <Revelar as="section" desde="arriba" aria-labelledby="problema-titulo" className="py-24">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
-          <div className="grid gap-10 md:grid-cols-[0.9fr_1px_1.1fr] md:gap-12">
-            <h2 id="problema-titulo" className="display-lg">
-              Las plantillas venden lo mismo diez mil veces.
-            </h2>
-            <div aria-hidden className="hidden md:block w-px bg-[var(--line)]" />
-            <p className="cuerpo-lg text-mid medida">
-              Un constructor de plantillas te da la misma estructura que a tus competidores,
-              con imágenes de stock o caras generadas que se notan a un kilómetro. Y ninguno
-              sabe que en Colombia la venta se cierra con contraentrega, que un suplemento sin
-              INVIMA no genera confianza, y que un precio escrito{" "}
-              <span className="mono-sm text-hi">$99,900</span> en vez de{" "}
-              <span className="mono-sm text-hi">$99.900</span> le dice a tu comprador que no
-              eres de aquí.
-            </p>
-          </div>
+      {/* 6 · Cómo funciona, secuencia con trazo conectado.
+             Aquí los números están ganados: la secuencia es obligatoria. */}
+      <section aria-labelledby="pasos-titulo" className="py-32 lg:py-36">
+        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+          <RevealLineas as="h2" className="display-lg max-w-[14ch]" lineas={["Once minutos,", "en tres pasos."]} />
 
-          {/* Ritmo editorial, no rejilla: pares afirmación → consecuencia. */}
-          <ul className="mt-16">
-            {CONSECUENCIAS.map((c) => (
-              <li
-                key={c.afirmacion}
-                className="grid gap-2 border-t border-[var(--line)] py-6 sm:grid-cols-2 sm:gap-12"
-              >
-                <p className="titulo text-hi text-balance">{c.afirmacion}</p>
-                <p className="cuerpo text-lo sm:pl-8">{c.consecuencia}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </Revelar>
+          <TrazoConectado className="mt-20 hidden md:block" />
 
-      {/* ---------------- La tira de contactos (§6.2.4) ---------------- */}
-      <TiraContactos />
-
-      {/* ---------------- La metodología colombiana (§6.2.5) ---------------- */}
-      <BloqueMetodologia />
-
-      {/* ---------------- Cómo funciona (§6.2.6) ----------------
-          Aquí los pasos numerados SÍ están ganados: la secuencia es
-          obligatoria y el usuario necesita saber el orden. */}
-      <section aria-labelledby="pasos-titulo" className="py-24">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-8">
-          <h2 id="pasos-titulo" className="display-lg medida">
-            Once minutos, en tres pasos.
-          </h2>
-
-          <Escalonado as="ol" className="mt-16 grid gap-10 md:grid-cols-3">
+          <ol className="mt-6 grid gap-12 md:grid-cols-3 md:gap-10">
             {PASOS.map((p, i) => (
-              <li key={p.titulo} className="flex flex-col gap-4">
-                <span
-                  aria-hidden
-                  className="font-[family-name:var(--font-fraunces)] text-[3rem] font-[300] leading-none tracking-[-0.03em] text-lo"
-                >
-                  {i + 1}
-                </span>
-                <h3 className="titulo text-hi text-balance">{p.titulo}</h3>
-                <p className="cuerpo text-mid">{p.texto}</p>
-              </li>
+              <RevealBloque key={p.titulo} retraso={i * 0.12} className="flex flex-col gap-4">
+                <li>
+                  <span
+                    aria-hidden
+                    className="font-[family-name:var(--font-bricolage)] text-[3.5rem] font-[600] leading-none tracking-[-0.03em] text-slag"
+                  >
+                    {i + 1}
+                  </span>
+                  <h3 className="mt-4 titulo text-ash text-balance">{p.titulo}</h3>
+                  <p className="mt-3 cuerpo text-smoke">{p.texto}</p>
+                </li>
+              </RevealBloque>
             ))}
-          </Escalonado>
+          </ol>
 
-          <p className="mt-12 cuerpo-lg text-mid medida border-t border-[var(--line)] pt-8">
-            Te llevas los prompts, no solo las imágenes. Si mañana dejas de usar LandingForge,
-            tu trabajo sigue siendo tuyo.
-          </p>
+          <RevealBloque retraso={0.2}>
+            <p className="mt-20 medida cuerpo-lg text-smoke border-t border-scale pt-10">
+              Te llevas los prompts, no solo las imágenes. Si mañana dejas de usar
+              LandingForge, tu trabajo sigue siendo tuyo.
+            </p>
+          </RevealBloque>
         </div>
       </section>
 
-      {/* ---------------- El estudio en vivo (§6.2.7) ---------------- */}
+      {/* 7 · El estudio en vivo, herramienta embebida con parallax (M8) */}
       <EstudioVivo />
 
-      {/* ---------------- Precios (§6.2.8) ---------------- */}
+      {/* 8 · Precios, tres columnas comparables con spotlight (M9) */}
       <TablaPrecios compacta />
 
-      {/* ---------------- Preguntas (§6.2.9) ---------------- */}
+      {/* 9 · Preguntas, acordeón */}
       <Preguntas />
 
-      {/* ---------------- Cierre (§6.2.10) ----------------
-          SIN animación de entrada. Que esta sección esté quieta es lo que la
-          hace pesar, después de una página en movimiento. */}
-      <section aria-labelledby="cierre-titulo" className="py-32">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-8 text-center">
-          <h2 id="cierre-titulo" className="display-lg mx-auto max-w-[16ch]">
+      {/* 10 · Cierre, tipografía a sangre. SIN animación de entrada (M14).
+              Después de una página entera en movimiento, que algo esté quieto
+              es lo que le da peso. */}
+      <section aria-labelledby="cierre-titulo" className="py-32 lg:py-44">
+        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
+          <h2 id="cierre-titulo" className="display-lg max-w-[16ch]">
             La primera campaña te toma once minutos.
           </h2>
-          <div className="mt-10 flex justify-center">
-            <Boton asChild variante="primario" tamano="lg">
+          <div className="mt-12">
+            <Boton asChild variante="heat" tamano="lg">
               <Link href="/app/nueva">Crear mi primera landing</Link>
             </Boton>
           </div>

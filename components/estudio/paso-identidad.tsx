@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Shuffle } from "lucide-react";
+import { Check, Shuffle } from "@phosphor-icons/react/dist/ssr";
 import { asignarPaleta, swatches } from "@/lib/metodologia/paletas";
 import { Boton } from "@/components/ui/boton";
 import { cn } from "@/lib/utils";
@@ -41,18 +41,18 @@ export function PasoIdentidad({
         className={cn(
           "rounded-[16px] p-6",
           aceptada
-            ? "border border-[var(--key)] bg-[var(--surface-2)]"
-            : "border border-[var(--line)] bg-[var(--surface-1)]",
+            ? "border border-[var(--heat)] bg-[var(--anvil-hi)]"
+            : "border border-[var(--scale)] bg-[var(--anvil)]",
         )}
       >
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h3 className="display-md">{propuesta.nombre}</h3>
-          <span className="mono-sm text-mid">
+          <span className="mono-sm text-smoke">
             alternativa {estado.alternativa} de {MAX_ALTERNATIVAS}
           </span>
         </div>
 
-        <p className="mt-3 cuerpo text-mid medida">{propuesta.razon}</p>
+        <p className="mt-3 cuerpo text-smoke medida">{propuesta.razon}</p>
 
         <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {swatches(propuesta).map((s) => (
@@ -60,22 +60,22 @@ export function PasoIdentidad({
               <span
                 aria-hidden
                 style={{ background: s.hex }}
-                className="block h-20 rounded-[8px] border border-[var(--line)]"
+                className="block h-20 rounded-[8px] border border-[var(--scale)]"
               />
-              <span className="mono-sm text-hi">{s.hex}</span>
-              <span className="etiqueta text-mid -mt-1">{s.rol}</span>
+              <span className="mono-sm text-ash">{s.hex}</span>
+              <span className="etiqueta text-smoke -mt-1">{s.rol}</span>
             </li>
           ))}
         </ul>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Boton
-            variante={aceptada ? "secundario" : "primario"}
+            variante={aceptada ? "contorno" : "heat"}
             onClick={() => cambiar({ paleta: propuesta })}
           >
             {aceptada ? (
               <>
-                <Check strokeWidth={1.5} /> Paleta aceptada
+                <Check /> Paleta aceptada
               </>
             ) : (
               "Usar esta paleta"
@@ -83,11 +83,11 @@ export function PasoIdentidad({
           </Boton>
 
           <Boton
-            variante="secundario"
+            variante="contorno"
             disabled={quedan <= 0}
             onClick={() => cambiar({ alternativa: estado.alternativa + 1, paleta: null })}
           >
-            <Shuffle strokeWidth={1.5} />
+            <Shuffle />
             {quedan > 0
               ? `Ver otra (${quedan} ${quedan === 1 ? "restante" : "restantes"})`
               : "Sin alternativas restantes"}
@@ -95,7 +95,7 @@ export function PasoIdentidad({
         </div>
       </div>
 
-      <p className="cuerpo text-lo medida">
+      <p className="cuerpo text-slag medida">
         La matriz cruza tipo de producto, audiencia y registro emocional. Si cambias el tipo o
         la audiencia en el paso anterior, la propuesta cambia con ellos.
       </p>

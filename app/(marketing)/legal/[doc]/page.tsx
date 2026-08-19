@@ -134,13 +134,13 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
   return (
     <article className="mx-auto max-w-[760px] px-4 py-16 sm:px-8">
       <h1 className="display-lg">{contenido.titulo}</h1>
-      <p className="mt-6 cuerpo-lg text-mid medida">{contenido.entrada}</p>
+      <p className="mt-6 cuerpo-lg text-smoke medida">{contenido.entrada}</p>
 
       {contenido.secciones.map((s) => (
-        <section key={s.h} className="mt-12 border-t border-[var(--line)] pt-8">
+        <section key={s.h} className="mt-12 border-t border-[var(--scale)] pt-8">
           <h2 className="titulo">{s.h}</h2>
           {s.p.map((parrafo, i) => (
-            <p key={i} className="mt-3 cuerpo text-mid medida">
+            <p key={i} className="mt-3 cuerpo text-smoke medida">
               {parrafo}
             </p>
           ))}
@@ -148,19 +148,19 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
       ))}
 
       {doc === "creditos" && (
-        <section className="mt-12 border-t border-[var(--line)] pt-8">
+        <section className="mt-12 border-t border-[var(--scale)] pt-8">
           <h2 className="titulo">Los números, hoy</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {PLANES.map((p) => (
-              <li key={p.id} className="mono-sm text-mid">
+              <li key={p.id} className="mono-sm text-smoke">
                 {p.nombre} · {formatoCOP(p.precioMensualCOP)} / mes · {p.creditosMes} créditos
               </li>
             ))}
-            <li className="mono-sm text-mid">
+            <li className="mono-sm text-smoke">
               Paquete extra · {formatoCOP(PAQUETE_EXTRA.precioCOP)} · {PAQUETE_EXTRA.creditos}{" "}
               créditos
             </li>
-            <li className="mono-sm text-mid">
+            <li className="mono-sm text-smoke">
               Registro · {CREDITOS_BIENVENIDA} créditos gratis, sin tarjeta
             </li>
           </ul>
