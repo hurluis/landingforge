@@ -5,13 +5,19 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Ignores por defecto de eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Configuración local de editores y asistentes: código de terceros que
+    // no forma parte del producto. Lintarlo enmascararía los hallazgos
+    // reales bajo cientos de avisos ajenos.
+    ".agents/**",
+    ".claude/**",
+    // Base de datos local de SQLite.
+    "datos/**",
   ]),
 ]);
 
