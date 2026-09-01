@@ -90,7 +90,8 @@ proxy.ts                guardia de /app/*: solo verifica la firma del token
 components/
   ui/                   primitivas: botón, campo, select, diálogo, acordeón, fotograma
   motion/               LaForja, TiraPinned, StickyStack, Marquesina, Reveal, Parallax,
-                        Spotlight, Magnetico, ContadorScroll, Trazo, Movimiento
+                        Spotlight, Magnetico, ContadorScroll, Trazo, Movimiento,
+                        CampoDeLuz, Constelacion (fondo 3D) y sus formas
   marketing/            Nav, Pie, EstudioVivo, TablaPrecios, Preguntas, Lamina
   estudio/              los cuatro pasos del wizard
   campana/              visor de prompt y validador
@@ -166,6 +167,19 @@ No provoca un solo render de React: el progreso vive en un `MotionValue`, las pr
 se derivan de él con `useMotionTemplate`, y el texto se escribe directo al `textContent`.
 El texto completo está en el DOM desde el primer render, con el nodo animado `aria-hidden`
 y una copia accesible en `sr-only`.
+
+**El fondo es una constelación de partículas** (`components/motion/constelacion.tsx`):
+miles de triángulos contorneados que se reorganizan en una figura distinta sobre cada
+sección —chispa, toroide, globo, hélice y lámina 9:16—, calculadas al vuelo, sin un solo
+asset y en una única llamada de dibujo con geometría instanciada. El morfeo, el giro y la
+temperatura ocurren en el vertex shader; la CPU solo escribe uniformes.
+
+Las anclas se miden del DOM real por el `aria-labelledby` que cada sección ya tiene, así
+que la coreografía se recoloca sola si la página cambia. Las figuras se posan sobre las
+secciones oscuras y los cambios ocurren sobre las de papel, que son opacas y hacen de
+telón. Cada figura declara además cuánta presencia se le permite, porque la tira de las
+nueve secciones es lo más cargado de la página y ahí el fondo tiene que retirarse para no
+comerle contraste a las etiquetas de 13px.
 
 **La coreografía completa** vive en `components/motion/`: revelado por máscara, pan
 horizontal pinned de las nueve secciones, sticky stack de la metodología, marquesina que

@@ -120,48 +120,84 @@ fuera de alcance, así que esas imágenes todavía no existen. Se resolvió así
   preferible a un mockup con foto de banco que fingiría una funcionalidad no
   conectada.
 
-### La pieza 3D del fondo: malla prestada, material propio
+### La constelación del fondo: sin assets, sin malla y con seis significados
 
-El cliente pidió una animación 3D gratuita, tomada de internet, que se moviera
-con el scroll. La malla es **Cross Pein Hammer** de Poly Haven, **CC0 1.0**
-(dominio público: uso comercial libre, sin atribución obligatoria; se acredita
-igual en `scripts/preparar-pieza3d.mjs` porque no acreditar es de mal gusto,
-no porque la licencia lo exija). Autor: Tics.
+El cliente pidió una animación 3D que se moviera con el scroll, y luego pidió que se
+pareciera a la de una referencia: una nube de miles de triángulos diminutos que se
+transforma a medida que se baja. La primera versión de este proyecto resolvía la primera
+petición con un martillo de forja —malla CC0 de Poly Haven, 58 KB— que cruzaba la página.
+Cumplía, pero tenía un techo: **un objeto solo puede decir una cosa**. El martillo entraba,
+cruzaba y salía diciendo «esto es una forja» durante diecisiete pantallas.
 
-**Por qué un martillo de forja y no una escena de catálogo.** El objeto tenía
-que significar algo o sobraba. LandingForge es una forja; el martillo de bola
-cruzada es la herramienta con la que se trabaja el metal caliente. Un casco de
-videojuego o un donut girando habrían sido igual de gratis y no habrían dicho
-nada.
+La constelación no es un objeto, es materia. Las mismas partículas se reorganizan en una
+figura distinta sobre cada sección, así que el fondo dice cinco cosas seguidas sin cambiar
+de identidad:
 
-**Qué se descartó del paquete original.** Venían 1,5 MB: 58 KB de malla y
-1,45 MB de texturas JPG. Las texturas se tiraron enteras, y no por peso —eso
-fue la consecuencia agradable— sino por paleta: el mango es madera marrón, y
-en un sistema donde el color significa estado del trabajo, un marrón fotográfico
-no significa nada. La pieza se pinta con un acero de la paleta y su temperatura
-la escribe el scroll: fría arriba, incandescente en el método, templada al
-cerrar. Es la misma curva del campo de luz.
+| figura | dónde | qué significa |
+|---|---|---|
+| chispa | el hero | el golpe. Envuelve el fotograma que se está formando |
+| toroide | la tira | un anillo: las nueve secciones que se recorren y vuelven |
+| globo | final de la tira | el mercado, el país. Llega antes que la sección de Colombia |
+| hélice | pasos y estudio | tres hebras que suben: los tres pasos |
+| lámina | el cierre | el plano 9:16 que el producto entrega, ya templado |
 
-**Por qué three.js a pelo y no react-three-fiber.** El componente hace una
-sola cosa: cargar una malla, mover dos grupos y pintar. R3F habría añadido un
-reconciliador y un árbol de React para un objeto que no tiene estado y que a
-propósito no toca React ni una vez por frame. Se paga peso y superficie de
-fallo a cambio de nada.
+Existe una sexta, la `rejilla` —una retícula exacta, sin una sola partícula fuera de sitio,
+que significa el mundo de las plantillas—, y la home **no la usa**: su sección es de papel
+y la taparía entera. Una figura invisible no significa nada. La usan las páginas cortas,
+donde no hay secciones que anclar y el reparto es automático.
 
-**Lo que costó una segunda mirada.** La primera versión salía a escala real,
-con emisivo alto y el mapa de entorno saturado: un martillo azul y cobre del
-tamaño de la pantalla, cruzando por delante del titular. Eso no es un fondo,
-es un competidor. La corrección fue toda en la misma dirección —30 % del alto
-del viewport, opacidad 0,5, emisivo un tercio, entorno a la mitad— y en
-vertical se retira más todavía (72 % del tamaño y opacidad 0,3), porque en un
-teléfono el texto ocupa el ancho entero y la pieza no tiene por dónde pasar
-sin cruzarlo. El teléfono es donde se lee y donde se compra.
+**Por qué la referencia no se copió con sus colores.** La referencia es negro puro con
+violeta eléctrico y ámbar. Aquí el color significa estado del trabajo —naranja en proceso,
+templado terminado, azul información— y meter un violeta de marca ajena habría roto la
+única regla dura de la paleta. Lo que se tomó es la técnica y el gesto: triángulos
+contorneados de 1 px, mezcla aditiva, reparto de tamaños con casi todas diminutas y unas
+pocas grandes, y partículas de ambiente sueltas por toda la pantalla. Pintadas con acero,
+ember, heat, forged, quench y unas pocas al blanco.
 
-**Lo que no hace.** No se monta con movimiento reducido, ni sin WebGL, ni si
-el `.gltf` no carga; en los tres casos queda el campo de luz, que ya era un
-fondo completo. `three` entra por `import()` en tiempo ocioso, así que no pesa
-en el bundle inicial ni compite con el LCP, y el bucle se apaga solo con la
-pestaña oculta y ~1,5 s después de que el scroll se detenga.
+**Cómo se colocan las figuras.** No con fracciones escritas a ojo, que se desincronizan a
+la primera vez que alguien añade un párrafo, sino midiendo el DOM: se busca cada sección
+por el `aria-labelledby` que ya tiene puesto y se calcula su posición real. La regla que lo
+ordena todo es que **las figuras se posan sobre las secciones oscuras y los cambios ocurren
+sobre las de papel**. El papel es opaco y tapa el fondo entero; usarlo de telón hace que la
+nube desaparezca siendo una cosa y reaparezca siendo otra, que es mejor que verla
+derretirse. Cada figura se queda quieta todo su tramo y solo se deshace en la última
+pantalla antes de que llegue la siguiente sección: medir la transición en pantallas y no en
+fracción del tramo es lo que evita que la nube esté permanentemente a medio camino, que es
+cuando se ve el truco.
+
+**Cuánta presencia.** Cada figura declara su peso. El hero y el cierre son dos titulares y
+aire, y la nube puede ocuparlos entera; la tira de las nueve secciones tiene nueve tarjetas,
+sus etiquetas y una barra de progreso, y ahí el fondo se retira al 40 %. No es gusto, es
+medición: con la nube a plena presencia, la etiqueta «06 Autoridad» de 13 px caía de
+5,18:1 a 3,83:1, por debajo del piso de 4,5:1 del propio proyecto. Al 40 % queda en 4,63:1.
+La auditoría se hizo sobre píxeles renderizados, no sobre tokens, comparando la página con
+la constelación encendida y apagada en 18 posiciones de scroll.
+
+**El piso de rendimiento.** `three` entra por `import()` en tiempo ocioso y solo si la sonda
+de WebGL dice que sí, así que en una máquina sin WebGL no se descarga ni la librería.
+Cero assets: no hay `.gltf`, ni `.bin`, ni texturas, ni una sola petición de red; la nube se
+calcula al vuelo con un generador determinista, así que es la misma en cada carga. Una sola
+llamada de dibujo: seis vértices de plantilla y el resto son atributos por instancia, y el
+morfeo, el giro y el calor ocurren en el vertex shader. El bucle no toca React ni una vez
+por fotograma, en reposo baja a 30 fps y con la pestaña oculta se apaga.
+
+Encima hay un guardarraíl: se mide la mediana de fotograma con el scroll en marcha y, si
+pasa de 26 ms, la constelación se recorta ella sola al 45 % de las instancias y a un píxel
+por píxel. Por eso las partículas de ambiente van repartidas entre las de la figura y no
+apiladas al final: recortar la cola habría borrado la atmósfera entera y dejado la nube
+intacta. Medido con rasterización por software —el peor caso imaginable, sin GPU—, el
+recorte baja el coste de 58 ms a 46 ms por fotograma; con GPU real, once mil segmentos de
+línea no son nada.
+
+**Lo que no hace.** Sin WebGL no se monta, y queda el campo de luz, que ya era un fondo
+completo por sí solo. Con movimiento reducido sí se monta, pero no anima: dibuja UN
+fotograma y suelta el bucle. Movimiento reducido significa menos movimiento, no una página
+desnuda.
+
+**Lo que se fue con el martillo.** La malla y su script de preparación siguen en el
+repositorio (`scripts/preparar-pieza3d.mjs`, `public/pieza3d/`) porque `npm run assets`
+los sigue generando y porque tirar un asset versionado por una decisión de diseño reversible
+es de mal perder. No los carga nadie.
 
 ---
 
