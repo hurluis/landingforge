@@ -25,6 +25,18 @@ Genera el `AUTH_SECRET` con:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
+Para entrar al panel de administración, pon tu correo en `ADMIN_EMAILS` antes de
+registrarte o entrar:
+
+```bash
+ADMIN_EMAILS=tu@correo.com
+```
+
+Ese arranque resuelve el problema del huevo y la gallina: nadie puede nombrar al primer
+administrador desde un panel al que todavía no puede entrar. A partir de ahí la fuente de
+verdad es la columna `rol` de la base de datos, y los administradores se gestionan desde
+`/admin/usuarios`.
+
 Abre <http://localhost:3000>. **No hace falta clave de Gemini**: sin `GEMINI_API_KEY` la
 aplicación corre entera contra `lib/ia/mock.ts`, que ejecuta la misma metodología sin
 modelo generativo. Con clave, la redacción la hace Gemini sobre el mismo esqueleto.
@@ -39,6 +51,7 @@ Rutas útiles:
 | `/kit` | Página interna del sistema de diseño: todas las primitivas en todos sus estados |
 | `/app` | Biblioteca de campañas (requiere sesión) |
 | `/app/nueva` | El Estudio, wizard de cuatro pasos |
+| `/admin` | Panel de administración (requiere rol `admin`) |
 
 ---
 
@@ -55,7 +68,12 @@ Rutas útiles:
 | `npm run assets` | Regenera las texturas y el bodegón de producto |
 | `npm run mirar` | Levanta Chromium, recorre la home y guarda fotogramas en `.capturas/` |
 
-`npm run e2e` necesita el servidor levantado en otra terminal.
+`npm run e2e` necesita el servidor levantado en otra terminal, y con la variable de
+administración puesta, porque la suite comprueba también el panel:
+
+```bash
+ADMIN_EMAILS=admin-e2e@landingforge.test npm run dev
+```
 
 ---
 
@@ -69,6 +87,11 @@ Rutas útiles:
 | F4 | Generación de imágenes | Fuera de alcance: interfaz construida, tras bandera de entorno |
 | F5 | Exportación de landing HTML | Backlog |
 | F6 | Pasarela de pago | Simulada, y la pantalla lo declara |
+| **FA1** | Tablero: cifras, series de 30 días y salud del sistema | Funcional completa |
+| **FA2** | Usuarios: búsqueda, filtros, plan, saldo, rol y borrado | Funcional completa |
+| **FA3** | Inspector global de campañas, en solo lectura | Funcional completa |
+| **FA4** | Calidad de la metodología: el cuadro del validador | Funcional completa |
+| **FA5** | Auditoría inmutable con exportación a CSV | Funcional completa |
 
 La decisión de que F1 genere **texto y no imágenes** es deliberada: la ingeniería de prompt
 es la parte valiosa del producto y cuesta una fracción de un token de imagen. Se demuestra
@@ -83,10 +106,12 @@ dice honestamente por qué.
 app/
   (marketing)/          home, metodología, precios, legal · nav + pie + asistente
   (app)/                biblioteca, estudio, campaña, cuenta · sidebar + guard de sesión
+  (admin)/              panel de administración · guard de rol contra la base de datos
   entrar/               login y registro
   kit/                  sistema de diseño, página interna
   api/                  prompts (streaming), chat (streaming), campanas, auth, cuenta
-proxy.ts                guardia de /app/*: solo verifica la firma del token
+  api/admin/            mutaciones del panel y exportación de la auditoría
+proxy.ts                guardia de /app/* y /admin/*: solo verifica la firma del token
 components/
   ui/                   primitivas: botón, campo, select, diálogo, acordeón, fotograma
   motion/               LaForja, TiraPinned, StickyStack, Marquesina, Reveal, Parallax,
@@ -95,12 +120,14 @@ components/
   marketing/            Nav, Pie, EstudioVivo, TablaPrecios, Preguntas, Lamina
   estudio/              los cuatro pasos del wizard
   campana/              visor de prompt y validador
+  admin/                barra, piezas de tabla, gráficas SVG y acciones del panel
   asistente/            F3
 lib/
   metodologia/          EL ACTIVO: tipologías, matriz de paletas, reglas, constructor
   ia/                   contrato + implementación real + implementación falsa
   datos/                tipos, interfaz de repositorio, SQLite
-  auth/                 sesión, contraseñas, token
+                        + interfaz e implementación del repositorio de administración
+  auth/                 sesión, contraseñas, token, rol de administración
 scripts/                generación de assets y las verificaciones
 ```
 
@@ -127,6 +154,20 @@ scripts/                generación de assets y las verificaciones
 - Los créditos se descuentan con la condición dentro del propio `UPDATE`
   (`WHERE creditos >= ?`), así que dos peticiones simultáneas no pueden pasar las dos.
 - Al fallar el login, el mensaje es el mismo para correo inexistente y contraseña errada.
+- **El rol de administración no viaja en el token.** Si viajara, degradar a un
+  administrador no tendría efecto hasta que cerrase sesión, y una cuenta comprometida
+  conservaría el panel siete días. Se comprueba contra la base de datos en cada petición.
+- **El panel se guarda en tres capas.** `proxy.ts` corre en el runtime Edge y solo puede
+  verificar la firma de la cookie; el rol se comprueba en `app/(admin)/layout.tsx` y otra
+  vez en cada handler de `/api/admin`, porque un route handler no pasa por el layout.
+- **Sin rol la respuesta es 404, no 403**, en páginas y en API. Un 403 confirmaría que la
+  ruta existe y con ella el panel entero. Es el mismo criterio del mensaje de login.
+- Un administrador **no puede degradarse ni borrarse a sí mismo**: es lo que impide dejar
+  la plataforma sin ningún administrador con un clic mal dado.
+- **Toda mutación del panel deja una línea de auditoría**, y la tabla `auditoria` no tiene
+  un solo `UPDATE` ni `DELETE` en todo el proyecto. En los dos borrados, la línea se
+  escribe antes del hecho: un registro de algo que no llegó a pasar es un error más
+  benigno que un borrado del que no queda constancia.
 
 ---
 
@@ -203,9 +244,12 @@ movimiento reducido.
 - Tipos, lint y build pasan sin errores ni warnings. `npm audit`: 0 vulnerabilidades.
 - La clave de API no aparece en el bundle del cliente (verificado con centinela).
 - Los 17 pares de color reales pasan el piso de contraste, incluido el CTA contra su fondo.
-- 66/66 comprobaciones de extremo a extremo: registro, streaming, créditos transaccionales
-  con devolución, CRUD completo, persistencia entre sesiones, las siete reglas del
-  validador, resistencia del asistente a la extracción del system prompt, y rate limiting.
+- 100/100 comprobaciones de extremo a extremo: registro, streaming, créditos
+  transaccionales con devolución, CRUD completo, persistencia entre sesiones, las siete
+  reglas del validador, resistencia del asistente a la extracción del system prompt, rate
+  limiting, y las 34 del panel de administración: el 404 sin rol en páginas y en API, las
+  dos salvaguardas contra quedarse sin administradores, el suelo de saldo en cero, y que
+  cada mutación aparezca después en la auditoría y en su exportación.
 
 Pendiente de comprobar a mano, porque necesita ojo o navegador:
 

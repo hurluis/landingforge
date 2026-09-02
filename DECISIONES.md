@@ -309,3 +309,108 @@ incluida `public/`, en el bundle del servidor. La ruta se acotó a `datos/`.
 El brief prohíbe el modal para tareas que no necesitan interrupción ni foco
 protegido, y renombrar una campaña es ese caso exacto. El título se edita en su
 sitio. El único modal del producto sigue siendo el de borrado.
+
+---
+
+## El panel de administración
+
+### El repositorio de administración es una interfaz aparte
+
+`Repositorio` tiene una propiedad que se puede afirmar sin leer el código:
+todos sus métodos reciben un `usuarioId` y filtran por él en el propio `WHERE`.
+Eso es lo que impide que alguien lea la campaña de otro adivinando un id.
+
+Las consultas del panel son globales por naturaleza. Añadirlas a esa misma
+interfaz habría destruido la propiedad: a partir de ahí, saber si un método
+aísla o no exigiría leerlo. Por eso viven en `RepositorioAdmin`, en otro
+archivo. La promesa de aislamiento del primero sigue siendo cierta, y el hecho
+de importar el segundo es en sí mismo la señal de que ese código exige rol.
+
+### El rol no viaja en el token
+
+Era la opción cómoda: el token ya se verifica en el Edge, y meter el rol dentro
+habría permitido bloquear `/admin` en `proxy.ts` sin tocar la base de datos.
+
+Se descartó porque un token es una foto del pasado. Con siete días de vigencia,
+quitarle el rol a alguien no habría tenido ningún efecto hasta que cerrara
+sesión, y una cuenta comprometida habría conservado el panel una semana. El
+rol se lee de la base de datos en cada petición. Cuesta una consulta por
+petición y compra que la degradación sea inmediata.
+
+### Sin rol se responde 404, no 403
+
+Un 403 es informativo: confirma que la ruta existe. Para una ruta pública eso
+da igual, pero `/admin` es justo lo que buscaría alguien tanteando URLs, y
+confirmárselo es regalarle la mitad del trabajo.
+
+Es la misma decisión que ya estaba tomada en el login, donde el mensaje no
+distingue un correo inexistente de una contraseña errada. Aplica a las páginas
+y también a `/api/admin`.
+
+### El guardia está en tres capas, y la primera es la más débil
+
+`proxy.ts` corre en el runtime Edge y no puede abrir SQLite, así que de
+`/admin/*` solo sabe que hay una cookie firmada, no de quién. El rol se
+comprueba en `app/(admin)/layout.tsx`, contra la base de datos, y otra vez en
+cada route handler a través de `conAdmin`.
+
+Esa tercera capa no es redundante: un route handler no pasa por el layout. Si
+confiara en él, `/api/admin` quedaría abierto a cualquiera con sesión.
+
+### El administrador no puede degradarse ni borrarse a sí mismo
+
+Sin esa regla, un solo clic mal dado deja la plataforma sin ningún
+administrador y sin forma de recuperar el acceso salvo tocando la base de datos
+a mano. Las dos comprobaciones viven en el servidor. La interfaz además no
+ofrece los botones, pero eso es cortesía, no seguridad.
+
+### El ajuste de créditos aparece en el historial del usuario
+
+Se escribe como un movimiento con motivo propio, `ajuste-admin`, en la misma
+transacción que el cambio de saldo. El usuario ve en su cuenta que el equipo le
+tocó los créditos y por qué.
+
+La alternativa —anotarlo solo en la auditoría interna— habría sido más cómoda y
+peor: el saldo de alguien cambiando sin explicación en su propia pantalla es la
+clase de cosa que destruye la confianza en un producto que cobra por crédito.
+
+### La auditoría se escribe antes de los borrados
+
+En las dos acciones destructivas, la línea de auditoría se inserta antes de
+borrar. Si se escribiera después y el borrado fallara a medias, quedaría
+registrado un hecho que no ocurrió. Al revés, lo peor que queda es una
+intención sin efecto, que es la mitad honesta del error.
+
+La tabla no tiene un solo `UPDATE` ni `DELETE` en todo el proyecto. Un registro
+que se puede corregir no sirve para lo único para lo que existe un registro.
+
+### El panel no puede editar campañas
+
+Hay ruta para borrar una campaña por abuso, y no hay ninguna para modificarla.
+Es una decisión de producto, no una omisión: el administrador diagnostica, y
+reescribir el trabajo de un cliente por encima de él no es parte del trabajo.
+Que la capacidad no exista en el servidor es más fuerte que ocultar un botón.
+
+### La intensidad del mapa de calor es una tasa, no un conteo
+
+La primera versión escalaba cada celda contra el máximo de la tabla. Con los
+datos de la primera semana ese máximo vale 1, así que cualquier celda con un
+solo caso se pintaba al rojo vivo y la tabla entera parecía una alarma.
+
+Y aun con datos, comparar filas por conteo bruto es incorrecto: una tipología
+con 100 prompts y 50 incumplimientos está mejor que una con 2 y 2. La
+intensidad se calcula sobre los prompts de la propia fila; la cifra impresa
+sigue siendo el conteo.
+
+### El color del panel no introduce ningún tono nuevo
+
+`--heat` sigue siendo el único color de acción del producto. Lo que dice
+«estás en administración» es `--quench`, el azul de temple, que en este sistema
+ya significa información. Encaja porque el panel es un instrumento de lectura y
+no de producción, y evita tener que defender un color de marca nuevo que solo
+existiría para una sección.
+
+Los planes en el reparto del tablero se codifican con la rampa `--forged` de un
+solo tono en vez de con tres colores distintos, porque los planes están
+ordenados: semilla, estudio y agencia son una escala, no tres categorías
+sueltas, y una escala se dibuja con luminosidad.
