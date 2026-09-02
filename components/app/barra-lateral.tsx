@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { SquaresFour, PlusCircle, User, SidebarSimple, Sidebar, SignOut, List, X } from "@phosphor-icons/react/dist/ssr";
+import { SquaresFour, PlusCircle, User, SidebarSimple, Sidebar, ShieldCheck, SignOut, List, X } from "@phosphor-icons/react/dist/ssr";
 import type { Usuario } from "@/lib/datos/tipos";
 import { plan as definicionPlan } from "@/lib/planes";
 import { cn } from "@/lib/utils";
@@ -133,6 +133,25 @@ export function BarraLateral({ usuario }: { usuario: Usuario }) {
             />
           </div>
         </div>
+
+        {/* El panel de administración solo se enseña a quien lo tiene. No es
+            la protección —esa vive en el servidor, que comprueba el rol en
+            cada petición— sino cortesía: no ofrecer una puerta cerrada. */}
+        {usuario.rol === "admin" && (
+          <Link
+            href="/admin"
+            onClick={() => setCajon(false)}
+            title={colapsada ? "Administración" : undefined}
+            className={cn(
+              "flex items-center gap-3 rounded-[10px] px-3 h-10 no-underline",
+              "text-[var(--quench)] transition-colors duration-[140ms] ease-[var(--ease-out)]",
+              "hf:bg-[var(--anvil)] active:scale-[0.97]",
+            )}
+          >
+            <ShieldCheck className="size-4 shrink-0" />
+            <span className={cn("etiqueta", colapsada && "lg:sr-only")}>Administración</span>
+          </Link>
+        )}
 
         <button
           type="button"
