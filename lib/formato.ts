@@ -60,3 +60,29 @@ export function numero(valor: number): string {
 export function plural(n: number, singular: string, pluralForma: string): string {
   return n === 1 ? singular : pluralForma;
 }
+
+/** 1536 → "1,5 KB". Para el peso de la base de datos en el panel. */
+export function pesoArchivo(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const unidades = ["KB", "MB", "GB"];
+  let valor = bytes / 1024;
+  let i = 0;
+  while (valor >= 1024 && i < unidades.length - 1) {
+    valor /= 1024;
+    i++;
+  }
+  return `${new Intl.NumberFormat("es-CO", { maximumFractionDigits: 1 }).format(valor)} ${unidades[i]}`;
+}
+
+/** "hace 3 días" — para la última actividad, donde la fecha exacta estorba. */
+export function fechaRelativa(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  const minutos = Math.round(ms / 60000);
+  if (minutos < 1) return "hace un momento";
+  if (minutos < 60) return `hace ${minutos} min`;
+  const horas = Math.round(minutos / 60);
+  if (horas < 24) return `hace ${horas} h`;
+  const dias = Math.round(horas / 24);
+  if (dias < 30) return `hace ${dias} ${plural(dias, "día", "días")}`;
+  return fechaCorta(iso);
+}
