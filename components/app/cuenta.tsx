@@ -15,6 +15,7 @@ const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
   devolucion: "Devolución",
   "recarga-plan": "Recarga del plan",
   bienvenida: "Créditos de bienvenida",
+  "ajuste-admin": "Ajuste del equipo",
 };
 
 /**

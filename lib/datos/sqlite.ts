@@ -8,6 +8,7 @@ import type {
   MovimientoCredito,
   Plan,
   Prompt,
+  Rol,
   Usuario,
 } from "@/lib/datos/tipos";
 import type { Repositorio } from "@/lib/datos/repositorio";
@@ -36,7 +37,28 @@ const RUTA = join(process.cwd(), "datos", NOMBRE_BD);
 
 let db: DatabaseSync | null = null;
 
-function conexion(): DatabaseSync {
+/**
+ * Migraciones de esquema para bases ya existentes.
+ *
+ * `CREATE TABLE IF NOT EXISTS` no añade columnas a una tabla que ya está
+ * creada, así que una base anterior al panel de administración se quedaría
+ * sin `rol`. Se comprueba con PRAGMA y se añade si falta: es idempotente,
+ * así que correrlo en cada arranque no cuesta nada y nunca duplica.
+ */
+function migrar(bd: DatabaseSync) {
+  const columnas = bd.prepare("PRAGMA table_info(usuarios)").all() as { name: string }[];
+  if (!columnas.some((c) => c.name === "rol")) {
+    bd.exec("ALTER TABLE usuarios ADD COLUMN rol TEXT NOT NULL DEFAULT 'usuario'");
+  }
+}
+
+/**
+ * Conexión única del proceso. La exporta `admin-sqlite.ts`, que comparte
+ * este mismo singleton en vez de abrir un segundo descriptor sobre el
+ * mismo archivo: dos conexiones con WAL sobre la misma base compiten por
+ * el bloqueo de escritura sin ninguna necesidad.
+ */
+export function conexion(): DatabaseSync {
   if (db) return db;
   mkdirSync(dirname(RUTA), { recursive: true });
   db = new DatabaseSync(RUTA);
@@ -48,6 +70,7 @@ function conexion(): DatabaseSync {
       email TEXT NOT NULL UNIQUE,
       hash TEXT NOT NULL,
       plan TEXT NOT NULL DEFAULT 'semilla',
+      rol TEXT NOT NULL DEFAULT 'usuario',
       creditos INTEGER NOT NULL DEFAULT 0,
       renueva_en TEXT NOT NULL,
       creado_en TEXT NOT NULL
@@ -79,21 +102,39 @@ function conexion(): DatabaseSync {
     );
 
     CREATE INDEX IF NOT EXISTS idx_movimientos_usuario ON movimientos(usuario_id, fecha DESC);
+
+    CREATE TABLE IF NOT EXISTS auditoria (
+      id TEXT PRIMARY KEY,
+      actor_id TEXT,
+      actor_email TEXT NOT NULL,
+      accion TEXT NOT NULL,
+      objetivo_tipo TEXT NOT NULL,
+      objetivo_id TEXT NOT NULL,
+      objetivo_etiqueta TEXT NOT NULL,
+      detalle TEXT NOT NULL DEFAULT '{}',
+      ip TEXT NOT NULL DEFAULT 'desconocida',
+      fecha TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_auditoria_fecha ON auditoria(fecha DESC);
+    CREATE INDEX IF NOT EXISTS idx_auditoria_actor ON auditoria(actor_id, fecha DESC);
   `);
+  migrar(db);
   return db;
 }
 
-type FilaUsuario = {
+export type FilaUsuario = {
   id: string;
   email: string;
   hash: string;
   plan: string;
+  rol: string;
   creditos: number;
   renueva_en: string;
   creado_en: string;
 };
 
-type FilaCampana = {
+export type FilaCampana = {
   id: string;
   usuario_id: string;
   nombre: string;
@@ -106,18 +147,20 @@ type FilaCampana = {
   actualizada_en: string;
 };
 
-function aUsuario(f: FilaUsuario): Usuario {
+export function aUsuario(f: FilaUsuario): Usuario {
   return {
     id: f.id,
     email: f.email,
     plan: f.plan as Plan,
+    rol: f.rol as Rol,
     creditosDisponibles: f.creditos,
     renuevaEn: f.renueva_en,
     creadoEn: f.creado_en,
   };
 }
 
-function aCampana(f: FilaCampana): Campana {
+/** Mapeo de fila a dominio. Lo reutiliza `admin-sqlite.ts`: una sola copia. */
+export function aCampana(f: FilaCampana): Campana {
   return {
     id: f.id,
     usuarioId: f.usuario_id,
@@ -148,6 +191,7 @@ export class RepositorioSQLite implements Repositorio {
       email: email.toLowerCase(),
       hash,
       plan: "semilla",
+      rol: "usuario",
       creditos: CREDITOS_BIENVENIDA,
       renueva_en: enUnMes(),
       creado_en: new Date().toISOString(),
@@ -156,13 +200,14 @@ export class RepositorioSQLite implements Repositorio {
     bd.exec("BEGIN");
     try {
       bd.prepare(
-        `INSERT INTO usuarios (id, email, hash, plan, creditos, renueva_en, creado_en)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (id, email, hash, plan, rol, creditos, renueva_en, creado_en)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       ).run(
         usuario.id,
         usuario.email,
         usuario.hash,
         usuario.plan,
+        usuario.rol,
         usuario.creditos,
         usuario.renueva_en,
         usuario.creado_en,
