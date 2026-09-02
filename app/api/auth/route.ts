@@ -7,6 +7,7 @@ import {
   hashContrasena,
   verificarContrasena,
 } from "@/lib/auth/sesion";
+import { sembrarAdmin } from "@/lib/auth/admin";
 import { ipDe, limitar } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -17,6 +18,10 @@ export const runtime = "nodejs";
  * El registro y la entrada comparten ruta y esquema porque comparten
  * credenciales; los separa el campo `modo`. El rate limit por IP es lo que
  * impide probar contraseñas a fuerza bruta.
+ *
+ * `sembrarAdmin` se llama en los dos caminos: son los dos únicos momentos en
+ * los que hay prueba de que el correo pertenece a quien lo está usando. Es
+ * idempotente, así que sobre alguien que ya es administrador no hace nada.
  */
 
 export async function POST(peticion: Request) {
@@ -49,7 +54,8 @@ export async function POST(peticion: Request) {
         { status: 409 },
       );
     }
-    const usuario = await repo.crearUsuario(email, await hashContrasena(contrasena));
+    const creado = await repo.crearUsuario(email, await hashContrasena(contrasena));
+    const usuario = await sembrarAdmin(creado);
     await abrirSesion(usuario.id);
     return NextResponse.json({ usuario });
   }
@@ -63,16 +69,18 @@ export async function POST(peticion: Request) {
   const correcta = await verificarContrasena(contrasena, guardado.hash);
   if (!correcta) return NextResponse.json({ error: generico }, { status: 401 });
 
-  await abrirSesion(guardado.id);
+  const usuario = await sembrarAdmin(guardado);
+  await abrirSesion(usuario.id);
   /* El hash nunca sale del servidor, ni siquiera al propio dueño de la cuenta. */
   return NextResponse.json({
     usuario: {
-      id: guardado.id,
-      email: guardado.email,
-      plan: guardado.plan,
-      creditosDisponibles: guardado.creditosDisponibles,
-      renuevaEn: guardado.renuevaEn,
-      creadoEn: guardado.creadoEn,
+      id: usuario.id,
+      email: usuario.email,
+      plan: usuario.plan,
+      rol: usuario.rol,
+      creditosDisponibles: usuario.creditosDisponibles,
+      renuevaEn: usuario.renuevaEn,
+      creadoEn: usuario.creadoEn,
     },
   });
 }
