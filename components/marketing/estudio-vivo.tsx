@@ -101,6 +101,7 @@ export function EstudioVivo() {
       <div className="relative z-[1] mx-auto max-w-[1400px] px-6 lg:px-10">
         <RevealLineas
           as="h2"
+          id="estudio-titulo"
           className="display-lg max-w-[16ch]"
           lineas={["Pruébalo con tu producto", "ahora."]}
         />

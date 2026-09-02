@@ -97,6 +97,7 @@ export function Preguntas() {
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
         <RevealLineas
           as="h2"
+          id="preguntas-titulo"
           className="display-lg max-w-[16ch]"
           lineas={["Lo que preguntan", "antes de pagar."]}
         />

@@ -36,11 +36,17 @@ export const RevealLineas = memo(function RevealLineas({
   className,
   as = "h2",
   retraso = 0,
+  id,
 }: {
   lineas: string[];
   className?: string;
   as?: "h1" | "h2" | "h3" | "p";
   retraso?: number;
+  /* Las secciones se nombran con `aria-labelledby` apuntando a su titular, y
+     su titular casi siempre es este componente. Sin poder ponerle el id, esas
+     referencias quedaban colgando y el lector de pantalla anunciaba la sección
+     sin nombre. */
+  id?: string;
 }) {
   const reduce = useReducedMotion();
   const Etiqueta = motion[as];
@@ -48,6 +54,7 @@ export const RevealLineas = memo(function RevealLineas({
 
   return (
     <Etiqueta
+      id={id}
       className={className}
       initial="oculto"
       whileInView="visible"

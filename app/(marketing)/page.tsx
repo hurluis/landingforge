@@ -106,6 +106,7 @@ export default function Home() {
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1px_1.1fr] lg:gap-16">
             <RevealLineas
               as="h2"
+              id="problema-titulo"
               className="display-lg"
               lineas={["Las plantillas venden lo mismo", "diez mil veces."]}
             />
@@ -158,6 +159,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
           <RevealLineas
             as="h2"
+            id="metodologia-titulo"
             className="display-lg max-w-[20ch]"
             lineas={["Lo que ninguna plataforma internacional", "sabe de vender en Colombia."]}
           />
@@ -171,7 +173,12 @@ export default function Home() {
              Aquí los números están ganados: la secuencia es obligatoria. */}
       <section aria-labelledby="pasos-titulo" className="py-32 lg:py-36">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-          <RevealLineas as="h2" className="display-lg max-w-[14ch]" lineas={["Once minutos,", "en tres pasos."]} />
+          <RevealLineas
+            as="h2"
+            id="pasos-titulo"
+            className="display-lg max-w-[14ch]"
+            lineas={["Once minutos,", "en tres pasos."]}
+          />
 
           <TrazoConectado className="mt-20 hidden md:block" />
 

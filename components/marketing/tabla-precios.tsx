@@ -26,6 +26,7 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
         <RevealLineas
           as="h2"
+          id="precios-titulo"
           className="display-lg max-w-[16ch]"
           lineas={["Planes que se miden", "en créditos."]}
         />
