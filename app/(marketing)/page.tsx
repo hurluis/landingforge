@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import { Money, SealCheck, UsersThree, TextAa } from "@phosphor-icons/react/dist/ssr";
 import { Boton } from "@/components/ui/boton";
-import { HeroForja } from "@/components/motion/forja";
+import { Mundo } from "@/components/mundo/mundo";
 import { Marquesina } from "@/components/motion/marquesina";
 import { TiraPinned } from "@/components/motion/tira-pinned";
 import { StickyStack } from "@/components/motion/sticky-stack";
@@ -94,7 +94,7 @@ export default function Home() {
   return (
     <>
       {/* 1 · Hero, split asimétrico con panel pinned (M1 y M2) */}
-      <HeroForja />
+      <Mundo />
 
       {/* 2 · Muestrario, tira continua a sangre (M4).
              Sin titular: su único trabajo es probar que el producto produce. */}

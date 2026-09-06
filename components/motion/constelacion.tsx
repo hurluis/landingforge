@@ -209,7 +209,7 @@ const RECORTE = 0.45;
  * no hay secciones que anclar y el orden lo pone `NOMBRES`.
  */
 const MAPA: ReadonlyArray<{ sel: string; forma: NombreForma; en: number; peso: number }> = [
-  { sel: '[aria-labelledby="hero-titulo"]', forma: "chispa", en: 0.1, peso: 1 },
+  { sel: '[aria-labelledby="mundo-titulo"]', forma: "chispa", en: 0.1, peso: 0.15 },
   { sel: '[aria-labelledby="tira-titulo"],[aria-labelledby="tira-titulo-movil"]', forma: "toroide", en: 0.3, peso: 0.4 },
   { sel: '[aria-labelledby="metodologia-titulo"]', forma: "globo", en: -0.35, peso: 0.85 },
   { sel: '[aria-labelledby="pasos-titulo"]', forma: "helice", en: 0.45, peso: 0.7 },
