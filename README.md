@@ -45,7 +45,7 @@ Rutas útiles:
 
 | Ruta | Qué es |
 |---|---|
-| `/` | La página de venta |
+| `/` | La página de venta, que abre con el mundo de seis escenas |
 | `/metodologia` | Las nueve tipologías, la fórmula y la matriz de paletas, publicadas |
 | `/precios` | Planes y la letra pequeña, en grande |
 | `/kit` | Página interna del sistema de diseño: todas las primitivas en todos sus estados |
@@ -113,6 +113,7 @@ app/
   api/admin/            mutaciones del panel y exportación de la auditoría
 proxy.ts                guardia de /app/* y /admin/*: solo verifica la firma del token
 components/
+  mundo/                EL MUNDO: geometría de los seis dioramas y el motor de vuelo
   ui/                   primitivas: botón, campo, select, diálogo, acordeón, fotograma
   motion/               LaForja, TiraPinned, StickyStack, Marquesina, Reveal, Parallax,
                         Spotlight, Magnetico, ContadorScroll, Trazo, Movimiento,
@@ -123,6 +124,7 @@ components/
   admin/                barra, piezas de tabla, gráficas SVG y acciones del panel
   asistente/            F3
 lib/
+  mundo/                trazado de cámara y copia de las seis escenas (dato puro)
   metodologia/          EL ACTIVO: tipologías, matriz de paletas, reglas, constructor
   ia/                   contrato + implementación real + implementación falsa
   datos/                tipos, interfaz de repositorio, SQLite
@@ -197,7 +199,26 @@ las únicas manchas de color libre en pantalla.
 **Tipografía:** Bricolage Grotesque para display, Geist para UI, Geist Mono para datos.
 Deliberadamente no una serif: «se siente editorial» no es una razón de diseño.
 
-**El momento focal** es *La Forja* (`components/motion/forja.tsx`): el hero es un
+**La apertura es EL MUNDO** (`components/mundo/`): un vuelo continuo de cámara a
+través de seis dioramas —el caos, la forja, la línea de ensamblaje, el mercado, la
+bóveda y la tienda encendida— atado al scroll. Es la técnica de las landings
+«scroll-through world», pero construida con geometría en tiempo real en vez de con
+vídeo pre-renderizado por un modelo generativo.
+
+Esa decisión no es de presupuesto. Un vídeo de seis escenas son decenas de megas que
+descargar antes de ver nada, se recorta en vertical porque es 16:9, se pixela al
+subir de resolución, y depende de que un servicio externo siga existiendo. El mundo
+en geometría pesa kilobytes, no tiene un solo asset, se recompone para cualquier
+proporción y es coherente con una interfaz que ya es deliberadamente material.
+
+Cada escena ocupa un tramo de scroll: la cámara REPOSA en ella mientras se lee el
+texto y VIAJA a la siguiente por una curva cuadrática que pasa por un punto elevado.
+La velocidad es cero al llegar y al salir, así que ninguna costura da tirón, y como
+el recorrido es una función pura del scroll, subir la rueda lo reproduce hacia atrás
+exactamente igual. El trazado y la copia viven en `lib/mundo/escenas.ts`, que es dato
+puro y no importa three.
+
+**El momento focal anterior** era *La Forja* (`components/motion/forja.tsx`): el hero es un
 contenedor de 400vh con la columna pinned. El titular cede el sitio al prompt, que se
 escribe solo atado al scroll, mientras el fotograma pasa de material en bruto a pieza
 terminada en cinco beats: se enfoca, entra el color, la máscara lo descubre, se asientan

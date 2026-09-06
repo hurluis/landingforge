@@ -414,3 +414,92 @@ Los planes en el reparto del tablero se codifican con la rampa `--forged` de un
 solo tono en vez de con tres colores distintos, porque los planes están
 ordenados: semilla, estudio y agencia son una escala, no tres categorías
 sueltas, y una escala se dibuja con luminosidad.
+
+---
+
+## El mundo de la apertura
+
+### Geometría en tiempo real, no vídeo generado
+
+La técnica de referencia —Apple, Emons— pre-renderiza un vuelo de cámara y el
+scroll solo desplaza el tiempo del vídeo. Es la forma más directa, y aquí se
+descartó por cuatro razones concretas, ninguna de presupuesto:
+
+1. **Peso.** Seis escenas con sus conectores son decenas de megas que hay que
+   descargar antes de que el visitante vea nada. El mundo en geometría son
+   kilobytes de código y cero peticiones de red.
+2. **Proporción.** Un vídeo 16:9 en un móvil vertical enseña su centro y
+   pierde la escena. La cámara real se reencuadra: retrocede y sube el sujeto
+   cuando el cuadro se estrecha.
+3. **Resolución.** El vídeo se pixela al subir de pantalla; la geometría no.
+4. **Dependencia.** Un vídeo generado ata el activo visual de la portada a que
+   un servicio externo siga existiendo y siga costando lo mismo.
+
+A eso se suma lo obvio: un vuelo fotorrealista pegado a una interfaz que es
+deliberadamente material y geométrica se leería como dos productos distintos.
+
+### La cámara reposa y viaja, no recorre
+
+Un recorrido a velocidad constante obliga a leer con la imagen moviéndose y
+convierte la página en un carrusel. Aquí cada escena tiene un tramo de scroll
+en el que la cámara PERMANECE —avanzando como mucho un 22% hacia el sujeto—, y
+solo en el último 44% VIAJA a la siguiente por una bézier cuadrática con el
+punto de control elevado.
+
+La velocidad es cero al llegar y al salir de cada escena, así que no hay tirón
+en ninguna costura. Y como la posición es una función pura del progreso de
+scroll, subir la rueda reproduce el vuelo hacia atrás sin una línea de código
+extra: no hay estado que se pueda desincronizar.
+
+### En reposo se dibuja UNA escena, no tres
+
+La primera versión mantenía visibles la escena actual y sus dos vecinas. El
+resultado fue que las chispas de la forja se colaban por el borde derecho de la
+escena del caos —justo la que tiene que leerse fría, y la única del recorrido
+donde el naranja no puede aparecer— y que la línea de ensamblaje invadía la
+forja.
+
+Ahora en reposo se dibuja solo la escena actual, y las vecinas aparecen
+únicamente durante el viaje, que es cuando ver el mundo conectado es el efecto
+buscado. De paso, es menos que dibujar.
+
+### El encuadre se desplaza, no la cámara
+
+El texto ocupa la mitad izquierda en escritorio, así que el diorama tiene que
+caer en la derecha. Se consigue apuntando la mirada a la izquierda del sujeto,
+no moviendo la cámara: mover la cámara cambiaría el punto de vista del diorama
+y no solo su sitio en pantalla.
+
+En vertical el reparto es otro —copia abajo, escena arriba—, así que el
+desplazamiento pasa a ser vertical y la cámara además retrocede. El retroceso
+se hace con distancia y no subiendo el FOV porque un FOV de 110° deforma la
+perspectiva y rompe el aire de maqueta.
+
+### `metalness` alto sin environment map renderiza negro
+
+Los sellos de la bóveda y la puerta acorazada salían marrones y apagados. La
+causa no era la luz: un material metálico refleja su entorno, y este mundo no
+tiene environment map porque no tiene un solo asset. Por encima de `metalness`
+0.3 el reflejo que el material busca no existe y la malla se va a negro.
+
+El canal metálico quedó acotado a 0.3 en la fábrica de materiales, con el
+motivo escrito al lado, y el aspecto de metal lo dan ahora la emisión y la
+rampa `--forged`, que es de donde tenía que haber salido desde el principio.
+
+### La gráfica de la última escena crece con el scroll, no con el reloj
+
+Es el visitante quien la hace subir al avanzar, que es la idea. Pero el
+escalonado inicial tardaba tanto que, en el punto donde la copia está a plena
+opacidad, las barras del final aún no habían crecido y la gráfica se leía
+DESCENDENTE: exactamente lo contrario de lo que dice la escena.
+
+El escalonado se cerró al 25% del tramo. Una gráfica de ventas que baja en la
+sección que promete que suben es un error de producto, no de animación.
+
+### Qué pasó con La Forja
+
+El hero de 400vh se retiró de la portada, no del repositorio. Su narrativa
+—material en bruto, calor, pieza terminada— es ahora la escena 02 del mundo, y
+su titular se conserva palabra por palabra como el h1 de la página: cambia el
+escenario, no la promesa. Dejar los dos habría encadenado 400vh y 1060vh de
+scroll cinemático antes del primer bloque de texto.
