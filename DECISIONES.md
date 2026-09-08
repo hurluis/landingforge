@@ -503,3 +503,37 @@ El hero de 400vh se retiró de la portada, no del repositorio. Su narrativa
 su titular se conserva palabra por palabra como el h1 de la página: cambia el
 escenario, no la promesa. Dejar los dos habría encadenado 400vh y 1060vh de
 scroll cinemático antes del primer bloque de texto.
+
+### El arco cuenta el servicio, no la tecnología
+
+La primera versión del mundo abría la escena 02 con «El prompt es la pieza» y
+dedicaba dos de seis paradas a la ingeniería de prompts. Era fiel a lo que el
+producto tiene por dentro y equivocado como portada: quien llega es un
+vendedor de e-commerce o dropshipping que quiere vender más, no alguien con
+interés previo en cómo se construye un prompt. Nadie compra un prompt.
+
+El recorrido se reordenó para ir de SU problema a SU resultado:
+
+  01  la foto del proveedor y la plantilla genérica, invisibles en el feed
+  02  el motor: de una foto a la landing completa
+  03  las nueve secciones, cada una con un trabajo sobre la atención
+  04  el scroll colombiano, que es donde el tráfico pagado aterriza
+  05  la confianza, que es lo que convierte a quien no conoce tu marca
+  06  tráfico que se vuelve pedidos
+
+La ingeniería de prompts sigue nombrada en la escena 02, en su sitio: «el
+mecanismo por dentro; lo que recibes es la landing». Quien quiera el detalle
+lo tiene entero en /metodologia, que es donde ese argumento sí manda.
+
+### El engagement había que verlo, no afirmarlo
+
+La escena 03 pasó a hablar de sostener el scroll, pero eso era texto sobre una
+línea de ensamblaje: la promesa se afirmaba y no se veía en ninguna parte.
+
+En el mercado, los vendedores sostenían un plano azul genérico que se leía
+como «un celular encendido». Ahora sostienen una landing vertical en 9:16 —el
+formato que el motor entrega— con el hero en `--heat` y dos secciones ya
+templadas debajo. A la distancia de la escena no se leen como bloques sino
+como páginas con estructura, que es exactamente la diferencia que la escena
+está vendiendo, y convierte la plaza en gente mirando páginas en vez de en
+gente con teléfonos.

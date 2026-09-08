@@ -520,17 +520,48 @@ function mercado(t: Taller): Diorama {
     poner(cabeza, { pos: [x + 0.7, 1.0, z + 0.9], esc: 0.42 });
     g.add(cabeza);
 
+    /* Lo que sostiene en la mano no es un celular genérico: es una landing
+       vertical con sus secciones visibles. Es la única forma de que el
+       ENGAGEMENT se vea en la escena en vez de solo afirmarse en el texto —
+       aquí hay gente mirando páginas, y las páginas son las que produce el
+       producto. Va en 9:16 porque es el formato que el motor entrega. */
+    const marco = new THREE.Mesh(t.caja, t.mat(COLOR.void, { rugosidad: 0.7 }));
+    poner(marco, {
+      pos: [x + 1.15, 0.85, z + 1.3],
+      esc: [0.62, 1.1, 0.04],
+      rot: [-0.32, 0.34, 0],
+    });
+    g.add(marco);
+
     const cel = new THREE.Mesh(
       t.plano,
-      t.mat(COLOR.quenchLo, { brillo: 1.4, emision: COLOR.quench }),
+      t.mat(COLOR.quenchLo, { brillo: 1.35, emision: COLOR.quench }),
     );
     poner(cel, {
-      pos: [x + 1.05, 0.62, z + 1.25],
-      esc: [0.3, 0.56, 1],
-      rot: [-0.5, 0.3, 0],
+      pos: [x + 1.16, 0.85, z + 1.33],
+      esc: [0.54, 1.0, 1],
+      rot: [-0.32, 0.34, 0],
     });
     pantallas.push(cel);
     g.add(cel);
+
+    /* Tres bandas: el hero en calor, y debajo dos secciones ya templadas.
+       A esta distancia no se leen como bloques sino como una página con
+       estructura, que es exactamente la diferencia que vende la escena. */
+    const BANDAS: [number, number, number][] = [
+      [0.34, 0.3, COLOR.heat],
+      [-0.02, 0.16, COLOR.forged],
+      [-0.26, 0.12, COLOR.forgedHi],
+    ];
+    for (const [dy, alto, color] of BANDAS) {
+      const banda = new THREE.Mesh(t.plano, t.mat(color, { brillo: 0.9 }));
+      poner(banda, {
+        pos: [x + 1.17 + dy * 0.1, 0.85 + dy, z + 1.35 + dy * 0.11],
+        esc: [0.4, alto, 1],
+        rot: [-0.32, 0.34, 0],
+      });
+      g.add(banda);
+    }
   }
 
   /* Las motos de contraentrega, que es la señal de confianza número uno. */

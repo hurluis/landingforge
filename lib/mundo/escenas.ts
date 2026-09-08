@@ -5,16 +5,21 @@
  * puede leer, discutir y cambiar sin abrir el motor, y por eso la coreografía
  * se ajusta editando números aquí en vez de buscándolos dentro del bucle.
  *
- * El argumento del recorrido es el mismo de la marca —material en bruto,
- * calor, pieza terminada— contado en seis paradas en lugar de en cinco beats
- * sobre un solo fotograma:
+ * EL ARCO CUENTA EL SERVICIO, NO LA TECNOLOGÍA. El visitante es un vendedor
+ * de e-commerce o dropshipping: llegó porque quiere vender más, no porque le
+ * interese la ingeniería de prompts. Así que el recorrido va de su problema a
+ * su resultado, y el motor aparece en medio como el medio que es:
  *
- *   1 caos      el problema, en frío. Es la única escena sin nada de --heat.
- *   2 forja     la metodología actuando. Máximo calor de toda la página.
- *   3 linea     las nueve tipologías saliendo de sus moldes.
- *   4 mercado   Colombia: contraentrega, reseñas, domicilio.
- *   5 boveda    confianza, en temple frío. La escena más quieta.
- *   6 tienda    el resultado, encendido y cálido.
+ *   1 caos      el problema real: foto de proveedor y plantilla genérica.
+ *   2 forja     el motor: de una foto a la landing completa.
+ *   3 linea     las nueve secciones, cada una con su trabajo sobre el scroll.
+ *   4 mercado   engagement donde de verdad ocurre: el scroll colombiano.
+ *   5 boveda    confianza, que es lo que convierte a quien no te conoce.
+ *   6 tienda    el resultado: tráfico que se vuelve pedidos.
+ *
+ * La ingeniería de prompts se nombra en la escena 2 y se explica en
+ * /metodologia. Aquí es el mecanismo, no el titular: nadie compra un prompt,
+ * se compra una landing que vende.
  *
  * La temperatura sube, se enfría en la bóveda y vuelve a subir al cerrar. Es
  * la misma curva que ya recorren el campo de luz y la constelación, así que
@@ -62,7 +67,6 @@ export interface Escena {
 export const ESCENAS: readonly Escena[] = [
   {
     id: "caos",
-
     centro: [0, 0, 0],
     camara: [0, 4, 20],
     mira: [0, 0.6, 0],
@@ -71,17 +75,16 @@ export const ESCENAS: readonly Escena[] = [
     reposo: 0.4,
     calor: 0,
     indice: "01",
-    eyebrow: "Antes",
+    eyebrow: "El problema",
     /* El h1 de la página. Es el titular del hero anterior, conservado palabra
        por palabra: cambia el escenario, no la promesa. */
     titulo: "Tu producto no se parece a ningún otro. Tu landing tampoco debería.",
     cuerpo:
-      "Y sin embargo se vende con una foto de celular contra una pared blanca, luz de bombillo y un fondo que no dice nada. El comprador no ve un negocio. Ve un riesgo.",
-    etiquetas: ["Sin estructura", "Sin señales locales"],
+      "Pero sale con la foto que te mandó el proveedor y una plantilla igual a la de los otros doscientos que venden lo mismo. En un feed donde el comprador decide en tres segundos, eso no compite: desaparece.",
+    etiquetas: ["Foto de proveedor", "Plantilla genérica"],
   },
   {
     id: "forja",
-
     centro: [26, -2, -30],
     camara: [26, 2.2, -12],
     mira: [26, -2.2, -30],
@@ -90,15 +93,14 @@ export const ESCENAS: readonly Escena[] = [
     reposo: 0.5,
     calor: 1,
     indice: "02",
-    eyebrow: "La metodología",
-    titulo: "El prompt es la pieza.",
+    eyebrow: "El motor",
+    titulo: "De una foto a la landing completa.",
     cuerpo:
-      "El motor no es una IA que hace imágenes bonitas. Es una metodología de ingeniería de prompts, estructurada y versionada, que se ejecuta sobre un modelo generativo intercambiable. El modelo se puede cambiar. La metodología es el activo.",
-    etiquetas: ["Siete componentes", "Validador de siete reglas"],
+      "Subes la foto de tu producto y respondes cuatro preguntas. LandingForge te devuelve la paleta asignada, el copy escrito y las nueve secciones listas para producir. La ingeniería de prompts es el mecanismo por dentro; lo que recibes es la landing.",
+    etiquetas: ["Foto → landing", "Paleta asignada", "Copy escrito"],
   },
   {
     id: "linea",
-
     centro: [-2, -6, -66],
     camara: [14, 2, -52],
     mira: [-2, -5.2, -66],
@@ -107,15 +109,14 @@ export const ESCENAS: readonly Escena[] = [
     reposo: 0.45,
     calor: 0.62,
     indice: "03",
-    eyebrow: "Nueve tipologías",
-    titulo: "Cada sección tiene su molde.",
+    eyebrow: "Engagement por diseño",
+    titulo: "Nueve secciones que sostienen el scroll.",
     cuerpo:
-      "Hero, beneficios, antes y después, paso a paso, testimonios, autoridad, confianza, precios y estilo de vida. Cada una con su propósito, su regla crítica y la lista de errores que el prompt tiene que evitar de forma explícita.",
-    etiquetas: ["9 moldes", "Reglas por tipología"],
+      "El hero frena el dedo. Los beneficios convencen al que ya miró. El antes y después prueba. Los testimonios y el sello quitan el miedo. Cada sección tiene un trabajo sobre la atención, y ninguna está ahí para rellenar.",
+    etiquetas: ["9 secciones", "Cada una con su trabajo"],
   },
   {
     id: "mercado",
-
     centro: [-34, -10, -96],
     camara: [-17, -3.5, -82],
     mira: [-34, -10.5, -96],
@@ -125,14 +126,13 @@ export const ESCENAS: readonly Escena[] = [
     calor: 0.5,
     indice: "04",
     eyebrow: "Mercado colombiano",
-    titulo: "Contraentrega, sello y caras de aquí.",
+    titulo: "Hecha para el scroll de aquí.",
     cuerpo:
-      "Las señales que convierten en Colombia no son las que convierten afuera. Pagar cuando el producto llega a la mano, el registro sanitario visible, y caras que un colombiano reconozca como suyas. Van especificadas en el prompt, no dejadas al azar del modelo.",
-    etiquetas: ["Contraentrega", "Origen regional", "$99.900"],
+      "El tráfico que compras en TikTok y Meta llega con las expectativas de este mercado: pagar cuando el producto está en la mano, precios con punto de miles y caras que un colombiano reconozca como suyas. Va especificado en cada sección, no dejado al azar.",
+    etiquetas: ["Contraentrega", "Caras de aquí", "$99.900"],
   },
   {
     id: "boveda",
-
     centro: [-6, -16, -130],
     camara: [-6, -11.5, -111],
     mira: [-6, -16.2, -130],
@@ -141,15 +141,14 @@ export const ESCENAS: readonly Escena[] = [
     reposo: 0.55,
     calor: 0.08,
     indice: "05",
-    eyebrow: "Confianza",
+    eyebrow: "Lo que convierte",
     titulo: "El sello va antes que el precio.",
     cuerpo:
-      "Garantía, política de devolución y registro sanitario. Es lo que un comprador necesita ver para decidirse a pagar por algo que todavía no tiene en la mano, y es la sección que más gente deja para el final.",
-    etiquetas: ["Garantía", "Devolución"],
+      "Tu comprador no conoce tu marca y le estás pidiendo que pague por algo que todavía no tiene en la mano. Garantía, política de devolución y registro sanitario visibles no son un trámite: son la diferencia entre un carrito abandonado y un pedido.",
+    etiquetas: ["Garantía", "Devolución", "Registro"],
   },
   {
     id: "tienda",
-
     centro: [24, -20, -160],
     camara: [24, -15.5, -139],
     mira: [24, -20.5, -160],
@@ -158,11 +157,11 @@ export const ESCENAS: readonly Escena[] = [
     reposo: 0.5,
     calor: 0.85,
     indice: "06",
-    eyebrow: "Después",
-    titulo: "Una landing que se ve como un negocio.",
+    eyebrow: "El resultado",
+    titulo: "Tráfico que se vuelve pedidos.",
     cuerpo:
-      "Nueve secciones con la paleta ya asignada, el copy escrito y los prompts validados, listos para producir. El mismo producto, contado como lo contaría una marca que sí tiene equipo de diseño.",
-    etiquetas: ["9 secciones", "Paleta asignada", "Listo para producir"],
+      "La misma inversión en anuncios, cayendo en una página que retiene y convierte en vez de en una plantilla. Nueve secciones listas para publicar, y el mismo producto contado como lo contaría una marca con equipo de diseño detrás.",
+    etiquetas: ["Listo para publicar", "9 secciones", "Sin diseñador"],
   },
 ] as const;
 
