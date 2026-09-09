@@ -307,14 +307,183 @@ for (const [ruta, t] of titulos) {
   }
 }
 
+/* ================================================================
+   1.4.10 REFLOW · 2.5.8 OBJETIVOS TÁCTILES · 2.4.7 FOCO VISIBLE
+
+   Estos tres necesitan un viewport distinto del de arriba, así que van
+   en su propia pasada. El primero es el que encontró los dos únicos
+   desbordes que tenía el producto, y por eso está aquí y no en una nota
+   de «revisar a mano».
+   ================================================================ */
+
+/** Ancho que exige la norma para 1.4.10: 320 CSS px, más el móvil real. */
+const ANCHOS_REFLOW = [320, 375];
+
+console.log("\n  1.4.10 · Reflow: la página no debe desplazarse en horizontal");
+for (const ancho of ANCHOS_REFLOW) {
+  const ctx = await navegador.newContext({
+    viewport: { width: ancho, height: 800 },
+    colorScheme: "dark",
+    isMobile: true,
+    hasTouch: true,
+  });
+  for (const ruta of RUTAS) {
+    const p = await ctx.newPage();
+    try {
+      await p.goto(`${BASE}${ruta}`, { waitUntil: "networkidle", timeout: 60000 });
+      const r = await p.evaluate(() => {
+        const d = document.documentElement;
+        const W = d.clientWidth;
+        const main = document.querySelector("main");
+        /* El culpable útil es el que desborda SIN que nadie lo recorte por
+           debajo de <main>: el resto son consecuencias suyas. */
+        const culpables = main
+          ? [...main.querySelectorAll("*")]
+              .filter((e) => {
+                if (e.getBoundingClientRect().right <= W + 1) return false;
+                let a = e.parentElement;
+                while (a && a !== main) {
+                  const s = getComputedStyle(a);
+                  if (s.overflowX !== "visible" || s.overflow !== "visible") return false;
+                  a = a.parentElement;
+                }
+                return true;
+              })
+              .slice(0, 3)
+              .map(
+                (e) =>
+                  `${e.tagName.toLowerCase()}.${(e.getAttribute("class") ?? "")
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .join(".")} → ${Math.round(e.getBoundingClientRect().right)}px`,
+              )
+          : [];
+        return { sw: d.scrollWidth, cw: W, culpables };
+      });
+      if (r.sw > r.cw + 1) {
+        console.log(`    ✗  ${ancho}px  ${ruta} se desplaza: ${r.sw}px sobre ${r.cw}px`);
+        r.culpables.forEach((c) => console.log(`         ${c}`));
+        totalFallos += 1;
+      }
+    } catch {
+      /* La pasada principal ya reportó la ruta que no carga. */
+    }
+    await p.close();
+  }
+  await ctx.close();
+}
+
+console.log("  2.5.8 · Objetivos táctiles de 24×24, con la excepción de espaciado");
+{
+  const ctx = await navegador.newContext({
+    viewport: { width: 375, height: 812 },
+    colorScheme: "dark",
+    isMobile: true,
+    hasTouch: true,
+  });
+  for (const ruta of RUTAS) {
+    const p = await ctx.newPage();
+    try {
+      await p.goto(`${BASE}${ruta}`, { waitUntil: "networkidle", timeout: 60000 });
+      const malos = await p.evaluate(() => {
+        const objetivos = [
+          ...document.querySelectorAll(
+            'a[href],button,input[type="checkbox"],input[type="radio"]',
+          ),
+        ]
+          .filter((e) => {
+            const b = e.getBoundingClientRect();
+            return b.width > 1 && b.height > 1 && !e.closest("[inert]");
+          })
+          .map((e) => {
+            const b = e.getBoundingClientRect();
+            return {
+              t: (e.textContent || e.getAttribute("aria-label") || "").trim().slice(0, 28),
+              cx: b.left + b.width / 2,
+              cy: b.top + b.height / 2,
+              w: b.width,
+              h: b.height,
+            };
+          });
+
+        /* La norma NO exige 24×24 siempre. Un objetivo menor cumple si un
+           círculo de 24px centrado en él no toca a ningún otro objetivo.
+           Sin esta excepción el audit marcaría como fallo cualquier enlace
+           de texto en una lista bien espaciada, que es exactamente el falso
+           positivo que enseña a ignorar la herramienta. */
+        return objetivos
+          .filter((o) => o.w < 24 || o.h < 24)
+          .filter((o) => {
+            let dmin = Infinity;
+            for (const q of objetivos) {
+              if (q === o) continue;
+              dmin = Math.min(dmin, Math.hypot(q.cx - o.cx, q.cy - o.cy));
+            }
+            return dmin < 24;
+          })
+          .map((o) => `«${o.t}» ${Math.round(o.w)}×${Math.round(o.h)}`);
+      });
+      if (malos.length) {
+        console.log(`    ✗  ${ruta}: ${malos.length} objetivo(s) pequeños y juntos`);
+        malos.slice(0, 5).forEach((m) => console.log(`         ${m}`));
+        totalFallos += malos.length;
+      }
+    } catch {
+      /* idem */
+    }
+    await p.close();
+  }
+  await ctx.close();
+}
+
+console.log("  2.4.7 · Foco visible en todo lo que se puede enfocar");
+for (const ruta of RUTAS) {
+  const p = await contexto.newPage();
+  try {
+    await p.goto(`${BASE}${ruta}`, { waitUntil: "networkidle", timeout: 60000 });
+    const ciegos = await p.evaluate(() => {
+      const out = [];
+      const focos = [
+        ...document.querySelectorAll('a[href],button,input,select,textarea,[tabindex="0"]'),
+      ].filter((e) => {
+        const b = e.getBoundingClientRect();
+        return b.width > 0 && b.height > 0 && !e.closest("[inert]");
+      });
+      for (const el of focos.slice(0, 60)) {
+        el.focus();
+        /* Si el foco no llegó, el criterio no aplica: un control deshabilitado
+           no es enfocable, y exigirle anillo de foco es un falso positivo. */
+        if (document.activeElement !== el) continue;
+        const s = getComputedStyle(el);
+        const sinOutline = s.outlineStyle === "none" || parseFloat(s.outlineWidth) === 0;
+        const sinAnillo = !s.boxShadow || s.boxShadow === "none";
+        if (sinOutline && sinAnillo) {
+          out.push(
+            `${el.tagName.toLowerCase()} «${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 28)}»`,
+          );
+        }
+      }
+      return out;
+    });
+    if (ciegos.length) {
+      console.log(`    ✗  ${ruta}: ${ciegos.length} sin indicador de foco`);
+      ciegos.slice(0, 5).forEach((c) => console.log(`         ${c}`));
+      totalFallos += ciegos.length;
+    }
+  } catch {
+    /* idem */
+  }
+  await p.close();
+}
+
 await navegador.close();
 
 console.log(`\n  ${totalFallos} fallo(s), ${totalAvisos} aviso(s) en ${RUTAS.length} ruta(s).`);
 console.log(
   "\n  La automatización cubre cerca de un tercio de la WCAG. Quedan fuera, y hay\n" +
-    "  que mirarlos a mano: si el alt describe de verdad, si el orden de foco sigue\n" +
-    "  al orden visual, si el movimiento respeta prefers-reduced-motion y si el\n" +
-    "  contenido se entiende a 200% de zoom.\n",
+    "  que mirarlos a mano: si el alt DESCRIBE de verdad lo que muestra, si el\n" +
+    "  orden de foco sigue al orden visual, y si el contenido se entiende leído\n" +
+    "  en voz alta de arriba abajo.\n",
 );
 
 process.exit(totalFallos > 0 ? 1 : 0);
