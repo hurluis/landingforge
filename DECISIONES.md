@@ -658,6 +658,52 @@ todo sea del mismo origen, y el script lanza un error si la medición devuelve
 todo ceros. Una curva lineal por accidente es indistinguible de no tener
 curva.
 
+### El lienzo se pinta a menos resolución que la pantalla
+
+Los fotogramas son de 1024px de ancho. Un viewport de 1440 en pantalla Retina
+pedía un lienzo de 2880: ampliar la fuente cuatro veces y mover 5,2
+megapíxeles DOS veces por frame, una por cada fotograma de la mezcla.
+
+Y no compraba nada. Por encima del ancho de la fuente no hay detalle nuevo que
+enseñar, solo interpolación más cara. El lienzo se topa ahora en 1728 y el GPU
+estira ese resultado hasta la pantalla, que es composición y sale gratis.
+
+### El decodificado se paga por adelantado
+
+Una imagen cargada pero nunca dibujada guarda todavía el JPEG comprimido: la
+primera vez que se pinta hay que descomprimirla, y eso ocurre **de forma
+síncrona dentro del frame**. Con el scroll entrando en fotogramas nuevos todo
+el rato, era un tirón por cada fotograma nuevo. Ahora el cargador llama a
+`img.decode()` al recibirla, fuera del camino crítico.
+
+### 240 fotogramas eran demasiados, y no por los bytes
+
+Cada fotograma descomprimido ocupa 1024×450×4 = 1,8 MB en memoria. Con 240
+eran más de 400 MB: el navegador no los sostiene, va descartando y
+redecodificando, y cada redecodificación es un tirón.
+
+Con 150 son 260 MB y caben. El presupuesto de bytes es el mismo —4 MB—, así
+que menos fotogramas significa más calidad en cada uno: JPEG q52 pasó a q82, y
+los artefactos de compresión desaparecieron. La nitidez se ve cuando el scroll
+SE PARA, que es cuando el visitante lee; la suavidad se ve mientras se mueve, y
+de eso ya se encargan la curva de ritmo y la mezcla entre fotogramas.
+
+**El techo de calidad lo pone el origen, no el proceso.** El vídeo fuente es
+un reencode de WhatsApp a 1024×576. Cualquier uso a sangre en una pantalla
+grande amplía. Con el archivo original —antes de pasar por WhatsApp— se
+regenera con `npm run film ruta.mp4` y la nitidez sube sin tocar una línea.
+
+### Medir en headless no vale para juzgar fluidez
+
+La primera medición daba 10 fps y ni un frame por debajo de 20ms. Era el
+Chromium headless rasterizando por software. En Chrome real, la misma página:
+60 fps sostenidos, 3 frames lentos de 145.
+
+Las tres correcciones de arriba eran necesarias igual —la memoria, el
+decodificado y el lienzo sobredimensionado son problemas reales— pero la cifra
+que las justificaba estaba medida con el instrumento equivocado. Para juzgar
+rendimiento de pintado, `chromium.launch({ channel: "chrome" })`.
+
 ### El engagement había que verlo, no afirmarlo
 
 La escena 03 pasó a hablar de sostener el scroll, pero eso era texto sobre una

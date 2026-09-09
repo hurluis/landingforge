@@ -32,10 +32,20 @@ import { RITMO } from "@/components/mundo/ritmo";
  * Es la fuente de verdad: `scripts/extraer-fotogramas.mjs` lee ESTE número
  * para saber cuántos generar, así que no pueden desincronizarse.
  *
- * 240 sobre 10,6 pantallas de recorrido son unos 36px de scroll por
- * fotograma. Con 120 eran 72 y se veía a saltos incluso con fundido.
+ * 150, y no más, por dos razones que tiran en la misma dirección.
+ *
+ * MEMORIA Y DECODIFICADO. Cada fotograma descomprimido ocupa 1024×450×4 =
+ * 1,8 MB en memoria de vídeo. Con 240 eran más de 400 MB: el navegador no los
+ * sostiene, va descartando y redecodificando, y cada redecodificación es un
+ * tirón. Con 150 son 260 MB y caben.
+ *
+ * CALIDAD. El presupuesto de bytes es el mismo, así que menos fotogramas
+ * significa más calidad en cada uno: se pasó de JPEG q52 a q82. La nitidez se
+ * ve cuando el scroll SE PARA, que es cuando el visitante lee; la suavidad se
+ * ve mientras se mueve, y de eso ya se encargan la curva de ritmo y la mezcla
+ * entre fotogramas.
  */
-export const TOTAL_FOTOGRAMAS = 240;
+export const TOTAL_FOTOGRAMAS = 150;
 const RUTA = (i: number) => `/film/${String(i).padStart(3, "0")}.jpg`;
 
 /** Fracción del tramo que la escena pasa en reposo antes de dar paso. */
@@ -65,11 +75,24 @@ function cargar(
       const img = new Image();
       img.decoding = "async";
       img.onload = () => {
-        if (vivo) {
-          imagenes[i] = img;
-          alLlegarUno();
-        }
-        resolver();
+        if (!vivo) return resolver();
+        /* Decodificar AQUÍ y no en el primer `drawImage`.
+           Una imagen cargada pero nunca dibujada guarda todavía el JPEG
+           comprimido: la primera vez que se pinta hay que descomprimirla, y
+           eso ocurre de forma síncrona dentro del frame. Con el scroll
+           entrando en fotogramas nuevos todo el rato, era un tirón por
+           fotograma nuevo. `decode()` lo paga por adelantado y fuera del
+           camino crítico. */
+        img
+          .decode()
+          .catch(() => {})
+          .then(() => {
+            if (vivo) {
+              imagenes[i] = img;
+              alLlegarUno();
+            }
+            resolver();
+          });
       };
       /* Un fotograma que no llega no puede romper la secuencia: se queda a
          null y `dibujar` usa el anterior disponible. */
@@ -155,11 +178,29 @@ export function montarFilm(
     cima = caja.top + window.scrollY;
     alto = Math.max(1, host.offsetHeight - window.innerHeight);
 
-    /* Se topa en 2: por encima no se distingue y se cuadruplican los píxeles
-       que hay que pintar en cada frame. */
+    /* EL LIENZO SE PINTA A MENOS RESOLUCIÓN QUE LA PANTALLA, A PROPÓSITO.
+       
+       Los fotogramas son de 1024px de ancho. Pintar el lienzo a 2880 —que es
+       lo que pedía un viewport de 1440 en una pantalla Retina— obligaba a
+       ampliar la fuente 4 veces y a mover 5,2 megapíxeles DOS veces por frame,
+       una por cada fotograma de la mezcla. Medido: 10 fps y ni un solo frame
+       por debajo de 20ms.
+       
+       Y no compraba nada: por encima del ancho de la fuente no hay detalle
+       nuevo que enseñar, solo interpolación más cara. Se topa el lienzo en
+       algo más que la fuente y se deja que el GPU estire ese resultado hasta
+       la pantalla, que es una operación de composición y sale gratis. */
+    const TOPE = 1728;
     dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(canvas.clientWidth * dpr);
-    canvas.height = Math.round(canvas.clientHeight * dpr);
+    const anchoDeseado = canvas.clientWidth * dpr;
+    const factor = anchoDeseado > TOPE ? TOPE / anchoDeseado : 1;
+    canvas.width = Math.round(canvas.clientWidth * dpr * factor);
+    canvas.height = Math.round(canvas.clientHeight * dpr * factor);
+
+    /* La interpolación buena importa más aquí que de costumbre, porque se
+       está ampliando de verdad y no reduciendo. */
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
     pendiente = true;
   }
 

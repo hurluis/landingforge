@@ -51,7 +51,7 @@ const componente = readFileSync(
 const declarados = Number(componente.match(/TOTAL_FOTOGRAMAS\s*=\s*(\d+)/)?.[1] ?? 120);
 const CUADROS = Number(process.argv[3] ?? declarados);
 const ALTO = Number(process.argv[4] ?? 450);
-const CALIDAD = Number(process.argv[5] ?? 52);
+const CALIDAD = Number(process.argv[5] ?? 82);
 /* `--solo-ritmo` recalcula la curva sobre los fotogramas ya generados. Extraer
    240 lleva minutos y ajustar el reparto no los necesita de nuevo. */
 const SOLO_RITMO = process.argv.includes("--solo-ritmo");
