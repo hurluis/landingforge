@@ -1,7 +1,7 @@
 import { Nav } from "@/components/marketing/nav";
 import { Pie } from "@/components/marketing/pie";
 import { Asistente } from "@/components/asistente/asistente";
-import { CampoDeLuz } from "@/components/motion/campo-de-luz";
+import { Pelicula } from "@/components/motion/pelicula";
 
 /** Chrome público: barra, pie y el widget del asistente (§6.1). */
 export default function LayoutMarketing({ children }: { children: React.ReactNode }) {
@@ -13,7 +13,7 @@ export default function LayoutMarketing({ children }: { children: React.ReactNod
       >
         Saltar al contenido
       </a>
-      <CampoDeLuz />
+      <Pelicula />
       <Nav />
       <main id="contenido" className="relative z-10 flex-1 pt-16">
         {children}

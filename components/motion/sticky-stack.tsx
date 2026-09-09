@@ -89,7 +89,7 @@ function Ficha({
       <motion.div
         style={esUltima ? undefined : { transform, opacity: opacidad }}
         className={cn(
-          "mb-5 rounded-[14px] border border-scale bg-anvil p-8 lg:p-10",
+          "mb-5 rounded-[14px] vidrio p-8 lg:p-10",
           "origin-top",
         )}
       >

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda } from "next/font/google";
-import { GeistSans } from "geist/font/sans";
+import { Outfit } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import { Movimiento } from "@/components/motion/movimiento";
@@ -8,26 +7,25 @@ import { PanelAccesibilidad } from "@/components/a11y/panel-accesibilidad";
 import "./globals.css";
 
 /**
- * Display: Bodoni Moda. Didone variable con eje óptico, de contraste muy alto
- * entre astas y perfiles: a tamaño grande lee cara y dibujada, que es lo que
- * el cliente pidió.
+ * UNA SOLA FAMILIA: Outfit. Geométrica de bowls circulares y remates rectos,
+ * variable de 100 a 900.
  *
- * El brief prohibía serif, y con razón: "se siente editorial" no es un motivo
- * de diseño. Pero prohibía en concreto Fraunces e Instrument Serif, que son
- * las dos que salen por defecto. Bodoni no está en ese grupo, y su contraste
- * altísimo hace algo que ninguna grotesca hace: sobre el papel claro los
- * remates finos casi desaparecen y el texto se lee impreso, mientras que
- * sobre el estudio oscuro los mismos remates brillan. La tipografía cambia de
- * carácter con el material, igual que el resto del sistema.
+ * Sustituye al par Bodoni + Geist. El didone se eligió cuando la página era
+ * una sala oscura con objetos dentro: su contraste altísimo entre astas y
+ * perfiles brillaba sobre el estudio y desaparecía sobre el papel, y esa
+ * ambigüedad era el argumento. Ahora la identidad es la película, que ocupa
+ * la pantalla entera y ya lleva toda la textura que la página necesita.
+ * Encima de ella un didone compite; una geométrica redonda en peso alto se
+ * apoya. La referencia usa Halyard Display en 500-600, que es exactamente
+ * esta forma: círculo, remate recto, nada de gracia.
  *
- * Por eso el peso nunca baja de 500: en negativo, un didone ligero pierde las
- * astas finas.
+ * Que sea la MISMA familia para display y para texto es la mitad del
+ * minimalismo: la página deja de tener dos voces.
  */
-const bodoni = Bodoni_Moda({
-  variable: "--font-display-serif",
+const outfit = Outfit({
+  variable: "--font-round",
   subsets: ["latin"],
   display: "swap",
-  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -56,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="es-CO"
-      className={`${bodoni.variable} ${GeistSans.variable} ${GeistMono.variable} h-full`}
+      className={`${outfit.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
       <head>

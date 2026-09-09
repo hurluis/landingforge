@@ -16,7 +16,9 @@
     "mirar": "node scripts/mirar.mjs",
     "usuario": "node scripts/crear-usuario.mjs",
     "fotogramas": "node scripts/extraer-fotogramas.mjs",
-    "verificar:a11y": "node scripts/verificar-a11y.mjs"
+    "verificar:a11y": "node scripts/verificar-a11y.mjs",
+    "verificar:contraste-pelicula": "node scripts/verificar-contraste-pelicula.mjs",
+    "verificar:relato": "node scripts/verificar-relato.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.17.1",

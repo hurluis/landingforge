@@ -22,7 +22,7 @@ function fila(etiqueta: string, valor: string) {
 
 export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
   return (
-    <section aria-labelledby="precios-titulo" className="papel py-32 lg:py-36">
+    <section aria-labelledby="precios-titulo" className="relative py-32 lg:py-36">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
         <RevealLineas
           as="h2"
@@ -60,13 +60,13 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                   "flex h-full flex-col rounded-[14px] p-8",
                   // Elevación declarada una sola vez: borde, sin sombra.
                   p.destacado
-                    ? "bg-anvil-hi border border-heat"
-                    : "bg-[var(--anvil)] border border-[var(--scale)]",
+                    ? "vidrio border-[var(--heat)]"
+                    : "vidrio",
                 )}
               >
                 <h3 className="display-md">{p.nombre}</h3>
                 <p className="mt-4 flex items-baseline gap-2">
-                  <span className="font-[family-name:var(--font-display-serif)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
+                  <span className="font-[family-name:var(--font-round)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
                     {formatoCOP(p.precioMensualCOP)}
                   </span>
                   <span className="mono-sm text-smoke">/ mes</span>

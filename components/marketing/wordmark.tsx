@@ -19,7 +19,7 @@ export function Wordmark({
     <span
       style={{ fontSize: tamano }}
       className={cn(
-        "font-[family-name:var(--font-display-serif)] leading-none tracking-[-0.02em] text-ash",
+        "font-[family-name:var(--font-round)] leading-none tracking-[-0.02em] text-ash",
         className,
       )}
     >

@@ -39,16 +39,23 @@ const errores = [];
 p.on("console", (m) => m.type() === "error" && errores.push(m.text()));
 p.on("pageerror", (e) => errores.push(String(e)));
 
-/* ---------- 1 · La secuencia ---------- */
-console.log("\n1 · Secuencia de fotogramas");
+/* ---------- 1 · La película ---------- */
+console.log("\n1 · La película");
 await p.goto(BASE, { waitUntil: "networkidle" });
 await sinOverlay(p);
 
-const seccion = p.locator("section:has(#secuencia-titulo)");
-ok(await seccion.count() === 1, "la sección existe una sola vez");
-ok(await p.locator("#secuencia-titulo").innerText() !== "", "tiene titular accesible");
+const seccion = p.locator("[data-decorativo]");
+ok(await seccion.count() === 1, "la película se monta una sola vez");
+ok(
+  await seccion.evaluate((el) => getComputedStyle(el).position) === "fixed",
+  "va fija: es el fondo de la página entera, no una sección",
+);
+ok(
+  await seccion.getAttribute("aria-hidden") === "true",
+  "queda fuera del lector de pantalla: no aporta información",
+);
+ok(await p.locator("h1").count() === 1, "la home sigue teniendo un h1 y solo uno");
 
-await seccion.scrollIntoViewIfNeeded();
 await p.waitForTimeout(2500);
 
 const canvas = seccion.locator("canvas");
@@ -60,15 +67,11 @@ ok(Number(dims.op) === 1, "el canvas ya es visible", `opacidad ${dims.op}`);
 
 /* Se compara el píxel del canvas en dos puntos del recorrido: si el scroll
    mueve el tiempo de verdad, la imagen tiene que cambiar. */
-const caja = await seccion.evaluate((el) => ({
-  top: el.getBoundingClientRect().top + window.scrollY,
-  alto: el.offsetHeight,
-}));
+const recorrido = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
 const firma = async (frac) => {
-  /* El recorrido útil es la altura de la pista menos una pantalla: pasado ese
-     punto la sección ya se despegó del `sticky` y el progreso vale 1. */
-  const recorrido = caja.alto - (await p.evaluate(() => window.innerHeight));
-  await p.evaluate((y) => window.scrollTo(0, y), caja.top + recorrido * frac);
+  /* El reloj de la película es el documento entero, así que el recorrido va de
+     la primera línea al pie. */
+  await p.evaluate((y) => window.scrollTo(0, y), recorrido * frac);
   await p.waitForTimeout(1400);
   return canvas.evaluate((c) => {
     const g = c.getContext("2d");
@@ -179,11 +182,14 @@ await p.getByRole("checkbox", { name: /Modo lectura/ }).check();
 await p.waitForTimeout(300);
 e = await leer();
 ok(e.lectura === "true", "el modo lectura se activa");
-const fuenteDisplay = await p.evaluate(() => {
+/* La página ya no tiene didone: es una sola familia geométrica. Lo que el
+   modo lectura afloja es el tracking, que a -0.035em es lo que de verdad
+   cuesta leer en un titular grande. */
+const tracking = await p.evaluate(() => {
   const h = document.querySelector(".display-lg, .display-xl");
-  return h ? getComputedStyle(h).fontFamily : "";
+  return h ? getComputedStyle(h).letterSpacing : "";
 });
-ok(!/Bodoni/i.test(fuenteDisplay), "el modo lectura cambia el didone por grotesca", fuenteDisplay);
+ok(tracking === "normal" || parseFloat(tracking) >= 0, "el modo lectura suelta el tracking del display", tracking);
 const fondoOculto = await p.evaluate(() => {
   const d = document.querySelector("[data-decorativo]");
   return d ? getComputedStyle(d).display : "sin-nodo";
@@ -202,17 +208,33 @@ ok(e.lectura === "true" && e.texto === "enorme", "las preferencias sobreviven a 
 const antesDeHidratar = await p.evaluate(() => document.documentElement.dataset.texto);
 ok(antesDeHidratar === "enorme", "el script inline las aplica antes de pintar");
 
-/* Con lectura activa la sección tiene que caer a la variante fija, sin canvas.
-   El servidor pinta la variante con canvas —no puede saber lo que hay en
-   localStorage—, así que al hidratar el nodo se reemplaza. Hay que esperar a
-   ese cambio antes de medir, o se mide un nodo que ya no está en el DOM. */
-await p.locator('section:has(#secuencia-titulo) img[src*="/secuencia/0001.jpg"]')
-  .waitFor({ state: "attached", timeout: 5000 });
-await p.locator("section:has(#secuencia-titulo)").scrollIntoViewIfNeeded();
-await p.waitForTimeout(800);
-const conLectura = await p.locator("section:has(#secuencia-titulo) canvas").count();
-const imgFija = await p.locator('section:has(#secuencia-titulo) img[src*="/secuencia/0001.jpg"]').count();
-ok(conLectura === 0 && imgFija === 1, "con movimiento reducido queda el fotograma fijo, sin canvas");
+/* Dos casos distintos que la versión anterior mezclaba.
+
+   Con lectura, la película se apaga entera: quien viene a leer no quiere una
+   toma moviéndose detrás del párrafo, y además así no se descarga.
+   El servidor pinta siempre la variante con canvas —no puede saber lo que hay
+   en localStorage—, así que al hidratar el nodo se reemplaza; hay que esperar
+   a ese cambio antes de medir. */
+await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]')
+  .waitFor({ state: "attached", timeout: 8000 });
+const oculta = await p.locator("[data-decorativo]").evaluate((el) => getComputedStyle(el).display);
+ok(oculta === "none", "en modo lectura la película se apaga entera", oculta);
+
+/* Con movimiento reducido a secas, la página conserva su fondo: un fotograma
+   fijo, sin canvas y sin descargar la secuencia. */
+await p.evaluate(() => localStorage.setItem("lf_a11y", JSON.stringify({
+  tema: "oscuro", texto: "normal", movimiento: "reducido",
+  lectura: false, contraste: false, enlaces: false })));
+await p.reload({ waitUntil: "domcontentloaded" });
+await sinOverlay(p);
+await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]')
+  .waitFor({ state: "attached", timeout: 8000 });
+const conReducido = await p.locator("[data-decorativo] canvas").count();
+const imgFija = await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]').count();
+ok(conReducido === 0 && imgFija === 1, "con movimiento reducido queda el fotograma fijo, sin canvas");
+const pedidosReducido = await p.evaluate(() =>
+  performance.getEntriesByType("resource").filter((r) => r.name.includes("/secuencia/")).length);
+ok(pedidosReducido <= 2, `no descarga la secuencia (${pedidosReducido} peticiones)`);
 
 /* Restablecer deja el sitio como estaba. */
 await p.evaluate(() => window.scrollTo(0, 0));
@@ -267,9 +289,9 @@ const movil = await nav.newContext({ viewport: { width: 390, height: 844 }, isMo
 const pm = await movil.newPage();
 await pm.goto(BASE, { waitUntil: "domcontentloaded" });
 await sinOverlay(pm);
-await pm.locator("section:has(#secuencia-titulo)").scrollIntoViewIfNeeded();
+await pm.locator("[data-decorativo]").scrollIntoViewIfNeeded();
 await pm.waitForTimeout(2500);
-ok(await pm.locator("section:has(#secuencia-titulo) canvas").count() === 1, "la secuencia monta en móvil");
+ok(await pm.locator("[data-decorativo] canvas").count() === 1, "la secuencia monta en móvil");
 const solape = await pm.evaluate(() => {
   const b = [...document.querySelectorAll("button")];
   const a11y = b.find((x) => x.getAttribute("aria-label")?.startsWith("Accesibilidad"));

@@ -76,7 +76,7 @@ export function Cuenta({
         </div>
 
         <p className="mt-6 flex items-baseline gap-2">
-          <span className="font-[family-name:var(--font-display-serif)] text-[3rem] font-[300] leading-none tabular-nums">
+          <span className="font-[family-name:var(--font-round)] text-[3rem] font-[300] leading-none tabular-nums">
             {usuario.creditosDisponibles}
           </span>
           <span className="mono-sm text-slag">de {def.creditosMes} créditos</span>

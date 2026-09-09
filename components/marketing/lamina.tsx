@@ -46,7 +46,7 @@ function Titular({ children, p }: { children: React.ReactNode; p: Paleta }) {
   return (
     <p
       style={{ color: p.texto }}
-      className="font-[family-name:var(--font-display-serif)] text-[0.9rem] font-[350] leading-[1.05] tracking-[-0.02em]"
+      className="font-[family-name:var(--font-round)] text-[0.9rem] font-[350] leading-[1.05] tracking-[-0.02em]"
     >
       {children}
     </p>
@@ -166,7 +166,7 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
         <div key={i} className="flex items-start gap-2">
           <span
             style={{ color: p.acento }}
-            className="font-[family-name:var(--font-display-serif)] text-[0.7rem] leading-none"
+            className="font-[family-name:var(--font-round)] text-[0.7rem] leading-none"
           >
             {i + 1}
           </span>

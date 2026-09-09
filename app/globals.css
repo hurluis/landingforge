@@ -23,10 +23,14 @@
   --scale:       #2B3038;
   --scale-hi:    #3D444F;
 
-  /* Tinta: blanco frío, no cálido. */
+  /* Tinta: blanco frío, no cálido.
+     --smoke y --slag suben respecto de la v2. Contra un canvas plano los
+     valores viejos pasaban 4.5:1 de sobra, pero el fondo de esta página es
+     una película y su punto más claro es un frasco blanco. Medido con
+     scripts/verificar-contraste-pelicula.mjs sobre píxeles compuestos. */
   --ash:         #F4F5F7;
-  --smoke:       #9BA3AE;
-  --slag:        #838892;
+  --smoke:       #C2C9D3;
+  --slag:        #ADB4BF;
 
   /* CALIENTE = en proceso. El único color de acción. */
   --heat:        #FF5C2B;
@@ -100,9 +104,9 @@
   --color-warn:     var(--warn);
   --color-danger:   var(--danger);
 
-  --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-round), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
-  --font-display: var(--font-display-serif), ui-serif, Georgia, serif;
+  --font-display: var(--font-round), ui-sans-serif, system-ui, sans-serif;
 
   --shadow-elev-1: var(--elev-1);
   --shadow-elev-2: var(--elev-2);
@@ -189,8 +193,9 @@ html { background: var(--void); }
 body {
   background: transparent;
   color: var(--ash);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
+  font-weight: 450;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -232,54 +237,66 @@ a {
 
 /* ------------------------------------------------------------
    Tipografía · §5.4
-   Bricolage Grotesque para display. Su nombre significa literalmente
-   trabajo hecho a mano con lo que hay, y se ve dibujada, no generada.
+
+   Outfit en peso 600 para todo lo que es display. Tres decisiones, y las tres
+   salen de que ahora el fondo es una película a pantalla completa:
+
+   Peso alto porque el titular vive SOBRE imagen. Un peso 400 sobre vídeo se
+   deshace en cuanto el fotograma se aclara; un 600 aguanta el fondo entero
+   sin necesidad de una caja opaca detrás, que es lo que habría que poner si
+   la letra fuese fina, y esa caja es justo lo que rompería la integración.
+
+   Tracking negativo y interlínea por debajo de 1 porque a tamaño display las
+   contraformas de una geométrica son enormes: sin cerrarlas, el titular se
+   lee como palabras sueltas en vez de como un bloque.
+
+   Y las etiquetas en versales con tracking abierto. Es el único gesto
+   decorativo que se permite la página: separa el rótulo del texto sin
+   necesidad de otro color, otro peso ni otra familia.
    ------------------------------------------------------------ */
 
 .display-xl {
-  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
-  font-size: clamp(2.75rem, 5.2vw, 5rem);
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  line-height: 1.02;
-  font-variation-settings: "opsz" 96;
+  font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(3rem, 6.4vw, 6rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
   text-wrap: balance;
 }
 
 .display-lg {
-  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
-  font-size: clamp(2.25rem, 4.8vw, 4rem);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  font-variation-settings: "opsz" 72;
+  font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.5rem, 5.2vw, 4.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.96;
   text-wrap: balance;
 }
 
 .display-md {
-  font-family: var(--font-display-serif), ui-serif, Georgia, serif;
-  font-size: clamp(1.625rem, 2.6vw, 2.25rem);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.15;
-  font-variation-settings: "opsz" 40;
+  font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.75rem, 2.9vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
   text-wrap: balance;
 }
 
 .titulo {
   font-size: 1.375rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+  letter-spacing: -0.012em;
+  line-height: 1.28;
 }
 
 .cuerpo-lg { font-size: 1.125rem; line-height: 1.65; }
 .cuerpo    { font-size: 1rem; line-height: 1.65; }
 
 .etiqueta {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   line-height: 1.4;
 }
 
@@ -591,13 +608,23 @@ html[data-contraste="true"] :focus-visible { outline-width: 3px; }
    corta y nada de decorado. */
 html[data-lectura="true"] body { line-height: 1.85; }
 
+/* El modo lectura afloja lo que el diseño aprieta. La familia ya es una
+   geométrica legible, así que aquí no se cambia de letra: se devuelve el
+   tracking a cero y se abre la interlínea, que es lo que de verdad cuesta
+   leer cuando un titular viene cerrado a -0.035em sobre una imagen. */
 html[data-lectura="true"] .display-xl,
 html[data-lectura="true"] .display-lg,
 html[data-lectura="true"] .display-md {
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.22;
+}
+
+/* Las versales son más lentas de leer y el lector de pantalla puede
+   deletrearlas. En modo lectura vuelven a caja baja. */
+html[data-lectura="true"] .etiqueta {
+  text-transform: none;
+  letter-spacing: 0.02em;
 }
 
 html[data-lectura="true"] .cuerpo,
@@ -627,4 +654,34 @@ html[data-lectura="true"] *::after {
 html[data-enlaces="true"] a[href] { text-decoration: underline; }
 html[data-enlaces="true"] a[href]:where(.inline-flex, [class*="rounded-full"]) {
   text-decoration: none;
+}
+
+/* ------------------------------------------------------------
+   VIDRIO · la superficie que sustituye a la pintura
+
+   Con una película detrás de la página entera, una tarjeta con fondo opaco
+   deja de ser una tarjeta y pasa a ser un agujero: tapa justo aquello sobre
+   lo que se supone que flota. El vidrio resuelve las dos cosas a la vez —da
+   contraste suficiente para leer y deja pasar la toma— y además hace lo que
+   ningún fondo plano puede: cambia con lo que tiene detrás, así que la misma
+   tarjeta se ve distinta al principio y al final de la página.
+
+   ponytail: `backdrop-filter` sobre un canvas que repinta en cada frame de
+   scroll obliga a recomponer. Con las siete superficies de la home se midió
+   bien; si mañana se multiplican, lo primero que hay que quitar es el blur
+   —no la transparencia—, que es lo que cuesta.
+   ------------------------------------------------------------ */
+.vidrio {
+  background: color-mix(in oklab, var(--anvil) 58%, transparent);
+  border: 1px solid color-mix(in oklab, var(--scale-hi) 50%, transparent);
+  backdrop-filter: blur(12px) saturate(118%);
+  -webkit-backdrop-filter: blur(12px) saturate(118%);
+}
+
+/* Sin película detrás no hay nada que dejar pasar, así que el vidrio vuelve a
+   ser una superficie normal y se ahorra el coste de composición. */
+html[data-lectura="true"] .vidrio {
+  background: var(--anvil);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }

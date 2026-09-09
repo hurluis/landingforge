@@ -1,14 +1,9 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import { Money, SealCheck, UsersThree, TextAa } from "@phosphor-icons/react/dist/ssr";
 import { Boton } from "@/components/ui/boton";
-import { HeroForja } from "@/components/motion/forja";
 import { Marquesina } from "@/components/motion/marquesina";
 import { TiraPinned } from "@/components/motion/tira-pinned";
-import { StickyStack } from "@/components/motion/sticky-stack";
-import { RevealLineas, RevealBloque, RevealLista } from "@/components/motion/reveal";
-import { TrazoConectado } from "@/components/motion/trazo";
-import { SecuenciaScroll } from "@/components/motion/secuencia-scroll";
+import { Relato, type Tramo } from "@/components/motion/relato";
 import { ContadorScroll } from "@/components/motion/interacciones";
 import { EstudioVivo } from "@/components/marketing/estudio-vivo";
 import { TablaPrecios } from "@/components/marketing/tabla-precios";
@@ -17,30 +12,31 @@ import { Preguntas } from "@/components/marketing/preguntas";
 /**
  * Home. El copy es definitivo y se usa palabra por palabra.
  *
- * Familias de layout, ninguna repetida de forma consecutiva:
- *   1 hero split asimétrico pinned  ·  2 tira a sangre  ·  3 editorial de dos
- *   columnas con filete  ·  4 pan horizontal pinned  ·  5 sticky stack  ·
- *   6 secuencia con trazo  ·  7 toma de producto scrubbed a fotograma  ·
- *   8 herramienta embebida con parallax  ·  9 tres columnas comparables  ·
- *   10 acordeón  ·  11 tipografía a sangre.
+ * La página tiene dos mitades, y la costura entre ellas es deliberada.
  *
- * Ritmo vertical py-32 a py-48: el contenido protagonista son imágenes 9:16 y
- * las imágenes necesitan aire.
+ * LA PRIMERA ES UNA SOLA COSA. El relato —cinco tramos, del saludo a lo que
+ * el cliente se lleva— no scrollea: se queda clavado en la pantalla mientras
+ * el scroll avanza el tiempo de la toma que corre por detrás (`Pelicula`, en
+ * el layout). Texto e imagen leen el mismo progreso, así que no hay dos
+ * animaciones que cuadrar: hay una magnitud y dos cosas que la obedecen. Esa
+ * es la razón de que se lean como un único objeto y no como un documento
+ * pasando por delante de un vídeo.
+ *
+ * LA SEGUNDA ES LA PÁGINA DE SIEMPRE. La tira, el estudio, los precios y las
+ * preguntas son contenido que se explora, no que se contempla: pinearlo
+ * obligaría a esperar para leer una tabla de precios, que es exactamente lo
+ * contrario de lo que alguien quiere hacer con una tabla de precios. Ahí el
+ * contenido vuelve a fluir, sobre el tramo final de la misma toma.
+ *
+ * Ninguna sección tiene fondo opaco. Donde hace falta superficie para leer es
+ * vidrio (`.vidrio`), no pintura: una caja opaca taparía la película, que es
+ * justo lo que sostiene la página.
  */
 
 const CONSECUENCIAS = [
-  {
-    afirmacion: "Misma estructura para todos los productos",
-    consecuencia: "Tu producto premium se ve como el genérico de al lado",
-  },
-  {
-    afirmacion: "Caras de stock o caras de IA evidentes",
-    consecuencia: "El comprador desconfía antes de leer el precio",
-  },
-  {
-    afirmacion: "Cero señales del mercado local",
-    consecuencia: "Pagas tráfico que no convierte",
-  },
+  ["Misma estructura para todos los productos", "Tu producto premium se ve como el genérico de al lado"],
+  ["Caras de stock o caras de IA evidentes", "El comprador desconfía antes de leer el precio"],
+  ["Cero señales del mercado local", "Pagas tráfico que no convierte"],
 ];
 
 const TARJETAS = [
@@ -48,186 +44,194 @@ const TARJETAS = [
     id: "contraentrega",
     titulo: "Contraentrega",
     texto:
-      "La señal de confianza número uno del país. Tu comprador paga cuando el producto está en su mano. Si tu landing no lo dice, estás dejando ventas sobre la mesa.",
-    sello: <Money className="size-6" weight="bold" />,
+      "La señal de confianza número uno del país. Tu comprador paga cuando el producto está en su mano.",
+    sello: <Money className="size-5" weight="bold" />,
   },
   {
     id: "invima",
     titulo: "INVIMA",
     texto:
-      "Para suplementos y cosméticos, el registro sanitario no es un trámite: es la diferencia entre parecer un negocio y parecer un riesgo.",
-    sello: <SealCheck className="size-6" weight="bold" />,
+      "Para suplementos y cosméticos, el registro sanitario es la diferencia entre parecer un negocio y parecer un riesgo.",
+    sello: <SealCheck className="size-5" weight="bold" />,
   },
   {
     id: "caras",
     titulo: "Caras de aquí",
     texto:
-      "Paisa, costeña, rola, afrodescendiente, rasgos indígenas. LandingForge especifica el origen regional en cada prompt, porque un modelo dejado a su suerte devuelve un latino genérico que ningún colombiano reconoce.",
-    sello: <UsersThree className="size-6" weight="bold" />,
+      "Paisa, costeña, rola, afrodescendiente, rasgos indígenas. Un modelo dejado a su suerte devuelve un latino genérico que nadie reconoce.",
+    sello: <UsersThree className="size-5" weight="bold" />,
   },
   {
     id: "formato",
     titulo: "Formato y lenguaje",
     texto:
-      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas que suenan a alguien real: «a mis 42 años», «vale cada peso».",
-    sello: <TextAa className="size-6" weight="bold" />,
+      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas que suenan a alguien real.",
+    sello: <TextAa className="size-5" weight="bold" />,
   },
 ];
 
 const PASOS = [
+  ["Cuéntale sobre tu producto.", "Subes la foto y respondes cuatro preguntas: qué es, para quién, cuál es el beneficio principal y cuánto cuesta."],
+  ["Recibe paleta y secciones.", "La matriz cruza tipo de producto, audiencia y registro emocional. Ves la paleta con sus hex antes de generar nada."],
+  ["Llévate la campaña completa.", "Los nueve prompts en prosa narrativa, validados y listos para generar. Los puedes editar y volver a correr."],
+];
+
+const TRAMOS: Tramo[] = [
   {
-    titulo: "Cuéntale a LandingForge sobre tu producto.",
-    texto:
-      "Subes la foto y respondes cuatro preguntas: qué es, para quién, cuál es el beneficio principal y cuánto cuesta.",
+    id: "hero",
+    eyebrow: "El paquete visual de tu landing",
+    titulo: (
+      <>
+        Tu producto no se parece a ningún otro.
+        <br />
+        Tu landing tampoco debería.
+      </>
+    ),
+    cuerpo:
+      "Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin plantillas.",
+    pie: (
+      <div className="flex flex-wrap items-center gap-4">
+        <Boton asChild variante="heat" tamano="lg">
+          <Link href="/app/nueva">Crear mi primera landing</Link>
+        </Boton>
+        <Boton asChild variante="contorno" tamano="lg">
+          <Link href="#tira-titulo">Ver el método</Link>
+        </Boton>
+      </div>
+    ),
   },
   {
-    titulo: "LandingForge asigna paleta y secciones.",
-    texto:
-      "La matriz cruza tipo de producto, audiencia y registro emocional. Ves la paleta con sus hex antes de generar nada.",
+    id: "problema",
+    eyebrow: "El problema",
+    titulo: (
+      <>
+        Las plantillas venden lo mismo
+        <br />
+        diez mil veces.
+      </>
+    ),
+    cuerpo: (
+      <p>
+        Un constructor de plantillas te da la misma estructura que a tus competidores, con
+        imágenes de stock o caras generadas que se notan a un kilómetro. Y ninguno sabe que
+        aquí la venta se cierra con contraentrega, que un suplemento sin INVIMA no genera
+        confianza, y que un precio escrito <span className="mono-sm text-ash">$99,900</span>{" "}
+        en vez de <span className="mono-sm text-ash">$99.900</span> le dice a tu comprador
+        que no eres de aquí.
+      </p>
+    ),
+    pie: (
+      <>
+        <ul className="grid gap-px overflow-hidden rounded-[14px]">
+          {CONSECUENCIAS.map(([afirmacion, consecuencia]) => (
+            <li
+              key={afirmacion}
+              className="grid gap-1 border-t border-scale py-4 sm:grid-cols-2 sm:gap-10"
+            >
+              <p className="titulo text-ash text-balance">{afirmacion}</p>
+              <p className="cuerpo text-slag">{consecuencia}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mono-sm mt-6 text-slag">
+          <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
+        </p>
+      </>
+    ),
   },
   {
-    titulo: "Recibes la campaña completa.",
-    texto:
-      "Los nueve prompts construidos en prosa narrativa, validados y listos para generar. Los puedes editar, versionar y volver a correr.",
+    id: "metodologia",
+    eyebrow: "La metodología colombiana",
+    titulo: (
+      <>
+        Lo que ninguna plataforma internacional
+        <br />
+        sabe de vender en Colombia.
+      </>
+    ),
+    pie: (
+      <ul className="grid gap-4 sm:grid-cols-2">
+        {TARJETAS.map((t) => (
+          <li key={t.id} className="vidrio rounded-[14px] p-5">
+            <span
+              aria-hidden
+              className="grid size-9 place-items-center rounded-full text-[#1A1206]"
+              style={{ background: "var(--templado)" }}
+            >
+              {t.sello}
+            </span>
+            <h3 className="titulo mt-4 text-ash">{t.titulo}</h3>
+            <p className="cuerpo mt-1.5 text-smoke">{t.texto}</p>
+          </li>
+        ))}
+      </ul>
+    ),
+  },
+  {
+    id: "pasos",
+    eyebrow: "Cómo funciona",
+    titulo: (
+      <>
+        Once minutos,
+        <br />
+        en tres pasos.
+      </>
+    ),
+    pie: (
+      <ol className="grid gap-8 md:grid-cols-3 md:gap-10">
+        {PASOS.map(([titulo, texto], i) => (
+          <li key={titulo} className="border-t border-scale pt-5">
+            <span aria-hidden className="display-md text-slag">
+              {i + 1}
+            </span>
+            <h3 className="titulo mt-3 text-ash text-balance">{titulo}</h3>
+            <p className="cuerpo mt-2 text-smoke">{texto}</p>
+          </li>
+        ))}
+      </ol>
+    ),
+  },
+  {
+    id: "llevas",
+    eyebrow: "Lo que te llevas",
+    titulo: (
+      <>
+        Te llevas los prompts,
+        <br />
+        no solo las imágenes.
+      </>
+    ),
+    cuerpo:
+      "Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo. Cada prompt se puede reescribir, versionar y volver a correr.",
   },
 ];
 
 export default function Home() {
   return (
     <>
-      {/* 1 · Hero, split asimétrico con panel pinned (M1 y M2) */}
-      <HeroForja />
+      {/* 1 · El relato. Cinco tramos clavados en pantalla sobre la toma. */}
+      <Relato tramos={TRAMOS} />
 
       {/* 2 · Muestrario, tira continua a sangre (M4).
              Sin titular: su único trabajo es probar que el producto produce. */}
       <Marquesina />
 
-      {/* 3 · El problema, editorial de dos columnas con filete vertical */}
-      <section aria-labelledby="problema-titulo" className="papel py-32 lg:py-36">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-          <div className="grid gap-12 lg:grid-cols-[0.9fr_1px_1.1fr] lg:gap-16">
-            <RevealLineas
-              as="h2"
-              id="problema-titulo"
-              className="display-lg"
-              lineas={["Las plantillas venden lo mismo", "diez mil veces."]}
-            />
-            <div aria-hidden className="hidden lg:block w-px bg-scale" />
-            <RevealBloque retraso={0.18}>
-              <p className="cuerpo-lg text-smoke medida">
-                Un constructor de plantillas te da la misma estructura que a tus competidores,
-                con imágenes de stock o caras generadas que se notan a un kilómetro. Y ninguno
-                sabe que en Colombia la venta se cierra con contraentrega, que un suplemento
-                sin INVIMA no genera confianza, y que un precio escrito{" "}
-                <span className="mono-sm text-ash">$99,900</span> en vez de{" "}
-                <span className="mono-sm text-ash">$99.900</span> le dice a tu comprador que no
-                eres de aquí.
-              </p>
-            </RevealBloque>
-          </div>
-
-          {/* Ritmo editorial, no rejilla de cards. Las consecuencias entran
-              desde la derecha: el texto acusa, las consecuencias responden. */}
-          <RevealLista
-            className="mt-20"
-            claseItem="grid gap-3 border-t border-scale py-8 sm:grid-cols-2 sm:gap-12"
-            direccion="derecha"
-            paso={0.06}
-            items={CONSECUENCIAS.map((c) => (
-              <Fragment key={c.afirmacion}>
-                <p className="titulo text-ash text-balance">{c.afirmacion}</p>
-                <p className="cuerpo text-slag sm:pl-10">{c.consecuencia}</p>
-              </Fragment>
-            ))}
-          />
-
-          <RevealBloque retraso={0.1} className="mt-12">
-            <p className="mono-sm text-slag">
-              <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
-            </p>
-          </RevealBloque>
-        </div>
-      </section>
-
-      {/* 4 · Las nueve secciones, pan horizontal pinned (M6) */}
+      {/* 3 · Las nueve secciones, pan horizontal pinned (M6) */}
       <TiraPinned />
 
-      {/* 5 · La metodología colombiana, sticky stack (M7).
-             Fondo hundido: la sección más oscura de la página. */}
-      <section
-        aria-labelledby="metodologia-titulo"
-        className="papel border-y border-scale py-32 lg:py-36"
-      >
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-          <RevealLineas
-            as="h2"
-            id="metodologia-titulo"
-            className="display-lg max-w-[20ch]"
-            lineas={["Lo que ninguna plataforma internacional", "sabe de vender en Colombia."]}
-          />
-          <div className="mt-20">
-            <StickyStack tarjetas={TARJETAS} />
-          </div>
-        </div>
-      </section>
-
-      {/* 6 · Cómo funciona, secuencia con trazo conectado.
-             Aquí los números están ganados: la secuencia es obligatoria. */}
-      <section aria-labelledby="pasos-titulo" className="py-32 lg:py-36">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
-          <RevealLineas
-            as="h2"
-            id="pasos-titulo"
-            className="display-lg max-w-[14ch]"
-            lineas={["Once minutos,", "en tres pasos."]}
-          />
-
-          <TrazoConectado className="mt-20 hidden md:block" />
-
-          <ol className="mt-6 grid gap-12 md:grid-cols-3 md:gap-10">
-            {PASOS.map((p, i) => (
-              <RevealBloque key={p.titulo} retraso={i * 0.12} className="flex flex-col gap-4">
-                <li>
-                  <span
-                    aria-hidden
-                    className="font-[family-name:var(--font-display-serif)] text-[3.5rem] font-[500] leading-none tracking-[-0.02em] text-slag"
-                  >
-                    {i + 1}
-                  </span>
-                  <h3 className="mt-4 titulo text-ash text-balance">{p.titulo}</h3>
-                  <p className="mt-3 cuerpo text-smoke">{p.texto}</p>
-                </li>
-              </RevealBloque>
-            ))}
-          </ol>
-
-          <RevealBloque retraso={0.2}>
-            <p className="mt-20 medida cuerpo-lg text-smoke border-t border-scale pt-10">
-              Te llevas los prompts, no solo las imágenes. Si mañana dejas de usar
-              LandingForge, tu trabajo sigue siendo tuyo.
-            </p>
-          </RevealBloque>
-        </div>
-      </section>
-
-      {/* 7 · La toma de producto, fotograma a fotograma con el scroll (M11).
-             Va justo después de «Recibes la campaña completa»: la sección
-             anterior lo promete y esta lo enseña. */}
-      <SecuenciaScroll />
-
-      {/* 8 · El estudio en vivo, herramienta embebida con parallax (M8) */}
+      {/* 4 · El estudio en vivo, herramienta embebida con parallax (M8) */}
       <EstudioVivo />
 
-      {/* 9 · Precios, tres columnas comparables con spotlight (M9) */}
+      {/* 5 · Precios, tres columnas comparables con spotlight (M9) */}
       <TablaPrecios compacta />
 
-      {/* 10 · Preguntas, acordeón */}
+      {/* 6 · Preguntas, acordeón */}
       <Preguntas />
 
-      {/* 11 · Cierre, tipografía a sangre. SIN animación de entrada (M14).
+      {/* 7 · Cierre, tipografía a sangre. SIN animación de entrada (M14).
               Después de una página entera en movimiento, que algo esté quieto
               es lo que le da peso. */}
-      <section aria-labelledby="cierre-titulo" className="py-32 lg:py-44">
+      <section aria-labelledby="cierre-titulo" className="relative py-32 lg:py-44">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
           <h2 id="cierre-titulo" className="display-lg max-w-[16ch]">
             La primera campaña te toma once minutos.
