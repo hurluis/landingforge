@@ -566,6 +566,53 @@ La ingeniería de prompts sigue nombrada en la escena 02, en su sitio: «el
 mecanismo por dentro; lo que recibes es la landing». Quien quiera el detalle
 lo tiene entero en /metodologia, que es donde ese argumento sí manda.
 
+### El mundo pasó de geometría a film de producto
+
+Los seis dioramas en WebGL salieron de la portada. En su sitio va un film de
+producto —el frasco de LandingForge, cuatro tomas— servido como 120 fotogramas
+y conducido por el scroll exactamente igual que antes lo estaba la cámara.
+
+**Por qué.** La geometría contaba una metáfora: taller, forja, plaza. El film
+enseña LO QUE EL PRODUCTO PRODUCE. Para un vendedor que decide en tres
+segundos, ver el resultado pesa más que ver una alegoría del mecanismo, por
+buena que fuese la alegoría.
+
+**Lo que esto contradice, dicho entero.** La entrada anterior defendía la
+geometría con cuatro argumentos y tres siguen siendo ciertos en contra:
+
+  · Ya no pesa kilobytes: son 2,4 MB. Se mitiga con carga progresiva —primero
+    un fotograma, después uno de cada ocho, después el resto—, así que la
+    portada es utilizable con el 12% descargado, pero 2,4 MB son 2,4 MB.
+  · Ya no escala a cualquier proporción sin recortar. El film es 2,28:1 y hay
+    que decidir qué se pierde. Se recorta a sangre y el sujeto se corre a la
+    derecha en pantallas anchas —el mismo `encuadre = 0.2` que aplicaba la
+    cámara— para dejar limpia la mitad de la copia.
+  · Ya depende de un asset. Se regenera con `npm run film`.
+
+El cuarto argumento sí se sostiene: sigue sin depender de que un servicio
+externo exista el año que viene, porque los fotogramas están en el repositorio.
+
+**Fotogramas y no un `<video>` con `currentTime`.** Buscar dentro de un H.264
+salta al fotograma clave más cercano; con claves cada uno o dos segundos,
+arrastrar el scroll produce tirones y una imagen que se queda atrás. Una
+imagen por posición siempre tiene la que toca.
+
+**El recorte del borde inferior no es encuadre, es limpieza.** El original
+lleva la marca de agua del modelo generativo fija en la esquina inferior
+derecha. Recortando de 576 a 450 desaparece sin retoque, y de paso el
+resultado queda en 2,28:1, que se lee como cine.
+
+**El velo lateral es nuevo y es obligatorio.** Con dioramas propios el fondo
+tras la copia era oscuro porque lo dibujábamos nosotros. El film no se
+controla: la primera toma trae un softbox blanco justo detrás del titular, y
+ahí el texto claro sobre claro desaparecía. El velo le garantiza una cama
+oscura a la columna de texto sea cual sea el fotograma, en vez de confiar en
+que ninguno traiga una zona clara.
+
+**El motor de geometría no se borró.** `components/mundo/geometria.ts` sigue
+en el repositorio sin importadores, igual que La Forja cuando salió de la
+portada: salió de la página, no de la historia del proyecto.
+
 ### El engagement había que verlo, no afirmarlo
 
 La escena 03 pasó a hablar de sostener el scroll, pero eso era texto sobre una

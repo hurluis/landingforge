@@ -70,7 +70,7 @@ Rutas útiles:
 
 | Ruta | Qué es |
 |---|---|
-| `/` | La página de venta, que abre con el mundo de seis escenas |
+| `/` | La página de venta, que abre con el film de seis escenas atado al scroll |
 | `/metodologia` | Las nueve tipologías, la fórmula y la matriz de paletas, publicadas |
 | `/precios` | Planes y la letra pequeña, en grande |
 | `/kit` | Página interna del sistema de diseño: todas las primitivas en todos sus estados |
@@ -92,6 +92,7 @@ Rutas útiles:
 | `npm run verificar:contraste` | Audita los pares de color reales contra el piso de WCAG |
 | `npm run verificar:a11y` | Audita los criterios WCAG automatizables, incluido el reflow a 320 px |
 | `npm run assets` | Regenera las texturas y el bodegón de producto |
+| `npm run film` | Regenera los 120 fotogramas de la portada desde el vídeo fuente |
 | `npm run mirar` | Levanta Chromium, recorre la home y guarda fotogramas en `.capturas/` |
 
 `npm run verificar:a11y` y `npm run e2e` necesitan el servidor levantado en otra terminal, y con la variable de
