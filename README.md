@@ -37,6 +37,31 @@ administrador desde un panel al que todavía no puede entrar. A partir de ahí l
 verdad es la columna `rol` de la base de datos, y los administradores se gestionan desde
 `/admin/usuarios`.
 
+### Persistencia: SQLite o PostgreSQL
+
+`DATABASE_URL` decide el motor, y es la única señal —no hay bandera aparte que
+se pueda quedar desincronizada de la URL:
+
+| Valor | Motor |
+|---|---|
+| Un nombre de archivo (`landingforge.db`) | **SQLite** en `datos/`. Por defecto: clonar y correr, sin instalar nada |
+| `postgres://…` o `postgresql://…` | **PostgreSQL** |
+
+Para Postgres en local:
+
+```bash
+createdb landingforge
+```
+
+y en `.env.local`:
+
+```bash
+DATABASE_URL=postgresql://TU_USUARIO@localhost:5432/landingforge
+```
+
+El esquema se crea solo en el primer arranque; no hay paso de migración. Los
+mismos 100 chequeos de `npm run e2e` pasan sobre los dos motores.
+
 Abre <http://localhost:3000>. **No hace falta clave de Gemini**: sin `GEMINI_API_KEY` la
 aplicación corre entera contra `lib/ia/mock.ts`, que ejecuta la misma metodología sin
 modelo generativo. Con clave, la redacción la hace Gemini sobre el mismo esqueleto.
@@ -65,7 +90,7 @@ Rutas útiles:
 | `npm run e2e` | 100 comprobaciones de extremo a extremo contra el servidor corriendo |
 | `npm run verificar:clave` | Compila con una clave centinela y comprueba que no aparece en el bundle del cliente |
 | `npm run verificar:contraste` | Audita los pares de color reales contra el piso de WCAG |
-| `npm run verificar:a11y` | Recorre las rutas y audita los criterios WCAG automatizables |
+| `npm run verificar:a11y` | Audita los criterios WCAG automatizables, incluido el reflow a 320 px |
 | `npm run assets` | Regenera las texturas y el bodegón de producto |
 | `npm run mirar` | Levanta Chromium, recorre la home y guarda fotogramas en `.capturas/` |
 

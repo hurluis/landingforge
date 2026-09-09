@@ -50,6 +50,47 @@ arranque. Un archivo SQLite no sirve para varias instancias. Por eso la
 persistencia está detrás de una interfaz: migrar a Postgres es escribir otra
 clase, no tocar pantallas.
 
+### Y esa promesa se cobró: PostgreSQL, sin renunciar a SQLite
+
+`lib/datos/postgres.ts` y `lib/datos/admin-postgres.ts` implementan las mismas
+dos interfaces. `lib/datos/index.ts` elige según `DATABASE_URL`, y ninguna
+pantalla se enteró: el cambio fueron 21 imports que pasaron de apuntar a la
+implementación a apuntar al selector.
+
+**La prueba de que el port es fiel son los 100 chequeos de `npm run e2e`
+pasando sobre los dos motores**, incluidos los que ejercitan transacciones,
+concurrencia de créditos, paginación con filtros y exportación de auditoría.
+
+Cuatro decisiones dentro del port:
+
+**Las fechas siguen siendo `text` con ISO-8601, no `timestamptz`.** El dominio
+declara `creadoEn: string` y toda la aplicación compara y ordena esas cadenas.
+El ISO-8601 en UTC ordena lexicográficamente igual que cronológicamente, así
+que `ORDER BY fecha DESC` se comporta idéntico. Con `timestamptz`, `pg`
+devolvería objetos `Date` y habría que convertir en cada mapeador: más
+superficie para que una zona horaria mueva un registro de día en las gráficas.
+
+**Los JSON sí pasan a `jsonb`,** con índice GIN sobre `prompts`. Ahí el cambio
+gana: el filtro por tipología del panel es `prompts @> '[{"tipologia":…}]'`,
+una consulta indexada, en vez del `json_each` de SQLite. El precio es que `pg`
+devuelve `jsonb` ya deserializado, así que los mapeadores de Postgres NO hacen
+`JSON.parse` —los de SQLite sí, porque allí la columna es `text`—. Es la única
+diferencia real entre los dos archivos.
+
+**Las transacciones reservan una conexión del pool.** Es la trampa que no
+existe en SQLite: `pool.query()` toma una conexión distinta cada vez, así que
+un `BEGIN` suelto abriría la transacción en una conexión y el `UPDATE` correría
+en otra, fuera de ella. `enTransaccion()` reserva el cliente y lo devuelve
+pase lo que pase.
+
+**`COUNT` y `SUM` vuelven como cadena.** `pg` entrega `bigint` y `numeric` como
+texto para no perder precisión. Cada cifra pasa por `Number()`; sin eso el
+total del paginador sería `"7"` y compararía texto.
+
+**Lo que no cambió:** SQLite sigue siendo el modo por defecto. Un
+`DATABASE_URL` que no sea una URL de conexión mantiene el archivo, y con él la
+propiedad de clonar y correr sin instalar un servidor.
+
 ### Modelo de imagen: Gemini
 
 Sin cambios. Toda la metodología está calibrada para ese modelo: el límite de

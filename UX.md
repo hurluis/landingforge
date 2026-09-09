@@ -83,9 +83,13 @@ medición posible.
 | **1.1.1** Contenido no textual | El lienzo del mundo es `aria-hidden`: es decoración, y la historia vive en el texto de al lado | [components/mundo/mundo.tsx](components/mundo/mundo.tsx) |
 | **1.3.1** Información y relaciones | `<label>` real asociado siempre; el placeholder nunca hace de etiqueta; error enlazado con `aria-describedby` | [components/ui/campo.tsx](components/ui/campo.tsx) |
 | **1.4.3 / 1.4.11** Contraste | Auditoría de los pares reales sobre los dos materiales, leyendo los tokens del CSS para que no se desfase | [scripts/verificar-contraste.mjs](scripts/verificar-contraste.mjs) |
+| **1.4.10** Reflow | Ningún ancho desde 320 px produce desplazamiento horizontal. Los reveals que esperan desplazados van recortados | [components/motion/reveal.tsx](components/motion/reveal.tsx) |
+| **1.4.4** Zoom | A 200 % (720 px efectivos) el contenido reordena sin barra horizontal | verificado en `verificar:a11y` |
 | **2.1.1** Teclado | Lenis no secuestra anclas ni tabulación; con movimiento reducido no se monta | [components/motion/movimiento.tsx](components/motion/movimiento.tsx) |
 | **2.3.3** Movimiento por interacción | `MotionConfig reducedMotion="user"` + bloque CSS + `MundoEstatico` como alternativa completa | `movimiento.tsx`, `globals.css`, `mundo.tsx` |
 | **2.4.1** Evitar bloques | Salto al contenido en los tres chromes, no solo en el público | [components/ui/saltar.tsx](components/ui/saltar.tsx) |
+| **2.4.7** Foco visible | Todo lo enfocable tiene anillo o contorno; comprobado enfocando de verdad, no leyendo CSS | verificado en `verificar:a11y` |
+| **2.5.8** Objetivos táctiles | 24×24 en móvil, o la excepción de espaciado de la norma | verificado en `verificar:a11y` |
 | **3.1.1** Idioma | `lang="es-CO"` | [app/layout.tsx](app/layout.tsx) |
 | **4.1.2** Nombre, función, valor | Barra del wizard con `role="progressbar"` y `aria-valuetext`; escenas inactivas con `inert` | `wizard.tsx`, `mundo.tsx` |
 | **4.1.3** Mensajes de estado | `aria-live="polite"` en el progreso de generación y en el aviso de qué falta | `wizard.tsx` |
@@ -97,27 +101,74 @@ npm run verificar:a11y      # necesita el servidor levantado
 ```
 
 [scripts/verificar-a11y.mjs](scripts/verificar-a11y.mjs) recorre las rutas
-públicas con Chromium y comprueba los criterios automatizables: nombres
+públicas con Chromium en dos pasadas.
+
+**Pasada 1, a 1440 px** — lo que se comprueba leyendo el documento: nombres
 accesibles, estructura de encabezados, etiquetas de formulario, landmarks,
 idioma, títulos distintos por ruta, texto de enlace y —lo más grave— elementos
 enfocables atrapados dentro de un `aria-hidden`.
 
-Dos cosas que el script hace a propósito y conviene no «arreglar»:
+**Pasada 2, en viewports estrechos** — lo que solo se ve moviendo el navegador:
+
+| Criterio | Cómo se comprueba |
+|---|---|
+| **1.4.10** Reflow | Carga a **320 px** (el ancho que exige la norma) y a 375 px, y compara `scrollWidth` con `clientWidth`. Si sobra, nombra al elemento culpable que no está recortado por nadie |
+| **2.5.8** Objetivos táctiles | Mide cada objetivo a 375 px **aplicando la excepción de espaciado**: un objetivo menor de 24×24 cumple si un círculo de 24 px centrado en él no toca a ningún otro |
+| **2.4.7** Foco visible | Enfoca cada control y comprueba que tiene `outline` o `box-shadow` |
+
+Cuatro cosas que el script hace a propósito y conviene no «arreglar», porque
+las cuatro nacieron de un falso positivo real:
 
 - **Ignora los subárboles `aria-hidden`** al exigir nombres y etiquetas. Radix
   monta un `<select>` nativo de 1 px, oculto y con `tabindex="-1"`, para que el
   autocompletado del navegador siga funcionando. Reclamarle una etiqueta es un
-  falso positivo, y un audit con falsos positivos enseña a ignorar su salida.
+  falso positivo.
 - **Solo exige el salto al contenido donde hay navegación que saltar** (tres o
   más destinos). El criterio 2.4.1 existe para bloques repetidos; pedirlo en una
   pantalla de una sola columna es ruido.
+- **Aplica la excepción de espaciado de 2.5.8.** Sin ella, cualquier enlace de
+  texto en una lista bien espaciada saldría marcado. Los enlaces del pie miden
+  17 px de alto y **cumplen**, porque están a 35 px unos de otros.
+- **Solo exige anillo de foco a lo que de verdad recibe foco.** Un botón
+  `disabled` no es enfocable; pedirle indicador es un falso positivo.
+
+> Un audit con falsos positivos enseña a ignorar su salida, y entonces deja de
+> servir. Es preferible que compruebe menos y que cada fallo sea real.
 
 **La automatización cubre alrededor de un tercio de la WCAG.** Queda fuera, y
-hay que mirarlo a mano: si el `alt` describe de verdad, si el orden de foco
-sigue al orden visual, si el contenido aguanta 200 % de zoom. El script lo
-imprime al final de cada ejecución en vez de callarlo.
+hay que mirarlo a mano: si el `alt` describe de verdad lo que muestra, si el
+orden de foco sigue al orden visual, y si el contenido se entiende leído en voz
+alta de arriba abajo. El script lo imprime al final en vez de callarlo.
 
-### 4.3 Marco legal colombiano
+### 4.3 Los dos desbordes que encontró
+
+El criterio 1.4.10 se añadió al script después de todo lo demás, y encontró dos
+defectos que ninguna revisión a ojo había visto, porque los dos solo existen en
+pantallas estrechas.
+
+**`/metodologia` se desplazaba 59 px de lado.** La primitiva `Boton` llevaba
+`whitespace-nowrap`, así que un `inline-flex` crecía hasta el ancho de su texto
+en vez de ajustarse. La etiqueta «Probar la metodología con mi producto» medía
+418 px sobre un viewport de 375: el CTA principal de la página salía cortado y
+el visitante podía barrer a un costado vacío.
+
+Quitar `whitespace-nowrap` no cambia nada en los botones cortos —un `inline-flex`
+ya se ajusta a su contenido— y solo actúa cuando no cabe, que es el caso roto.
+Las alturas pasaron de `h-*` a `min-h-*` para que un texto en dos líneas haga
+crecer la caja en vez de recortarse. Comprobado contra `/kit`, que enseña todas
+las variantes: las alturas siguen siendo 36 / 44 / 56 px.
+
+**La portada se desplazaba 8 px.** `RevealLista` deja a sus hijos desplazados
+32 px a la derecha hasta que el scroll los revela, y mientras esperan siguen
+ocupando sitio. En un móvil de 375 px la página medía 383. Era **una franja
+vacía causada por una animación que todavía no había ocurrido** — el tipo de
+defecto que no aparece nunca en escritorio.
+
+La lección de método es la del propio documento de prototipado: *¿es suficiente
+con probar tu producto una vez?* Los dos llevaban ahí desde que se escribieron,
+en una página que ya había pasado revisión visual y tres auditorías.
+
+### 4.4 Marco legal colombiano
 
 Ley estatutaria **1618 de 2013** (derechos de las personas con discapacidad,
 incluido el acceso a las tecnologías de la información) y **Acuerdo 559 de
