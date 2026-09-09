@@ -40,6 +40,13 @@ export function DialogoContenido({
         )}
       />
       <RadixDialog.Content
+        /* Lenis captura la rueda a nivel de documento, así que un diálogo con
+           `overflow-y-auto` recibe el evento ya consumido y no scrollea: el
+           contenido largo queda inalcanzable con rueda o trackpad. Este
+           atributo es la salida oficial de Lenis —deja pasar el gesto al
+           scroll nativo del elemento— y va en el contenedor, no en el hijo,
+           porque Lenis lo busca subiendo desde el objetivo del evento. */
+        data-lenis-prevent
         className={cn(
           "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-32px)] max-w-md",
           "-translate-x-1/2 -translate-y-1/2",

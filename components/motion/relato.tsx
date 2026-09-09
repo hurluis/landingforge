@@ -147,6 +147,12 @@ function Bloque({
     <motion.div
       style={{ opacity: opacidad, y }}
       inert={inerte}
+      /* El copy vive en una COLUMNA IZQUIERDA, no a todo el ancho. Es la
+         medida de la referencia y es lo que hace que la película sea la
+         protagonista: la mitad derecha del encuadre no lleva nada encima, así
+         que ahí el fotograma se ve a plena luz. A todo el ancho habría que
+         cubrir la pantalla entera de degradado para que el texto se leyera, y
+         entonces la imagen vuelve a ser papel pintado. */
       className="absolute inset-x-0 mx-auto w-full max-w-[1400px] px-6 lg:px-10"
     >
       <Contenido tramo={tramo} indice={indice} />
@@ -175,16 +181,24 @@ function Apilado({ tramos }: { tramos: Tramo[] }) {
 function Contenido({ tramo, indice }: { tramo: Tramo; indice: number }) {
   const Titular = indice === 0 ? "h1" : "h2";
   return (
-    <>
+    <div className="tramo w-full lg:max-w-[min(56vw,760px)]">
       {tramo.eyebrow && <p className="etiqueta text-slag">{tramo.eyebrow}</p>}
       <Titular
         id={`${tramo.id}-titulo`}
-        className={indice === 0 ? "mt-6 display-xl max-w-[17ch]" : "mt-6 display-lg max-w-[20ch]"}
+        className={
+          indice === 0
+            ? "mt-5 display-xl text-[clamp(2.5rem,4.6vw,4.2rem)]"
+            : /* Un tramo clavado no puede crecer hacia abajo: lo que no cabe
+                 en la pantalla no existe. Por eso el titular de tramo va por
+                 debajo de display-lg —unos 49 px a 1440, la medida de los
+                 rótulos de sección de la referencia— y deja sitio al pie. */
+              "mt-5 display-lg text-[clamp(2rem,3.4vw,3.2rem)]"
+        }
       >
         {tramo.titulo}
       </Titular>
-      {tramo.cuerpo && <div className="mt-7 medida cuerpo-lg text-smoke">{tramo.cuerpo}</div>}
-      {tramo.pie && <div className="mt-10">{tramo.pie}</div>}
-    </>
+      {tramo.cuerpo && <div className="mt-5 medida cuerpo-lg text-smoke">{tramo.cuerpo}</div>}
+      {tramo.pie && <div className="mt-8">{tramo.pie}</div>}
+    </div>
   );
 }

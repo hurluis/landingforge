@@ -47,29 +47,34 @@ const LOTE = 24;
 
 const ruta = (i: number) => `/secuencia/${String(i + 1).padStart(4, "0")}.jpg`;
 
-/* El velo. Pesado en los bordes, abierto en el centro: los titulares y el copy
-   viven arriba y abajo del encuadre, y el sujeto de la toma vive en medio. */
-const VELO =
-  "linear-gradient(180deg," +
-  "rgba(10,12,16,0.90) 0%," +
-  "rgba(10,12,16,0.70) 22%," +
-  "rgba(10,12,16,0.58) 50%," +
-  "rgba(10,12,16,0.74) 78%," +
-  "rgba(10,12,16,0.92) 100%)";
+/* GRADO. Casi nada: la toma se ve como se rodó. La versión anterior la bajaba
+   a media exposición para que cualquier texto pasara por encima de cualquier
+   fotograma, y el precio fue que la película dejó de ser la protagonista y
+   pasó a ser papel pintado gris. La legibilidad no se compra apagando la
+   imagen; se compra poniendo el fondo solo DEBAJO DEL TEXTO. */
+const GRADO = "saturate(0.95) contrast(1.04)";
 
-/* GRADO. La toma se rodó como pieza de producto: frasco casi blanco sobre
-   negro. Como imagen aislada está bien; como fondo de lectura, ese blanco es
-   el problema —contra él no hay tinta secundaria que pase el piso de 4.5:1 sin
-   volverse blanca del todo—. Bajando la exposición a la mitad, el pico del
-   fotograma deja de ser papel y pasa a ser gris medio, que es un fondo sobre
-   el que sí se puede escribir. El movimiento, que es lo que lleva la
-   identidad, no pierde nada: lo que se ve es la cámara, no el brillo. */
-const GRADO = "brightness(0.5) saturate(0.85) contrast(1.02)";
+/* EL PAÑO DEL COPY. Es la pieza que hace que esto funcione, y es la misma que
+   usa el motor de la referencia: una banda de degradado a la izquierda —donde
+   vive el texto— que va de opaca a transparente. A la derecha no hay nada
+   encima, así que ahí el fotograma se ve entero, a plena luz.
 
-/* Viñeta lateral: cierra las esquinas para que el texto no compita con lo que
-   pasa en los bordes del fotograma. */
-const VINETA =
-  "radial-gradient(120vmax 90vmax at 50% 50%, transparent 30%, rgba(10,12,16,0.55) 100%)";
+   El resultado es el que se pedía: la imagen al frente, y el texto sobrepuesto
+   sobre ella en vez de flotando sobre una imagen apagada. La banda ocupa poco
+   más de la mitad del ancho porque esa es la medida del copy; pasada esa
+   frontera el degradado ya vale cero y la toma manda. */
+const PANO =
+  "linear-gradient(90deg," +
+  "rgba(10,12,16,0.97) 0%," +
+  "rgba(10,12,16,0.95) 34%," +
+  "rgba(10,12,16,0.86) 58%," +
+  "rgba(10,12,16,0.42) 80%," +
+  "rgba(10,12,16,0) 100%)";
+
+/* Un asiento bajo la línea de flotación: los rótulos pequeños de la tira y del
+   cierre caen ahí y no siempre están dentro del paño. */
+const ASIENTO =
+  "linear-gradient(180deg, transparent 55%, rgba(10,12,16,0.55) 88%, rgba(10,12,16,0.80) 100%)";
 
 /* `false` en el servidor y en el primer render del cliente; `true` a partir
    del segundo. Sin efectos ni setState —que el lint prohíbe dentro de uno—:
@@ -221,10 +226,13 @@ function Marco({ children }: { children: React.ReactNode }) {
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#0A0C10]"
     >
       {children}
-      <div className="absolute inset-0" style={{ background: VELO }} />
-      <div className="absolute inset-0" style={{ background: VINETA }} />
+      <div
+        className="absolute inset-y-0 left-0 w-full lg:w-[min(68vw,1060px)]"
+        style={{ background: PANO }}
+      />
+      <div className="absolute inset-0" style={{ background: ASIENTO }} />
       {/* El grano ata la imagen al resto del material de la página. */}
-      <div className="grano absolute inset-0 opacity-[0.07]" />
+      <div className="grano absolute inset-0 opacity-[0.06]" />
     </div>
   );
 }

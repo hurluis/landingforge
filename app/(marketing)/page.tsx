@@ -44,28 +44,28 @@ const TARJETAS = [
     id: "contraentrega",
     titulo: "Contraentrega",
     texto:
-      "La señal de confianza número uno del país. Tu comprador paga cuando el producto está en su mano.",
+      "La señal de confianza número uno del país: se paga cuando el producto está en la mano.",
     sello: <Money className="size-5" weight="bold" />,
   },
   {
     id: "invima",
     titulo: "INVIMA",
     texto:
-      "Para suplementos y cosméticos, el registro sanitario es la diferencia entre parecer un negocio y parecer un riesgo.",
+      "En suplementos y cosmética, el registro separa parecer un negocio de parecer un riesgo.",
     sello: <SealCheck className="size-5" weight="bold" />,
   },
   {
     id: "caras",
     titulo: "Caras de aquí",
     texto:
-      "Paisa, costeña, rola, afrodescendiente, rasgos indígenas. Un modelo dejado a su suerte devuelve un latino genérico que nadie reconoce.",
+      "Paisa, costeña, rola, afro, rasgos indígenas. A su suerte, el modelo devuelve un latino genérico.",
     sello: <UsersThree className="size-5" weight="bold" />,
   },
   {
     id: "formato",
     titulo: "Formato y lenguaje",
     texto:
-      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas que suenan a alguien real.",
+      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas de alguien real.",
     sello: <TextAa className="size-5" weight="bold" />,
   },
 ];
@@ -124,12 +124,9 @@ const TRAMOS: Tramo[] = [
       <>
         <ul className="grid gap-px overflow-hidden rounded-[14px]">
           {CONSECUENCIAS.map(([afirmacion, consecuencia]) => (
-            <li
-              key={afirmacion}
-              className="grid gap-1 border-t border-scale py-4 sm:grid-cols-2 sm:gap-10"
-            >
+            <li key={afirmacion} className="border-t border-scale py-3.5">
               <p className="titulo text-ash text-balance">{afirmacion}</p>
-              <p className="cuerpo text-slag">{consecuencia}</p>
+              <p className="cuerpo mt-0.5 text-smoke">{consecuencia}</p>
             </li>
           ))}
         </ul>
@@ -150,18 +147,20 @@ const TRAMOS: Tramo[] = [
       </>
     ),
     pie: (
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="flex flex-col gap-2">
         {TARJETAS.map((t) => (
-          <li key={t.id} className="vidrio rounded-[14px] p-5">
+          <li key={t.id} className="vidrio flex items-start gap-4 rounded-[14px] px-4 py-3">
             <span
               aria-hidden
-              className="grid size-9 place-items-center rounded-full text-[#1A1206]"
+              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-[#1A1206]"
               style={{ background: "var(--templado)" }}
             >
               {t.sello}
             </span>
-            <h3 className="titulo mt-4 text-ash">{t.titulo}</h3>
-            <p className="cuerpo mt-1.5 text-smoke">{t.texto}</p>
+            <span className="min-w-0">
+              <h3 className="titulo text-ash">{t.titulo}</h3>
+              <p className="cuerpo mt-0.5 text-smoke">{t.texto}</p>
+            </span>
           </li>
         ))}
       </ul>
@@ -178,14 +177,16 @@ const TRAMOS: Tramo[] = [
       </>
     ),
     pie: (
-      <ol className="grid gap-8 md:grid-cols-3 md:gap-10">
+      <ol className="flex flex-col gap-4">
         {PASOS.map(([titulo, texto], i) => (
-          <li key={titulo} className="border-t border-scale pt-5">
-            <span aria-hidden className="display-md text-slag">
+          <li key={titulo} className="flex items-baseline gap-5 border-t border-scale pt-4">
+            <span aria-hidden className="display-md shrink-0 text-slag">
               {i + 1}
             </span>
-            <h3 className="titulo mt-3 text-ash text-balance">{titulo}</h3>
-            <p className="cuerpo mt-2 text-smoke">{texto}</p>
+            <span className="min-w-0">
+              <h3 className="titulo text-ash text-balance">{titulo}</h3>
+              <p className="cuerpo mt-1 text-smoke">{texto}</p>
+            </span>
           </li>
         ))}
       </ol>

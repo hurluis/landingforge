@@ -29,8 +29,8 @@
      una película y su punto más claro es un frasco blanco. Medido con
      scripts/verificar-contraste-pelicula.mjs sobre píxeles compuestos. */
   --ash:         #F4F5F7;
-  --smoke:       #C2C9D3;
-  --slag:        #ADB4BF;
+  --smoke:       #C8CEd8;
+  --slag:        #C0C7D1;
 
   /* CALIENTE = en proceso. El único color de acción. */
   --heat:        #FF5C2B;
@@ -69,6 +69,12 @@
   --dur-menu:    220ms;
   --dur-overlay: 320ms;
   --dur-focal:   700ms;
+
+  /* Sombra de tinta. Sobre un color plano es invisible —el desenfoque es
+     enorme y la opacidad baja—, pero sobre la película es lo que despega la
+     letra del fotograma sin necesidad de apagar la imagen. La referencia hace
+     exactamente esto en sus titulares. */
+  --sombra-tinta: 0 2px 28px rgba(10, 12, 16, 0.62);
 }
 
 /* Gating de puntero. Tailwind v4 solo comprueba (hover: hover); el brief
@@ -262,6 +268,7 @@ a {
   letter-spacing: -0.035em;
   line-height: 0.94;
   text-wrap: balance;
+  text-shadow: var(--sombra-tinta);
 }
 
 .display-lg {
@@ -271,6 +278,7 @@ a {
   letter-spacing: -0.03em;
   line-height: 0.96;
   text-wrap: balance;
+  text-shadow: var(--sombra-tinta);
 }
 
 .display-md {
@@ -684,4 +692,38 @@ html[data-lectura="true"] .vidrio {
   background: var(--anvil);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+/* ------------------------------------------------------------
+   TRAMOS DEL RELATO · la escala depende del ALTO de la pantalla
+
+   Una sección normal crece hacia abajo y el scroll la alcanza. Un tramo
+   clavado no: lo que se sale de la pantalla no existe, porque el scroll lo
+   único que hace ahí es avanzar el tiempo. Medido en un portátil de 800 px el
+   tramo de metodología se salía 113 px, y en uno de 720 se salían dos.
+
+   Así que la escala del tramo baja con el alto disponible. No es una
+   preferencia estética: es la condición para que el copy sea alcanzable. El
+   coste está declarado —el cuerpo baja a 15 y luego a 14 px en pantallas
+   bajas, por debajo del cuerpo del resto del sitio— y es preferible a que la
+   última tarjeta quede fuera de la pantalla para siempre.
+
+   `scripts/verificar-relato.mjs` lo comprueba y falla si un tramo desborda.
+   ------------------------------------------------------------ */
+@media (max-height: 880px) {
+  .tramo .display-xl { font-size: clamp(2rem, 3.6vw, 3.3rem); }
+  .tramo .display-lg { font-size: clamp(1.7rem, 2.8vw, 2.5rem); }
+  .tramo .titulo     { font-size: 1.125rem; }
+  .tramo .cuerpo,
+  .tramo .cuerpo-lg  { font-size: 0.9375rem; line-height: 1.55; }
+  .tramo .display-md { font-size: 1.75rem; }
+}
+
+@media (max-height: 780px) {
+  .tramo .display-xl { font-size: clamp(1.75rem, 3vw, 2.7rem); }
+  .tramo .display-lg { font-size: clamp(1.5rem, 2.3vw, 2rem); }
+  .tramo .titulo     { font-size: 1rem; }
+  .tramo .cuerpo,
+  .tramo .cuerpo-lg  { font-size: 0.875rem; line-height: 1.5; }
+  .tramo .display-md { font-size: 1.5rem; }
 }
