@@ -18,9 +18,19 @@ import { cn } from "@/lib/utils";
 type Variante = "heat" | "heat-linea" | "contorno" | "fantasma" | "peligro";
 type Tamano = "sm" | "md" | "lg";
 
+/* `whitespace-nowrap` estuvo aquí y era un desbordamiento esperando etiqueta
+   larga: un inline-flex con nowrap crece hasta el ancho del texto y se sale
+   de la pantalla en vez de ajustarse. En /metodologia, «Probar la metodología
+   con mi producto» medía 418px sobre un viewport de 375 y hacía que la página
+   entera se desplazara 59px de lado.
+
+   Quitarlo no cambia nada en los botones cortos —un inline-flex ya se ajusta
+   a su contenido— y solo actúa cuando no cabe, que es justo el caso roto.
+   Por eso las alturas de TAMANOS pasaron de `h-*` a `min-h-*`: si el texto
+   parte en dos líneas, la caja crece en vez de recortarlo. */
 const BASE = [
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap select-none",
-  "font-sans font-medium rounded-[10px] border",
+  "relative inline-flex items-center justify-center gap-2 text-center text-balance select-none",
+  "max-w-full font-sans font-medium rounded-[10px] border",
   // Solo las propiedades exactas. Nunca `transition: all`.
   "transition-[transform,background-color,border-color,color,opacity]",
   "duration-[var(--dur-hover)] ease-[var(--ease-out)]",
@@ -42,9 +52,9 @@ const VARIANTES: Record<Variante, string> = {
 };
 
 const TAMANOS: Record<Tamano, string> = {
-  sm: "h-9 px-3.5 text-[0.8125rem]",
-  md: "h-11 px-5 text-[0.9375rem]",
-  lg: "h-14 px-8 text-[1.1875rem] font-semibold",
+  sm: "min-h-9 py-1.5 px-3.5 text-[0.8125rem]",
+  md: "min-h-11 py-2 px-5 text-[0.9375rem]",
+  lg: "min-h-14 py-3 px-8 text-[1.1875rem] font-semibold leading-tight",
 };
 
 export interface BotonProps extends React.ComponentPropsWithoutRef<"button"> {

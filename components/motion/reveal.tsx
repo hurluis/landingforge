@@ -3,6 +3,7 @@
 import { memo } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { EASE, UNA_VEZ } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * M5 · Revelado de titulares por línea con máscara.
@@ -139,8 +140,17 @@ export const RevealLista = memo(function RevealLista({
   const desde = direccion === "derecha" ? "translateX(32px)" : "translateY(20px)";
 
   return (
+    /* `overflow-x: clip` y no `hidden`: los dos recortan igual, pero `hidden`
+       convierte a este <ul> en contenedor de scroll y rompería cualquier
+       `position: sticky` que viviera dentro.
+
+       Hace falta porque los hijos esperan desplazados —32px a la derecha con
+       `direccion="derecha"`— hasta que el scroll los revela. Mientras esperan
+       siguen ocupando sitio, así que en un móvil de 375px la página entera
+       medía 383px y se desplazaba de lado: una franja vacía a la derecha
+       causada por una animación que todavía no había ocurrido. */
     <motion.ul
-      className={className}
+      className={cn("overflow-x-clip", className)}
       initial="oculto"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
