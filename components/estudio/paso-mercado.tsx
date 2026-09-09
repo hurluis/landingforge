@@ -59,7 +59,7 @@ function CampoPrecio({
           alCambiar(n);
         }}
         placeholder="$99.900"
-        className="h-10 w-full rounded-[10px] border border-[var(--scale)] bg-[var(--anvil)] px-3 font-[family-name:var(--font-geist-mono)] text-[0.9375rem] tabular-nums text-ash placeholder:text-slag transition-colors duration-[140ms] ease-[var(--ease-out)] focus:border-[var(--scale-hi)] hf:border-[var(--scale-hi)]"
+        className="h-10 w-full rounded-[10px] border border-[var(--scale)] bg-[var(--anvil)] px-3 font-[family-name:var(--font-mono-datos)] text-[0.9375rem] tabular-nums text-ash placeholder:text-slag transition-colors duration-[140ms] ease-[var(--ease-out)] focus:border-[var(--scale-hi)] hf:border-[var(--scale-hi)]"
       />
     </Envoltorio>
   );

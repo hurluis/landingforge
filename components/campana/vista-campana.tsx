@@ -350,7 +350,7 @@ export function VistaCampana({
                 className={cn(
                   "min-h-[380px] w-full flex-1 resize-y rounded-[12px] p-4",
                   "bg-[var(--sunk)] text-smoke",
-                  "font-[family-name:var(--font-geist-mono)] text-[0.8125rem] leading-relaxed",
+                  "font-[family-name:var(--font-mono-datos)] text-[0.8125rem] leading-relaxed",
                   "border border-[var(--scale)]",
                   "transition-colors duration-[140ms] ease-[var(--ease-out)]",
                   "focus:border-[var(--scale-hi)]",

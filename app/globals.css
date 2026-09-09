@@ -100,8 +100,8 @@
   --color-warn:     var(--warn);
   --color-danger:   var(--danger);
 
-  --font-sans:    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans:    var(--font-sans-ui), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-mono-datos), ui-monospace, monospace;
   --font-display: var(--font-display-serif), ui-serif, Georgia, serif;
 
   --shadow-elev-1: var(--elev-1);
@@ -189,7 +189,7 @@ html { background: var(--void); }
 body {
   background: transparent;
   color: var(--ash);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans-ui), ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
@@ -232,37 +232,41 @@ a {
 
 /* ------------------------------------------------------------
    Tipografía · §5.4
-   Bricolage Grotesque para display. Su nombre significa literalmente
-   trabajo hecho a mano con lo que hay, y se ve dibujada, no generada.
+
+   Display en Zilla Slab: remates cuadrados que se leen estampados,
+   no adelgazados. El razonamiento de las tres familias está en
+   app/layout.tsx, junto a donde se cargan.
+
+   La Zilla no es variable, así que aquí no hay `font-variation-settings`:
+   el peso se pide por `font-weight` y tiene que estar entre los que
+   layout.tsx declara (500, 600, 700). Pedir uno que no se cargó hace que
+   el navegador lo sintetice y el titular sale sucio.
    ------------------------------------------------------------ */
 
 .display-xl {
   font-family: var(--font-display-serif), ui-serif, Georgia, serif;
   font-size: clamp(2.75rem, 5.2vw, 5rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.02;
-  font-variation-settings: "opsz" 96;
   text-wrap: balance;
 }
 
 .display-lg {
   font-family: var(--font-display-serif), ui-serif, Georgia, serif;
   font-size: clamp(2.25rem, 4.8vw, 4rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.05;
-  font-variation-settings: "opsz" 72;
   text-wrap: balance;
 }
 
 .display-md {
   font-family: var(--font-display-serif), ui-serif, Georgia, serif;
   font-size: clamp(1.625rem, 2.6vw, 2.25rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.15;
-  font-variation-settings: "opsz" 40;
   text-wrap: balance;
 }
 
@@ -284,7 +288,7 @@ a {
 }
 
 .mono-sm {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-mono-datos), ui-monospace, monospace;
   font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { fechaLarga, formatoCOP, numero } from "@/lib/formato";
 import { ETIQUETA_REGLA, ETIQUETA_TIPOLOGIA } from "@/lib/etiquetas-admin";
 import { Badge } from "@/components/ui/piezas";
@@ -163,7 +163,7 @@ export default async function PaginaCampanaAdmin({
                 </ul>
               )}
 
-              <pre className="mt-5 max-h-[320px] overflow-auto whitespace-pre-wrap rounded-[10px] bg-[var(--sunk)] p-4 font-[family-name:var(--font-geist-mono)] text-[0.8125rem] leading-relaxed text-smoke">
+              <pre className="mt-5 max-h-[320px] overflow-auto whitespace-pre-wrap rounded-[10px] bg-[var(--sunk)] p-4 font-[family-name:var(--font-mono-datos)] text-[0.8125rem] leading-relaxed text-smoke">
                 {p.texto}
               </pre>
             </article>
