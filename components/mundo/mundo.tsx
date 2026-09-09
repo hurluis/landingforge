@@ -147,8 +147,15 @@ function MundoVivo() {
           </ol>
         </nav>
 
-        {/* La copia. Las seis van en el DOM siempre: un lector de pantalla
-            recorre la historia entera, y solo cambia cuál está opaca. */}
+        {/* La copia. Las seis van en el DOM siempre y el scroll decide cuál
+            está viva: el recorrido completo sigue siendo accesible, una
+            escena a la vez, en vez de seis superpuestas anunciándose juntas.
+            Quien prefiere movimiento reducido recibe `MundoEstatico`, que las
+            presenta las seis en flujo normal.
+
+            Todas nacen `inert` menos la primera. Entre el HTML del servidor y
+            el primer frame del bucle hay una ventana en la que las seis
+            están a opacidad 0; sin esto, el tabulador las recorre todas. */}
         <div className="absolute inset-0">
           {ESCENAS.map((e, i) => (
             <div
@@ -156,6 +163,8 @@ function MundoVivo() {
               ref={(n) => {
                 copias.current[i] = n;
               }}
+              inert={i !== 0}
+              aria-hidden={i !== 0}
               className="absolute inset-x-0 bottom-0 px-6 pb-16 opacity-0 sm:pb-20 lg:px-10 lg:pb-24"
             >
               <BloqueCopia escena={e} principal={i === 0} />
@@ -478,15 +487,34 @@ function montar(
       const [ini, fin] = TRAMOS[i];
       const local = (g - ini) / (fin - ini);
       const ultima = i === ESCENAS.length - 1;
+      const primera = i === 0;
       /* Entra al llegar, se sostiene mientras la cámara reposa, y sale
-         justo cuando empieza el viaje. La última no se va nunca. */
-      const op = ultima
-        ? rampa(local, 0.02, 0.2)
-        : rampa(local, 0.02, 0.2) * (1 - rampa(local, REPOSO - 0.06, REPOSO + 0.1));
+         justo cuando empieza el viaje. La última no se va nunca.
+
+         La PRIMERA no entra: ya se está en ella. Con rampa de entrada, en
+         scroll 0 su opacidad era exactamente 0 y la portada abría con el
+         diorama y sin una sola palabra —el h1 invisible hasta que el
+         visitante adivinaba que había que bajar. Es el mismo fallo que
+         DECISIONES.md da por corregido en la v2 («el fotograma del hero
+         estaba vacío en la primera pantalla»), reintroducido por el mundo
+         sobre la copia en vez de sobre la imagen. */
+      const entrada = primera ? 1 : rampa(local, 0.02, 0.2);
+      const op = ultima ? entrada : entrada * (1 - rampa(local, REPOSO - 0.06, REPOSO + 0.1));
       nodo.style.opacity = String(op);
       nodo.style.transform = `translateY(${(1 - op) * 18}px)`;
-      nodo.style.pointerEvents = op > 0.55 ? "auto" : "none";
-      nodo.setAttribute("aria-hidden", op < 0.05 ? "true" : "false");
+
+      /* Un solo umbral para las tres modalidades de entrada.
+         Antes el ratón se apagaba en 0.55 y el árbol de accesibilidad en
+         0.05, y en esa franja quedaba una escena que no se podía clicar pero
+         sí tabular: el teclado aterrizaba en un CTA invisible y Enter
+         navegaba a ciegas. `inert` saca el subárbol del orden de tabulación
+         y del árbol de accesibilidad a la vez, así que ratón, teclado y
+         lector de pantalla ven ahora exactamente la misma escena. */
+      const interactiva = op > 0.55;
+      nodo.style.pointerEvents = interactiva ? "auto" : "none";
+      nodo.setAttribute("aria-hidden", interactiva ? "false" : "true");
+      if (interactiva) nodo.removeAttribute("inert");
+      else nodo.setAttribute("inert", "");
     }
 
     if (activa !== anterior) {

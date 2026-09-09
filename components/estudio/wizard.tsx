@@ -12,7 +12,14 @@ import { PasoProducto } from "./paso-producto";
 import { PasoMercado } from "./paso-mercado";
 import { PasoIdentidad } from "./paso-identidad";
 import { PasoSecciones } from "./paso-secciones";
-import { CLAVE_ALMACEN, ESTADO_INICIAL, pasoCompleto, type EstadoEstudio } from "./estado";
+import {
+  CLAVE_ALMACEN,
+  ESTADO_INICIAL,
+  enumerar,
+  pasoCompleto,
+  queFalta,
+  type EstadoEstudio,
+} from "./estado";
 
 /**
  * F1 — Estudio de prompts (§7.1).
@@ -101,8 +108,19 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
   );
 
   const completo = pasoCompleto(paso, estado);
+  const pendiente = queFalta(paso, estado);
   const costo = estado.secciones.length;
   const faltan = costo - usuario.creditosDisponibles;
+
+  /* Hasta dónde puede saltar el usuario: el primer paso incompleto es el
+     techo. Permite volver a cualquier paso ya resuelto sin pulsar «Atrás»
+     cuatro veces —memorabilidad y sensación de control (Norman)— sin dejar
+     saltar por encima de lo que aún no está. */
+  const alcanzable = React.useMemo(() => {
+    let n = 1;
+    while (n < 4 && pasoCompleto(n, estado)) n += 1;
+    return n;
+  }, [estado]);
 
   async function generar() {
     if (!estado.paleta || generando) return;
@@ -196,9 +214,15 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      {/* Barra de progreso de 2px en --heat. */}
+      {/* Barra de progreso de 2px en --heat. El valor es semántico: un lector
+          de pantalla lo anuncia sin depender de que el usuario alcance el
+          «paso N de 4» que hay más abajo. */}
       <div
-        aria-hidden
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={4}
+        aria-valuenow={paso}
+        aria-valuetext={`Paso ${paso} de 4: ${TITULOS[paso - 1].titulo}`}
         className="sticky top-0 z-10 h-0.5 w-full bg-[var(--scale)]"
       >
         <span
@@ -209,8 +233,8 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 
       <div className="mx-auto w-full max-w-[900px] flex-1 px-4 py-8 pt-20 sm:px-8 lg:pt-10">
         <header className="mb-10">
-          <p className="mono-sm text-slag">paso {paso} de 4</p>
-          <h1 className="display-md mt-2">{TITULOS[paso - 1].titulo}</h1>
+          <Pasos actual={paso} alcanzable={alcanzable} irA={irA} />
+          <h1 className="display-md mt-4">{TITULOS[paso - 1].titulo}</h1>
           <p className="mt-2 cuerpo text-smoke">{TITULOS[paso - 1].sub}</p>
         </header>
 
@@ -237,9 +261,30 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
           )}
 
           {paso < 4 ? (
-            <Boton variante="heat" disabled={!completo} onClick={() => irA(paso + 1)}>
-              Continuar
-            </Boton>
+            <div className="flex min-w-0 items-center justify-end gap-4">
+              {/* El motivo del bloqueo, no solo el bloqueo. Se anuncia con
+                  aria-live porque aparece y desaparece mientras el usuario
+                  escribe, sin que nada mueva el foco. */}
+              <p
+                id="wizard-falta"
+                aria-live="polite"
+                className="min-w-0 text-right text-[0.8125rem] text-slag"
+              >
+                {pendiente.length > 0 && `Falta ${enumerar(pendiente)}.`}
+              </p>
+              {/* Un solo nodo para las dos rutas: `aria-live` lo anuncia
+                  cuando cambia mientras se escribe, y `aria-describedby` lo
+                  lee al enfocar el botón. Duplicarlo en un `sr-only` aparte
+                  hacía que se oyera dos veces. */}
+              <Boton
+                variante="heat"
+                disabled={!completo}
+                aria-describedby={pendiente.length > 0 ? "wizard-falta" : undefined}
+                onClick={() => irA(paso + 1)}
+              >
+                Continuar
+              </Boton>
+            </div>
           ) : (
             <div className="flex items-center gap-4">
               <span className="mono-sm text-slag">
@@ -260,6 +305,69 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Los cuatro pasos, nombrados y navegables hacia atrás.
+ *
+ * Antes solo existía «paso 3 de 4»: el usuario sabía dónde estaba pero no qué
+ * venía ni qué había resuelto, y volver dos pasos costaba dos clics ciegos en
+ * «Atrás». Nombrar las etapas convierte el wizard en un mapa —ley de Gestalt
+ * de proximidad y continuidad: cuatro elementos alineados se leen como una
+ * secuencia— y deja ver el progreso sin tener que recordarlo.
+ *
+ * Solo se puede saltar a lo ya completado. Un paso futuro no es un enlace
+ * roto: no es un enlace, porque no existe todavía.
+ */
+function Pasos({
+  actual,
+  alcanzable,
+  irA,
+}: {
+  actual: number;
+  alcanzable: number;
+  irA: (n: number) => void;
+}) {
+  return (
+    <nav aria-label="Pasos del estudio">
+      <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        {TITULOS.map((t, i) => {
+          const n = i + 1;
+          const esActual = n === actual;
+          const navegable = n < actual || n <= alcanzable;
+          return (
+            <li key={t.titulo} className="flex items-center gap-2">
+              {i > 0 && (
+                <span aria-hidden className="text-slag">
+                  ·
+                </span>
+              )}
+              {navegable && !esActual ? (
+                <button
+                  type="button"
+                  onClick={() => irA(n)}
+                  className={cn(
+                    "mono-sm rounded-[6px] px-1 text-slag underline-offset-4",
+                    "transition-colors duration-[140ms] ease-[var(--ease-out)]",
+                    "hf:text-ash hf:underline",
+                  )}
+                >
+                  {n}. {t.titulo}
+                </button>
+              ) : (
+                <span
+                  aria-current={esActual ? "step" : undefined}
+                  className={cn("mono-sm px-1", esActual ? "text-[var(--heat)]" : "text-slag/50")}
+                >
+                  {n}. {t.titulo}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
   );
 }
 

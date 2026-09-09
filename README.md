@@ -62,13 +62,14 @@ Rutas útiles:
 | `npm run dev` | Servidor de desarrollo |
 | `npm run build` | Build de producción |
 | `npm run verificar` | Tipos + lint + contraste + build. La puerta antes de entregar |
-| `npm run e2e` | 66 comprobaciones de extremo a extremo contra el servidor corriendo |
+| `npm run e2e` | 100 comprobaciones de extremo a extremo contra el servidor corriendo |
 | `npm run verificar:clave` | Compila con una clave centinela y comprueba que no aparece en el bundle del cliente |
 | `npm run verificar:contraste` | Audita los pares de color reales contra el piso de WCAG |
+| `npm run verificar:a11y` | Recorre las rutas y audita los criterios WCAG automatizables |
 | `npm run assets` | Regenera las texturas y el bodegón de producto |
 | `npm run mirar` | Levanta Chromium, recorre la home y guarda fotogramas en `.capturas/` |
 
-`npm run e2e` necesita el servidor levantado en otra terminal, y con la variable de
+`npm run verificar:a11y` y `npm run e2e` necesitan el servidor levantado en otra terminal, y con la variable de
 administración puesta, porque la suite comprueba también el panel:
 
 ```bash
@@ -292,5 +293,11 @@ Pendiente de comprobar a mano, porque necesita ojo o navegador:
 - **Los fotogramas de las secciones dibujan la estructura, no fotografías generadas**,
   porque F4 no está conectada. Es preferible a fingir una funcionalidad que no existe.
 
-Las decisiones de arquitectura y las desviaciones respecto del brief están en
-[DECISIONES.md](DECISIONES.md).
+## Los cuatro documentos
+
+| Documento | Qué contiene |
+|---|---|
+| [README.md](README.md) | Qué es, cómo se arranca, qué hay construido |
+| [DECISIONES.md](DECISIONES.md) | Por qué cada decisión de arquitectura y diseño, y las desviaciones del brief |
+| [UX.md](UX.md) | Contra qué criterio de usabilidad y accesibilidad se puede juzgar, y el protocolo de evaluación con usuarios que falta por ejecutar |
+| [NEGOCIO.md](NEGOCIO.md) | El modelo de negocio en patrones del Business Model Navigator: qué está implementado y qué no |
