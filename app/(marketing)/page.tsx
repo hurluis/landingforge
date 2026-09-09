@@ -80,13 +80,7 @@ const TRAMOS: Tramo[] = [
   {
     id: "hero",
     eyebrow: "El paquete visual de tu landing",
-    titulo: (
-      <>
-        Tu producto no se parece a ningún otro.
-        <br />
-        Tu landing tampoco debería.
-      </>
-    ),
+    titulo: ["Tu producto no se", "parece a ningún", "otro. Tu landing", "tampoco debería."],
     cuerpo:
       "Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin plantillas.",
     pie: (
@@ -103,13 +97,7 @@ const TRAMOS: Tramo[] = [
   {
     id: "problema",
     eyebrow: "El problema",
-    titulo: (
-      <>
-        Las plantillas venden lo mismo
-        <br />
-        diez mil veces.
-      </>
-    ),
+    titulo: ["Las plantillas venden", "lo mismo diez mil", "veces."],
     cuerpo: (
       <p>
         Un constructor de plantillas te da la misma estructura que a tus competidores, con
@@ -120,88 +108,70 @@ const TRAMOS: Tramo[] = [
         que no eres de aquí.
       </p>
     ),
+    items: CONSECUENCIAS.map(([afirmacion, consecuencia]) => ({
+      clave: afirmacion,
+      nodo: (
+        <div className="border-t border-scale py-3.5">
+          <p className="titulo text-ash text-balance">{afirmacion}</p>
+          <p className="cuerpo mt-0.5 text-smoke">{consecuencia}</p>
+        </div>
+      ),
+    })),
     pie: (
-      <>
-        <ul className="grid gap-px overflow-hidden rounded-[14px]">
-          {CONSECUENCIAS.map(([afirmacion, consecuencia]) => (
-            <li key={afirmacion} className="border-t border-scale py-3.5">
-              <p className="titulo text-ash text-balance">{afirmacion}</p>
-              <p className="cuerpo mt-0.5 text-smoke">{consecuencia}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="mono-sm mt-6 text-slag">
-          <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
-        </p>
-      </>
+      <p className="mono-sm text-slag">
+        <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
+      </p>
     ),
   },
   {
     id: "metodologia",
     eyebrow: "La metodología colombiana",
-    titulo: (
-      <>
-        Lo que ninguna plataforma internacional
-        <br />
-        sabe de vender en Colombia.
-      </>
-    ),
-    pie: (
-      <ul className="flex flex-col gap-2">
-        {TARJETAS.map((t) => (
-          <li key={t.id} className="vidrio flex items-start gap-4 rounded-[14px] px-4 py-3">
-            <span
-              aria-hidden
-              className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-[#1A1206]"
-              style={{ background: "var(--templado)" }}
-            >
-              {t.sello}
-            </span>
-            <span className="min-w-0">
-              <h3 className="titulo text-ash">{t.titulo}</h3>
-              <p className="cuerpo mt-0.5 text-smoke">{t.texto}</p>
-            </span>
-          </li>
-        ))}
-      </ul>
-    ),
+    titulo: ["Lo que ninguna", "plataforma", "internacional sabe", "de vender en Colombia."],
+    claseItems: "flex flex-col gap-2",
+    items: TARJETAS.map((t) => ({
+      clave: t.id,
+      nodo: (
+        <div className="vidrio flex items-start gap-4 rounded-[14px] px-4 py-3">
+          <span
+            aria-hidden
+            className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-[#1A1206]"
+            style={{ background: "var(--templado)" }}
+          >
+            {t.sello}
+          </span>
+          <span className="min-w-0">
+            <h3 className="titulo text-ash">{t.titulo}</h3>
+            <p className="cuerpo mt-0.5 text-smoke">{t.texto}</p>
+          </span>
+        </div>
+      ),
+    })),
   },
   {
     id: "pasos",
     eyebrow: "Cómo funciona",
-    titulo: (
-      <>
-        Once minutos,
-        <br />
-        en tres pasos.
-      </>
-    ),
-    pie: (
-      <ol className="flex flex-col gap-4">
-        {PASOS.map(([titulo, texto], i) => (
-          <li key={titulo} className="flex items-baseline gap-5 border-t border-scale pt-4">
-            <span aria-hidden className="display-md shrink-0 text-slag">
-              {i + 1}
-            </span>
-            <span className="min-w-0">
-              <h3 className="titulo text-ash text-balance">{titulo}</h3>
-              <p className="cuerpo mt-1 text-smoke">{texto}</p>
-            </span>
-          </li>
-        ))}
-      </ol>
-    ),
+    titulo: ["Once minutos,", "en tres pasos."],
+    itemsOrdenados: true,
+    claseItems: "flex flex-col gap-4",
+    items: PASOS.map(([titulo, texto], i) => ({
+      clave: titulo,
+      nodo: (
+        <div className="flex items-baseline gap-5 border-t border-scale pt-4">
+          <span aria-hidden className="display-md shrink-0 text-slag">
+            {i + 1}
+          </span>
+          <span className="min-w-0">
+            <h3 className="titulo text-ash text-balance">{titulo}</h3>
+            <p className="cuerpo mt-1 text-smoke">{texto}</p>
+          </span>
+        </div>
+      ),
+    })),
   },
   {
     id: "llevas",
     eyebrow: "Lo que te llevas",
-    titulo: (
-      <>
-        Te llevas los prompts,
-        <br />
-        no solo las imágenes.
-      </>
-    ),
+    titulo: ["Te llevas los prompts,", "no solo las imágenes."],
     cuerpo:
       "Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo. Cada prompt se puede reescribir, versionar y volver a correr.",
   },

@@ -8,9 +8,11 @@ import {
   useSpring,
   useTransform,
   type MotionValue,
+  type Variants,
 } from "motion/react";
 import { useMovimientoReducido } from "@/lib/a11y/preferencias";
-import { SPRING } from "@/lib/motion";
+import { EASE, SPRING } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * EL RELATO · el texto y la película comparten reloj.
@@ -46,13 +48,79 @@ import { SPRING } from "@/lib/motion";
    parpadeo. Con 130 el sostenido domina y el cruce es un gesto. */
 const ALTO_TRAMO = 130;
 
+/* EL REVELADO, línea a línea.
+ *
+ * Cada línea vive en una máscara `overflow-hidden` y entra desde un 120 % por
+ * debajo CON UNA ROTACIÓN de seis grados y el origen en la esquina superior
+ * izquierda. Esa rotación es la diferencia entre un texto que aparece y un
+ * texto que llega: al enderezarse, la línea pivota sobre su inicio y el ojo lee
+ * un gesto físico, no un cambio de opacidad. Es la técnica de la referencia.
+ *
+ * Y entran ESCALONADAS. Que la segunda línea salga cuando la primera va por la
+ * mitad es lo que hace que un titular de tres líneas se lea como una frase que
+ * se dice, en vez de como un bloque que se enciende.
+ *
+ * El cuerpo y los items van más blandos —desplazamiento corto y opacidad—
+ * porque son texto de lectura: rotar un párrafo entero marea. */
+const CONTENEDOR: Variants = {
+  oculto: {},
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.06 } },
+};
+
+const LINEA: Variants = {
+  oculto: { y: "120%", rotate: 6 },
+  visible: { y: "0%", rotate: 0, transition: { duration: 0.8, ease: EASE.out } },
+};
+
+const BLANDO: Variants = {
+  oculto: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.62, ease: EASE.out } },
+};
+
+/* Con movimiento reducido no se mueve nada: aparece y ya. */
+const QUIETO: Variants = {
+  oculto: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+};
+
+/** <ol> cuando el orden significa algo, <ul> cuando no. */
+function ListaMotion({
+  ordenada,
+  ...props
+  /* Se descarta `ref`: las dos ramas devuelven elementos distintos y aquí
+     nunca se pasa una, así que unificar el tipo no compra nada. */
+}: { ordenada?: boolean } & Omit<React.ComponentProps<typeof motion.ul>, "ref">) {
+  const Etiqueta = ordenada ? motion.ol : motion.ul;
+  return <Etiqueta {...props} />;
+}
+
+/** Una línea recortada por su propia máscara. */
+function Linea({ children, v }: { children: React.ReactNode; v: Variants }) {
+  return (
+    /* El relleno inferior deja sitio a los descendentes y a la esquina que
+       levanta la rotación; el margen negativo lo devuelve, así que el ritmo
+       vertical no cambia. Sin esto la máscara corta las jotas. */
+    <span className="block overflow-hidden pb-[0.16em] -mb-[0.16em]">
+      <motion.span variants={v} className="block origin-top-left will-change-transform">
+        {children}
+      </motion.span>
+    </span>
+  );
+}
+
 export interface Tramo {
   id: string;
-  /** El primero lleva el h1; el resto, h2. */
-  titulo: React.ReactNode;
+  /** Una entrada por LÍNEA: cada una entra por su cuenta y escalonada. */
+  titulo: string[];
   eyebrow?: string;
   cuerpo?: React.ReactNode;
-  /** Listas, botones, cifras: lo que acompaña al titular en ese tramo. */
+  /** Bloques que aparecen UNO POR UNO. Tarjetas, pasos, consecuencias. */
+  items?: { clave: string; nodo: React.ReactNode }[];
+  /** Clase de la lista que los contiene, para que el layout viva en la página. */
+  claseItems?: string;
+  /** Cuando el orden importa —los tres pasos—, la lista es <ol>. */
+  itemsOrdenados?: boolean;
+  /** Lo que cierra el tramo: botones, una cifra. Entra al final. */
   pie?: React.ReactNode;
 }
 
@@ -94,7 +162,7 @@ function Fijado({ tramos }: { tramos: Tramo[] }) {
             indice={i}
             total={tramos.length}
             progreso={p}
-            inerte={i !== activo}
+            activo={i === activo}
           />
         ))}
       </div>
@@ -107,13 +175,13 @@ function Bloque({
   indice,
   total,
   progreso,
-  inerte,
+  activo,
 }: {
   tramo: Tramo;
   indice: number;
   total: number;
   progreso: MotionValue<number>;
-  inerte: boolean;
+  activo: boolean;
 }) {
   const inicio = indice / total;
   const fin = (indice + 1) / total;
@@ -146,7 +214,7 @@ function Bloque({
   return (
     <motion.div
       style={{ opacity: opacidad, y }}
-      inert={inerte}
+      inert={!activo}
       /* El copy vive en una COLUMNA IZQUIERDA, no a todo el ancho. Es la
          medida de la referencia y es lo que hace que la película sea la
          protagonista: la mitad derecha del encuadre no lleva nada encima, así
@@ -155,7 +223,7 @@ function Bloque({
          entonces la imagen vuelve a ser papel pintado. */
       className="absolute inset-x-0 mx-auto w-full max-w-[1400px] px-6 lg:px-10"
     >
-      <Contenido tramo={tramo} indice={indice} />
+      <Contenido tramo={tramo} indice={indice} visible={activo} />
     </motion.div>
   );
 }
@@ -168,7 +236,7 @@ function Apilado({ tramos }: { tramos: Tramo[] }) {
       {tramos.map((t, i) => (
         <section key={t.id} className="py-24 lg:py-28" aria-labelledby={`${t.id}-titulo`}>
           <div className="mx-auto w-full max-w-[1400px] px-6 lg:px-10">
-            <Contenido tramo={t} indice={i} />
+            <Contenido tramo={t} indice={i} visible />
           </div>
         </section>
       ))}
@@ -178,16 +246,38 @@ function Apilado({ tramos }: { tramos: Tramo[] }) {
 
 /* ---------------------------------------------------------------- */
 
-function Contenido({ tramo, indice }: { tramo: Tramo; indice: number }) {
-  const Titular = indice === 0 ? "h1" : "h2";
+function Contenido({
+  tramo,
+  indice,
+  visible,
+}: {
+  tramo: Tramo;
+  indice: number;
+  visible: boolean;
+}) {
+  const reduce = useMovimientoReducido();
+  const Titular = indice === 0 ? motion.h1 : motion.h2;
+  const linea = reduce ? QUIETO : LINEA;
+  const blando = reduce ? QUIETO : BLANDO;
+
   return (
-    <div className="tramo w-full lg:max-w-[min(56vw,760px)]">
-      {tramo.eyebrow && <p className="etiqueta text-slag">{tramo.eyebrow}</p>}
+    <motion.div
+      className="tramo w-full lg:max-w-[min(56vw,760px)]"
+      variants={CONTENEDOR}
+      initial="oculto"
+      animate={visible ? "visible" : "oculto"}
+    >
+      {tramo.eyebrow && (
+        <p className="etiqueta text-slag">
+          <Linea v={linea}>{tramo.eyebrow}</Linea>
+        </p>
+      )}
+
       <Titular
         id={`${tramo.id}-titulo`}
         className={
           indice === 0
-            ? "mt-5 display-xl text-[clamp(2.5rem,4.6vw,4.2rem)]"
+            ? "mt-5 display-xl text-[clamp(2.2rem,3.9vw,3.6rem)]"
             : /* Un tramo clavado no puede crecer hacia abajo: lo que no cabe
                  en la pantalla no existe. Por eso el titular de tramo va por
                  debajo de display-lg —unos 49 px a 1440, la medida de los
@@ -195,10 +285,42 @@ function Contenido({ tramo, indice }: { tramo: Tramo; indice: number }) {
               "mt-5 display-lg text-[clamp(2rem,3.4vw,3.2rem)]"
         }
       >
-        {tramo.titulo}
+        {tramo.titulo.map((l) => (
+          <Linea key={l} v={linea}>
+            {l}
+          </Linea>
+        ))}
       </Titular>
-      {tramo.cuerpo && <div className="mt-5 medida cuerpo-lg text-smoke">{tramo.cuerpo}</div>}
-      {tramo.pie && <div className="mt-8">{tramo.pie}</div>}
-    </div>
+
+      {tramo.cuerpo && (
+        <motion.div variants={blando} className="mt-5 medida cuerpo-lg text-smoke">
+          {tramo.cuerpo}
+        </motion.div>
+      )}
+
+      {/* Uno por uno: cada bloque hereda el escalonado del contenedor, así que
+          las tarjetas no se encienden a la vez sino que se van poniendo. */}
+      {tramo.items && (
+        /* `motion.ul` no acepta `as`; se elige el componente, que además deja
+           el tipo correcto en cada rama. */
+        <ListaMotion
+          ordenada={tramo.itemsOrdenados}
+          variants={CONTENEDOR}
+          className={cn("mt-8", tramo.claseItems)}
+        >
+          {tramo.items.map((it) => (
+            <motion.li key={it.clave} variants={blando}>
+              {it.nodo}
+            </motion.li>
+          ))}
+        </ListaMotion>
+      )}
+
+      {tramo.pie && (
+        <motion.div variants={blando} className="mt-8">
+          {tramo.pie}
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

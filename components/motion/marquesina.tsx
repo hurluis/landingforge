@@ -8,8 +8,7 @@ import {
   useVelocity,
 } from "motion/react";
 import { useMovimientoReducido } from "@/lib/a11y/preferencias";
-import { asignarPaleta } from "@/lib/metodologia/paletas";
-import { Lamina } from "@/components/marketing/lamina";
+import { SeccionReal } from "@/components/marketing/seccion-real";
 import { SPRING } from "@/lib/motion";
 
 /**
@@ -26,14 +25,6 @@ import { SPRING } from "@/lib/motion";
  * Máximo una marquesina en toda la página.
  */
 
-const PALETAS = [
-  asignarPaleta("dispositivo-belleza", { genero: "f", edadMin: 25, edadMax: 45 }),
-  asignarPaleta("suplemento-deportivo", { genero: "m", edadMin: 20, edadMax: 34 }),
-  asignarPaleta("skincare-lujo", { genero: "f", edadMin: 28, edadMax: 50 }),
-  asignarPaleta("electronica", { genero: "mixto", edadMin: 25, edadMax: 45 }),
-  asignarPaleta("cosmetica", { genero: "f", edadMin: 30, edadMax: 55 }),
-  asignarPaleta("suplemento-natural", { genero: "mixto", edadMin: 30, edadMax: 60 }),
-];
 
 const ORDEN = ["hero", "antes-despues", "testimonios", "estilo-de-vida", "confianza", "precios"] as const;
 
@@ -68,7 +59,7 @@ export function Marquesina() {
         {piezas.map((id, i) => (
           <div key={`${id}-${i}`} className="w-[180px] shrink-0 sm:w-[220px]">
             <div className="relative aspect-[9/16] overflow-hidden rounded-[14px] border border-scale bg-sunk">
-              <Lamina tipologia={id} paleta={PALETAS[i % PALETAS.length]} />
+              <SeccionReal tipologia={id} />
             </div>
           </div>
         ))}

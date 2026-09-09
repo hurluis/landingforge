@@ -11,8 +11,7 @@ import {
 } from "motion/react";
 import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
-import { asignarPaleta } from "@/lib/metodologia/paletas";
-import { Lamina } from "@/components/marketing/lamina";
+import { SeccionReal } from "@/components/marketing/seccion-real";
 import { SPRING } from "@/lib/motion";
 import { useEsEscritorio } from "@/components/motion/medios";
 import { cn } from "@/lib/utils";
@@ -32,19 +31,6 @@ import { cn } from "@/lib/utils";
  * sección está rota.
  */
 
-/* Una paleta distinta por tipología, salida de la matriz real: la tira
-   demuestra en sí misma que dos clientes no reciben la misma identidad. */
-const PALETAS = [
-  asignarPaleta("cosmetica", { genero: "f", edadMin: 30, edadMax: 55 }),
-  asignarPaleta("suplemento-deportivo", { genero: "m", edadMin: 20, edadMax: 34 }),
-  asignarPaleta("skincare-lujo", { genero: "f", edadMin: 28, edadMax: 50 }),
-  asignarPaleta("electronica", { genero: "mixto", edadMin: 25, edadMax: 45 }),
-  asignarPaleta("suplemento-natural", { genero: "mixto", edadMin: 30, edadMax: 60 }),
-  asignarPaleta("clinico", { genero: "mixto", edadMin: 35, edadMax: 65 }),
-  asignarPaleta("control-peso", { genero: "f", edadMin: 30, edadMax: 55 }),
-  asignarPaleta("dispositivo-belleza", { genero: "f", edadMin: 25, edadMax: 45 }),
-  asignarPaleta("capilar", { genero: "f", edadMin: 22, edadMax: 40 }),
-];
 
 const N = TIPOLOGIAS.length;
 
@@ -151,7 +137,7 @@ function TiraPan() {
                         i === activo ? "opacity-100" : "opacity-45",
                       )}
                     >
-                      <Lamina tipologia={t.id} paleta={PALETAS[i]} />
+                      <SeccionReal tipologia={t.id} />
                       {i === activo && <span aria-hidden className="anillo-templado" />}
                     </span>
                     <span className="mt-3 flex items-baseline gap-2">
@@ -227,7 +213,7 @@ function TiraNativa() {
                 i === activo ? "opacity-100" : "opacity-50",
               )}
             >
-              <Lamina tipologia={t.id} paleta={PALETAS[i]} />
+              <SeccionReal tipologia={t.id} />
               {i === activo && <span aria-hidden className="anillo-templado" />}
             </span>
             <span className="mt-3 flex items-baseline gap-2">
