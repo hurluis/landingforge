@@ -5,11 +5,11 @@ import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { SPRING } from "@/lib/motion";
 import { usePunteroFino } from "@/components/motion/medios";
 import { Constelacion } from "@/components/motion/constelacion";
@@ -43,7 +43,7 @@ import { Constelacion } from "@/components/motion/constelacion";
  * existiendo, solo deja de seguir a nadie.
  */
 export function CampoDeLuz() {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const fino = usePunteroFino();
 
   /* Posición de la luz clave, en porcentaje del viewport. Reposo: arriba a
@@ -80,7 +80,11 @@ export function CampoDeLuz() {
   const contorno = useMotionTemplate`radial-gradient(50vmax 46vmax at ${rx}% ${ry}%, color-mix(in oklab, var(--quench) ${intensidadRim}%, transparent) 0%, transparent 58%)`;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <div
+      aria-hidden
+      data-decorativo
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+    >
       {/* Suelo: grafito con caída vertical, para que el campo tenga sobre qué caer. */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,#12151A_0%,#0D0F13_55%,#141821_100%)]" />
 

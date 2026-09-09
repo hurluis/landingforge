@@ -1,7 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { EASE, UNA_VEZ } from "@/lib/motion";
 
 /**
@@ -48,7 +49,7 @@ export const RevealLineas = memo(function RevealLineas({
      sin nombre. */
   id?: string;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const Etiqueta = motion[as];
   const variantes = reduce ? LINEA_SUAVE : LINEA;
 
@@ -95,7 +96,7 @@ export const RevealBloque = memo(function RevealBloque({
   retraso?: number;
   duracion?: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
 
   const desde =
     direccion === "derecha"
@@ -135,7 +136,7 @@ export const RevealLista = memo(function RevealLista({
   paso?: number;
   direccion?: "abajo" | "derecha";
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const desde = direccion === "derecha" ? "translateX(32px)" : "translateY(20px)";
 
   return (

@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   useMotionTemplate,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
 import { asignarPaleta } from "@/lib/metodologia/paletas";
 import { Lamina } from "@/components/marketing/lamina";
@@ -50,7 +50,7 @@ const N = TIPOLOGIAS.length;
 
 export function TiraPinned() {
   const escritorio = useEsEscritorio();
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
 
   if (!escritorio || reduce) return <TiraNativa />;
   return <TiraPan />;

@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import { Movimiento } from "@/components/motion/movimiento";
+import { PanelAccesibilidad } from "@/components/a11y/panel-accesibilidad";
 import "./globals.css";
 
 /**
@@ -58,8 +59,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${bodoni.variable} ${GeistSans.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Las preferencias de accesibilidad se aplican ANTES del primer
+            pintado. Si esperasen a que React hidrate, quien pidió texto grande
+            o el papel claro vería medio segundo de la página que justamente
+            no puede usar. El bucle es genérico: escribe `data-<clave>` por
+            cada preferencia guardada, así que añadir una preferencia nueva no
+            obliga a tocar este script. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var p=JSON.parse(localStorage.getItem("lf_a11y")||"{}"),d=document.documentElement;for(var k in p)d.setAttribute("data-"+k,String(p[k]))}catch(e){}',
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-void text-ash">
         <Movimiento>{children}</Movimiento>
+        <PanelAccesibilidad />
         <Toaster
           position="bottom-right"
           toastOptions={{

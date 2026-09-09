@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { MotionConfig, useReducedMotion } from "motion/react";
+import { MotionConfig } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import Lenis from "lenis";
 
 /**
@@ -20,7 +21,7 @@ import Lenis from "lenis";
  * no es premium, es molesto.
  */
 export function Movimiento({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
 
   useEffect(() => {
     if (reduce) return;
@@ -62,5 +63,10 @@ export function Movimiento({ children }: { children: React.ReactNode }) {
     };
   }, [reduce]);
 
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+  /* "user" solo mira el media query del sistema. Si el visitante pidió la
+     página quieta desde el panel, hay que decírselo a Motion explícitamente o
+     los componentes que animan por `MotionConfig` seguirían moviéndose. */
+  return (
+    <MotionConfig reducedMotion={reduce ? "always" : "user"}>{children}</MotionConfig>
+  );
 }

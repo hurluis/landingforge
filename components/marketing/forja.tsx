@@ -7,10 +7,10 @@ import {
   useInView,
   useMotionValue,
   useMotionValueEvent,
-  useReducedMotion,
   useTransform,
   motion,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { ArrowCounterClockwise } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,7 @@ export function Forja({ className }: { className?: string }) {
   const capa = React.useRef<HTMLDivElement>(null);
   const nodosFrase = React.useRef<(HTMLSpanElement | null)[]>([]);
   const enVista = useInView(contenedor, { once: true, margin: "-80px" });
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
 
   const progreso = useMotionValue(0);
 

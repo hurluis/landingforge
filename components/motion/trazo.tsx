@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useSpring } from "motion/react";
+import { motion, useScroll, useSpring } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 
 /**
  * El trazo que conecta los tres pasos de "cómo funciona".
@@ -12,7 +13,7 @@ import { motion, useReducedMotion, useScroll, useSpring } from "motion/react";
  * leer en orden.
  */
 export function TrazoConectado({ className }: { className?: string }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const caja = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: caja,

@@ -3,11 +3,11 @@
 import { useEffect, useRef } from "react";
 import {
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useVelocity,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { asignarPaleta } from "@/lib/metodologia/paletas";
 import { Lamina } from "@/components/marketing/lamina";
 import { SPRING } from "@/lib/motion";
@@ -38,7 +38,7 @@ const PALETAS = [
 const ORDEN = ["hero", "antes-despues", "testimonios", "estilo-de-vida", "confianza", "precios"] as const;
 
 export function Marquesina() {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const pista = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const bruta = useVelocity(scrollY);

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, useMotionTemplate } from "motion/react";
+import { motion, useScroll, useTransform, useMotionTemplate } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { cn } from "@/lib/utils";
 
 /**
@@ -25,7 +26,7 @@ export interface Tarjeta {
 }
 
 export function StickyStack({ tarjetas }: { tarjetas: Tarjeta[] }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const refs = useRef<(HTMLDivElement | null)[]>([]);
 
   return (

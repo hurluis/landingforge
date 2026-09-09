@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
 
+  /* El indicador de desarrollo se planta abajo a la izquierda, que es donde
+     vive el botón de accesibilidad, y le roba los clics. Arriba a la izquierda
+     no estorba a nadie: el asistente ocupa la esquina opuesta. Solo afecta a
+     `next dev`. */
+  devIndicators: { position: "top-left" },
+
   /* node:sqlite es integrado de Node; no debe pasar por el empaquetador. */
   serverExternalPackages: ["node:sqlite"],
 };

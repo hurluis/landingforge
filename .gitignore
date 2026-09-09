@@ -54,3 +54,7 @@ next-env.d.ts
 
 # capturas de revision visual
 /.capturas
+
+# el máster de la toma de producto: pesa 22 MB y de él solo se versionan
+# los fotogramas de public/secuencia (npm run fotogramas los reconstruye)
+/Video

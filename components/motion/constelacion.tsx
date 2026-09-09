@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useReducedMotion, type MotionValue } from "motion/react";
+import { type MotionValue } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { aleatorio, construirNube, NOMBRES, type NombreForma } from "@/components/motion/formas";
 
 /**
@@ -59,7 +60,7 @@ import { aleatorio, construirNube, NOMBRES, type NombreForma } from "@/component
  * reducido significa menos movimiento, no una página desnuda.
  */
 export function Constelacion({ luzX, luzY }: { luzX?: MotionValue<number>; luzY?: MotionValue<number> }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const lienzo = useRef<HTMLCanvasElement>(null);
   /* Los valores del puntero entran por ref para que cambiarlos no vuelva a
      montar la escena entera. */

@@ -5,12 +5,12 @@ import {
   motion,
   useMotionTemplate,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   useMotionValueEvent,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { SPRING } from "@/lib/motion";
 import { usePunteroFino } from "@/components/motion/medios";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ export const Magnetico = memo(function Magnetico({
   className?: string;
 }) {
   const fino = usePunteroFino();
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const caja = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -142,7 +142,7 @@ export const Parallax = memo(function Parallax({
   /** Recorrido total en px. Solo el hero puede pasar de 80. */
   recorrido?: number;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const caja = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: caja,
@@ -180,7 +180,7 @@ export const ContadorScroll = memo(function ContadorScroll({
   className?: string;
   sufijo?: string;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   const nodo = useRef<HTMLSpanElement>(null);
   const caja = useRef<HTMLSpanElement>(null);
 

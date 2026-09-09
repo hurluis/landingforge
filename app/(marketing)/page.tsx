@@ -8,6 +8,7 @@ import { TiraPinned } from "@/components/motion/tira-pinned";
 import { StickyStack } from "@/components/motion/sticky-stack";
 import { RevealLineas, RevealBloque, RevealLista } from "@/components/motion/reveal";
 import { TrazoConectado } from "@/components/motion/trazo";
+import { SecuenciaScroll } from "@/components/motion/secuencia-scroll";
 import { ContadorScroll } from "@/components/motion/interacciones";
 import { EstudioVivo } from "@/components/marketing/estudio-vivo";
 import { TablaPrecios } from "@/components/marketing/tabla-precios";
@@ -19,8 +20,9 @@ import { Preguntas } from "@/components/marketing/preguntas";
  * Familias de layout, ninguna repetida de forma consecutiva:
  *   1 hero split asimétrico pinned  ·  2 tira a sangre  ·  3 editorial de dos
  *   columnas con filete  ·  4 pan horizontal pinned  ·  5 sticky stack  ·
- *   6 secuencia con trazo  ·  7 herramienta embebida con parallax  ·
- *   8 tres columnas comparables  ·  9 acordeón  ·  10 tipografía a sangre.
+ *   6 secuencia con trazo  ·  7 toma de producto scrubbed a fotograma  ·
+ *   8 herramienta embebida con parallax  ·  9 tres columnas comparables  ·
+ *   10 acordeón  ·  11 tipografía a sangre.
  *
  * Ritmo vertical py-32 a py-48: el contenido protagonista son imágenes 9:16 y
  * las imágenes necesitan aire.
@@ -208,16 +210,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7 · El estudio en vivo, herramienta embebida con parallax (M8) */}
+      {/* 7 · La toma de producto, fotograma a fotograma con el scroll (M11).
+             Va justo después de «Recibes la campaña completa»: la sección
+             anterior lo promete y esta lo enseña. */}
+      <SecuenciaScroll />
+
+      {/* 8 · El estudio en vivo, herramienta embebida con parallax (M8) */}
       <EstudioVivo />
 
-      {/* 8 · Precios, tres columnas comparables con spotlight (M9) */}
+      {/* 9 · Precios, tres columnas comparables con spotlight (M9) */}
       <TablaPrecios compacta />
 
-      {/* 9 · Preguntas, acordeón */}
+      {/* 10 · Preguntas, acordeón */}
       <Preguntas />
 
-      {/* 10 · Cierre, tipografía a sangre. SIN animación de entrada (M14).
+      {/* 11 · Cierre, tipografía a sangre. SIN animación de entrada (M14).
               Después de una página entera en movimiento, que algo esté quieto
               es lo que le da peso. */}
       <section aria-labelledby="cierre-titulo" className="py-32 lg:py-44">

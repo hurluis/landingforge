@@ -6,13 +6,13 @@ import Link from "next/link";
 import {
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
   useMotionTemplate,
   type MotionValue,
 } from "motion/react";
+import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { EASE, SPRING } from "@/lib/motion";
 import { Boton, BotonEnlace } from "@/components/ui/boton";
 import { Magnetico } from "@/components/motion/interacciones";
@@ -46,7 +46,7 @@ const TEXTO = FRASES.join("\n\n");
 const H1 = ["Tu producto no se parece a ningún otro.", "Tu landing tampoco debería."];
 
 export function HeroForja() {
-  const reduce = useReducedMotion();
+  const reduce = useMovimientoReducido();
   if (reduce) return <HeroEstatico />;
   return <HeroScrub />;
 }

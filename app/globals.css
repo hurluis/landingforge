@@ -446,3 +446,185 @@ table, .cifras { font-variant-numeric: tabular-nums; }
 @media (scripting: none) {
   [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
 }
+
+/* ============================================================
+   PREFERENCIAS DE ACCESIBILIDAD
+
+   Cada preferencia del panel llega como `data-<clave>` en el <html>, puesta
+   por el script que corre antes del primer pintado. Todo lo de aquí es CSS
+   puro y de una sola dirección: el JavaScript solo escribe el atributo, nunca
+   estilos. Si el JavaScript falla, la página se queda en su estado por
+   defecto —el estudio oscuro— que ya cumple los pisos de contraste.
+
+   Las reglas cuelgan de `html[data-...]`, que gana a `:root` por
+   especificidad sin necesidad de un solo !important salvo en el bloque de
+   movimiento, donde sí hace falta para vencer a duraciones en línea.
+   ============================================================ */
+
+/* ---- Superficie: el papel como tema global ---- */
+
+html[data-tema="claro"] {
+  color-scheme: light;
+
+  --void:      #E4E2DC;
+  --anvil:     #EDEBE5;
+  --anvil-hi:  #F6F4EF;
+  --sunk:      #D5D2CA;
+  --scale:     #C7C3B9;
+  --scale-hi:  #A8A398;
+
+  --ash:       #14161A;
+  --smoke:     #494E57;
+  --slag:      #5C616A;
+
+  --heat:      #B93A11;
+  --heat-lo:   #8E2B0A;
+  --ember:     #D9501F;
+
+  --quench:    #17618E;
+
+  --ok:        #17603C;
+  --warn:      #8A6100;
+  --danger:    #B02A1C;
+
+  --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
+  --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+}
+
+/* «Del sistema» es una opción, nunca el valor por defecto: la identidad del
+   producto es el estudio oscuro, y voltear la página entera a claro para todo
+   el que no ha pedido nada sería cambiar el diseño, no respetarlo. */
+@media (prefers-color-scheme: light) {
+  html[data-tema="sistema"] {
+    color-scheme: light;
+
+    --void:      #E4E2DC;
+    --anvil:     #EDEBE5;
+    --anvil-hi:  #F6F4EF;
+    --sunk:      #D5D2CA;
+    --scale:     #C7C3B9;
+    --scale-hi:  #A8A398;
+
+    --ash:       #14161A;
+    --smoke:     #494E57;
+    --slag:      #5C616A;
+
+    --heat:      #B93A11;
+    --heat-lo:   #8E2B0A;
+    --ember:     #D9501F;
+
+    --quench:    #17618E;
+
+    --ok:        #17603C;
+    --warn:      #8A6100;
+    --danger:    #B02A1C;
+
+    --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
+    --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+  }
+}
+
+/* El campo de luz y la constelación son un gradiente oscuro fijo detrás de
+   todo: sobre papel taparían la página entera. Se apagan, no se recolorean. */
+html[data-tema="claro"] [data-decorativo],
+html[data-lectura="true"] [data-decorativo] { display: none; }
+
+@media (prefers-color-scheme: light) {
+  html[data-tema="sistema"] [data-decorativo] { display: none; }
+}
+
+/* ---- Tamaño del texto ----
+   Se mueve la raíz, no cada regla: todo el sistema está en rem, así que
+   escalan tipografía, espaciados y alturas de control a la vez y las
+   proporciones se mantienen. Los `clamp()` con vw del display suben su parte
+   en rem y se quedan cortos aposta: un titular a 5rem no necesita crecer
+   tanto como el cuerpo que alguien está intentando leer. */
+html[data-texto="grande"] { font-size: 112.5%; }
+html[data-texto="enorme"] { font-size: 125%; }
+
+/* ---- Alto contraste ----
+   No es «más blanco»: es subir tinta, filetes y el naranja de acción a la vez,
+   porque un contorno que desaparece deja tan inutilizable un control como un
+   texto ilegible. */
+html[data-contraste="true"] {
+  --ash:      #FFFFFF;
+  --smoke:    #D2D7DE;
+  --slag:     #BCC2CB;
+  --scale:    #4C535F;
+  --scale-hi: #737B88;
+  --heat:     #FF7A52;
+  --ember:    #FFB37A;
+  --quench:   #8FDBFF;
+}
+
+html[data-contraste="true"][data-tema="claro"],
+html[data-contraste="true"] .papel {
+  --ash:      #000000;
+  --smoke:    #2A2E35;
+  --slag:     #3A3F47;
+  --scale:    #8F8A7E;
+  --scale-hi: #6E695F;
+  --heat:     #8E2B0A;
+  --ember:    #A83612;
+  --quench:   #0F4A6E;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-contraste="true"][data-tema="sistema"] {
+    --ash:      #000000;
+    --smoke:    #2A2E35;
+    --slag:     #3A3F47;
+    --scale:    #8F8A7E;
+    --scale-hi: #6E695F;
+    --heat:     #8E2B0A;
+    --ember:    #A83612;
+    --quench:   #0F4A6E;
+  }
+}
+
+html[data-contraste="true"] :focus-visible { outline-width: 3px; }
+
+/* ---- Modo lectura ----
+   El didone es la voz de la marca a tamaño display, pero su contraste
+   altísimo entre astas y perfiles es justo lo que estorba a quien lee con
+   dificultad. Aquí la marca cede: grotesca, más aire entre líneas, medida más
+   corta y nada de decorado. */
+html[data-lectura="true"] body { line-height: 1.85; }
+
+html[data-lectura="true"] .display-xl,
+html[data-lectura="true"] .display-lg,
+html[data-lectura="true"] .display-md {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+html[data-lectura="true"] .cuerpo,
+html[data-lectura="true"] .cuerpo-lg { line-height: 1.85; }
+html[data-lectura="true"] .medida { max-width: 60ch; }
+html[data-lectura="true"] .papel::before { display: none; }
+
+/* ---- Movimiento reducido, pedido aquí y no al sistema ----
+   Mismo bloque que se le aplicaría a `prefers-reduced-motion`. Va con
+   !important porque tiene que ganar a las duraciones que Motion escribe en el
+   atributo `style`, que es donde no llega la especificidad. */
+html[data-movimiento="reducido"] *,
+html[data-movimiento="reducido"] *::before,
+html[data-movimiento="reducido"] *::after,
+html[data-lectura="true"] *,
+html[data-lectura="true"] *::before,
+html[data-lectura="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---- Enlaces siempre subrayados · WCAG 1.4.1 ----
+   Se excluyen los que son botones: ahí la forma ya distingue, y un subrayado
+   dentro de una píldora naranja lee como un error de maquetación. */
+html[data-enlaces="true"] a[href] { text-decoration: underline; }
+html[data-enlaces="true"] a[href]:where(.inline-flex, [class*="rounded-full"]) {
+  text-decoration: none;
+}
