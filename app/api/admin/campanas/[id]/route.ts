@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { conAdmin } from "@/lib/api-admin";
 
 export const runtime = "nodejs";

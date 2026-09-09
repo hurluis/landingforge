@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { repositorio } from "@/lib/datos/sqlite";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorio } from "@/lib/datos";
+import { repositorioAdmin } from "@/lib/datos";
 import {
   esquemaAjusteCreditos,
   esquemaBorradoUsuario,

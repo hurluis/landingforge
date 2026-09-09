@@ -3,7 +3,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import type { Usuario } from "@/lib/datos/tipos";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 
 /**
  * Autorización del panel de administración.

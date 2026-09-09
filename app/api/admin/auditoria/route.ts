@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { esquemaFiltroAuditoria } from "@/lib/esquemas-admin";
 import { conAdmin, errorDeValidacion } from "@/lib/api-admin";
 

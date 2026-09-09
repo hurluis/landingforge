@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { exigirAdminEnPagina } from "@/lib/auth/admin";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { plan as definicionPlan } from "@/lib/planes";
 import { fechaCorta, fechaLarga, fechaRelativa } from "@/lib/formato";
 import {

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CheckCircle, Database, Sparkle, Warning } from "@phosphor-icons/react/dist/ssr";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { numero, pesoArchivo } from "@/lib/formato";
 import { Badge } from "@/components/ui/piezas";
 import { Cifra, Encabezado, Panel } from "@/components/admin/piezas-admin";

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { esquemaCredenciales } from "@/lib/esquemas";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import {
   abrirSesion,
   cerrarSesion,

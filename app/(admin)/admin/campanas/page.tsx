@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { esquemaFiltroCampanas } from "@/lib/esquemas-admin";
 import { fechaRelativa } from "@/lib/formato";
 import { ETIQUETA_TIPOLOGIA, TIPOLOGIAS } from "@/lib/etiquetas-admin";

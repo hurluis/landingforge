@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { generacionDeImagenesActiva } from "@/lib/ia";
 import { VistaCampana } from "@/components/campana/vista-campana";
 

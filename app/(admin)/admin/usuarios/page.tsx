@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { esquemaFiltroUsuarios } from "@/lib/esquemas-admin";
 import { plan as definicionPlan } from "@/lib/planes";
 import { fechaCorta, fechaRelativa } from "@/lib/formato";

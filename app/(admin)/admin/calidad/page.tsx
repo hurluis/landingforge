@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { repositorioAdmin } from "@/lib/datos/admin-sqlite";
+import { repositorioAdmin } from "@/lib/datos";
 import { numero } from "@/lib/formato";
 import {
   ETIQUETA_REGLA,
