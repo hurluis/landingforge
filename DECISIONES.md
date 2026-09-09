@@ -613,6 +613,51 @@ que ninguno traiga una zona clara.
 en el repositorio sin importadores, igual que La Forja cuando salió de la
 portada: salió de la página, no de la historia del proyecto.
 
+### El scroll se reparte por cambio visual, no por fotograma
+
+La primera versión del film repartía el recorrido a partes iguales: 240
+fotogramas entre 10,6 pantallas, uno cada 36px. Parecía lo natural y era justo
+lo que hacía que no se viera fluido.
+
+**El motivo.** El film no se mueve a ritmo constante. Tiene una ráfaga con un
+corte duro en el primer 10% y tramos casi estáticos después. Con reparto
+lineal, la acción pasaba en trescientos píxeles y lo quieto se arrastraba
+durante miles. El ojo no lee fluidez como «tiempo constante» sino como
+**velocidad constante**.
+
+**La corrección.** `scripts/extraer-fotogramas.mjs` mide cuánto cambia cada
+fotograma respecto del anterior y escribe `components/mundo/ritmo.ts`: una
+curva que reparte el scroll proporcionalmente a ese cambio. Donde el film se
+mueve mucho recibe mucho recorrido; donde está quieto se pasa rápido.
+
+Medido sobre el lienzo real, en 60 muestras a lo largo del mundo:
+
+| | Antes | Después |
+|---|---|---|
+| Pico / media | 6,9× | **2,1×** |
+| Desviación | 19,1 | **5,2** |
+
+**Dos piezas que van juntas.** La curva sola no basta: entre fotograma y
+fotograma sigue habiendo un escalón. `dibujar` recibe una posición
+FRACCIONARIA y mezcla el fotograma actual con el siguiente según la parte
+decimal, así que el paso es un fundido y no un salto. No cuesta un byte más
+—son las mismas imágenes— y son dos `drawImage` por frame.
+
+**El corte duro es el caso que lo justifica todo.** Dos tomas distintas no se
+suavizan repartiendo poco scroll: el salto es el salto. Dándole mucho
+recorrido —el techo de la curva está en 14 veces la mediana— la mezcla se
+estira y el corte deja de leerse como fallo para leerse como encadenado, que
+es una transición de cine.
+
+**Un fallo silencioso que casi se cuela.** La primera curva salió
+perfectamente lineal y las cifras no mejoraron nada. La medición corría en
+`about:blank` y cada `<img>` al servidor de fotogramas era de otro origen:
+fallaba, se contaba como diferencia cero, y la curva salía uniforme sin que
+nada avisara. Ahora el servidor sirve una página vacía en la raíz para que
+todo sea del mismo origen, y el script lanza un error si la medición devuelve
+todo ceros. Una curva lineal por accidente es indistinguible de no tener
+curva.
+
 ### El engagement había que verlo, no afirmarlo
 
 La escena 03 pasó a hablar de sostener el scroll, pero eso era texto sobre una

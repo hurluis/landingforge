@@ -24,8 +24,18 @@
  */
 
 import { ESCENAS, TRAMOS } from "@/lib/mundo/escenas";
+import { RITMO } from "@/components/mundo/ritmo";
 
-export const TOTAL_FOTOGRAMAS = 120;
+/**
+ * Cuántos fotogramas tiene la secuencia.
+ *
+ * Es la fuente de verdad: `scripts/extraer-fotogramas.mjs` lee ESTE número
+ * para saber cuántos generar, así que no pueden desincronizarse.
+ *
+ * 240 sobre 10,6 pantallas de recorrido son unos 36px de scroll por
+ * fotograma. Con 120 eran 72 y se veía a saltos incluso con fundido.
+ */
+export const TOTAL_FOTOGRAMAS = 240;
 const RUTA = (i: number) => `/film/${String(i).padStart(3, "0")}.jpg`;
 
 /** Fracción del tramo que la escena pasa en reposo antes de dar paso. */
@@ -44,11 +54,10 @@ const rampa = (v: number, a: number, b: number) => suave(limitar((v - a) / (b - 
  * los bytes descargados en vez de esperar a los 2,4 MB completos.
  */
 function cargar(
-  alAvanzar: (listos: number) => void,
+  alLlegarUno: () => void,
 ): { imagenes: (HTMLImageElement | null)[]; cancelar: () => void } {
   const imagenes: (HTMLImageElement | null)[] = new Array(TOTAL_FOTOGRAMAS).fill(null);
   let vivo = true;
-  let listos = 0;
 
   const pedir = (i: number) =>
     new Promise<void>((resolver) => {
@@ -58,8 +67,7 @@ function cargar(
       img.onload = () => {
         if (vivo) {
           imagenes[i] = img;
-          listos++;
-          alAvanzar(listos);
+          alLlegarUno();
         }
         resolver();
       };
@@ -85,6 +93,35 @@ function cargar(
       vivo = false;
     },
   };
+}
+
+/**
+ * De progreso de scroll a posición en el film.
+ *
+ * No es una regla de tres. `RITMO` reparte el recorrido por CAMBIO VISUAL:
+ * donde el film se mueve mucho le toca mucho scroll, y donde está quieto se
+ * pasa rápido. Repartir a partes iguales por fotograma era exactamente lo que
+ * hacía que no se viera fluido —la ráfaga del primer 10% pasaba en trescientos
+ * píxeles y los tramos quietos se arrastraban miles—, porque el ojo no lee
+ * fluidez como «tiempo constante» sino como «velocidad constante».
+ *
+ * Búsqueda binaria sobre la curva y luego interpolación dentro del intervalo,
+ * así que devuelve una posición fraccionaria y el fundido sigue siendo
+ * continuo.
+ */
+function fotogramaEn(g: number): number {
+  if (RITMO.length < 2) return g * (TOTAL_FOTOGRAMAS - 1);
+
+  let lo = 0;
+  let hi = RITMO.length - 1;
+  while (hi - lo > 1) {
+    const medio = (lo + hi) >> 1;
+    if (RITMO[medio] <= g) lo = medio;
+    else hi = medio;
+  }
+  const tramo = RITMO[hi] - RITMO[lo];
+  const dentro = tramo > 0 ? (g - RITMO[lo]) / tramo : 0;
+  return Math.min(TOTAL_FOTOGRAMAS - 1, lo + limitar(dentro));
 }
 
 export function montarFilm(
@@ -136,28 +173,8 @@ export function montarFilm(
     return null;
   }
 
-  /**
-   * Encuadre a sangre, con el sujeto corrido a la derecha.
-   *
-   * El film es 2,28:1 y el viewport casi nunca lo es, así que hay que elegir
-   * qué se sacrifica. Contenido se veía la composición entera pero dejaba una
-   * banda de vacío que se lee como hueco y no como cine, y además el producto
-   * caía encima del titular. A sangre llena el cuadro y deja el aire donde
-   * hace falta.
-   *
-   * El sesgo horizontal es lo que hereda del motor de geometría, que ya movía
-   * la cámara con `encuadre = 0.2` en pantallas anchas por la misma razón: la
-   * copia ocupa la mitad izquierda, así que el sujeto tiene que caer en la
-   * derecha. Con `sesgo` bajo se ancla el borde izquierdo del fotograma y el
-   * producto —centrado en el original— aparece a la derecha del centro.
-   *
-   * En vertical no hay mitad izquierda que respetar: la copia va abajo a todo
-   * lo ancho, y el sujeto se queda centrado.
-   */
-  function dibujar(indice: number) {
-    const img = disponible(indice);
-    if (!img) return;
-
+  /** Coloca un fotograma a sangre en el lienzo, con el sujeto a la derecha. */
+  function encuadrar(img: HTMLImageElement) {
     const cw = canvas.width;
     const ch = canvas.height;
     const anchoCss = canvas.clientWidth;
@@ -165,11 +182,57 @@ export function montarFilm(
     const escala = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
     const w = img.naturalWidth * escala;
     const h = img.naturalHeight * escala;
+
+    /* El sesgo horizontal lo hereda del motor de geometría, que ya movía la
+       cámara con `encuadre = 0.2` en pantallas anchas por la misma razón: la
+       copia ocupa la mitad izquierda, así que el sujeto tiene que caer en la
+       derecha. En vertical no hay mitad que respetar y se queda centrado. */
     const sesgo = anchoCss >= 1024 ? 0.16 : anchoCss >= 700 ? 0.34 : 0.5;
+    ctx.drawImage(img, (cw - w) * sesgo, (ch - h) / 2, w, h);
+  }
+
+  /**
+   * Dibuja una posición CONTINUA del film, no un índice entero.
+   *
+   * Es la corrección que hacía falta. El recorrido son 10,6 pantallas: unos
+   * 8.600px de scroll para 120 fotogramas, o sea **72px por fotograma**. Con
+   * saltos secos eso no se lee como película sino como pase de diapositivas:
+   * arrastras un dedo entero y la imagen cambia una vez.
+   *
+   * Aquí se dibuja el fotograma entero y encima el siguiente con la opacidad
+   * de la parte fraccionaria, así que entre uno y otro hay un fundido continuo
+   * en vez de un escalón. No cuesta ni un byte más de descarga —son las
+   * mismas imágenes— y son dos `drawImage` por frame, que a esta resolución
+   * no se nota.
+   *
+   * Efecto secundario deseado: el film son cuatro tomas con CORTES DUROS
+   * entre ellas. Sin mezcla, un corte a mitad de scroll se lee como fallo.
+   * Con mezcla se convierte en un encadenado, que es una transición de cine.
+   */
+  function dibujar(posicion: number) {
+    const base = Math.floor(posicion);
+    const mezcla = posicion - base;
+
+    const a = disponible(base);
+    if (!a) return;
 
     ctx.fillStyle = "#0A0B0D";
-    ctx.fillRect(0, 0, cw, ch);
-    ctx.drawImage(img, (cw - w) * sesgo, (ch - h) / 2, w, h);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.globalAlpha = 1;
+    encuadrar(a);
+
+    if (mezcla > 0.001 && base + 1 < TOTAL_FOTOGRAMAS) {
+      const b = imagenes[base + 1];
+      /* Solo se mezcla con el siguiente si YA está cargado. Con el vecino
+         aproximado de `disponible` se mezclarían dos fotogramas lejanos y
+         saldría un fantasma. */
+      if (b) {
+        ctx.globalAlpha = mezcla;
+        encuadrar(b);
+        ctx.globalAlpha = 1;
+      }
+    }
   }
 
   function pintar() {
@@ -177,11 +240,14 @@ export function montarFilm(
     if (!visible) return;
 
     const g = limitar((window.scrollY - cima) / alto);
-    const indice = Math.min(TOTAL_FOTOGRAMAS - 1, Math.round(g * (TOTAL_FOTOGRAMAS - 1)));
+    const posicion = fotogramaEn(g);
 
-    if (indice !== ultimo || pendiente) {
-      dibujar(indice);
-      ultimo = indice;
+    /* Se redibuja cuando la posición se mueve más de una centésima de
+       fotograma: suficiente para que el fundido se vea continuo y suficiente
+       para no repintar cuando el scroll está quieto. */
+    if (Math.abs(posicion - ultimo) > 0.01 || pendiente) {
+      dibujar(posicion);
+      ultimo = posicion;
       pendiente = false;
     }
 
