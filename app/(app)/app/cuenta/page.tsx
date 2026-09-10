@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { hayModeloReal } from "@/lib/ia";
 import { Cuenta } from "@/components/app/cuenta";
 

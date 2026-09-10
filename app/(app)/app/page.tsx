@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { Biblioteca } from "@/components/app/biblioteca";
 
 export const metadata: Metadata = { title: "Biblioteca" };

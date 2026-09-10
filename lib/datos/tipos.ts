@@ -31,6 +31,9 @@ export type TipologiaSeccion =
 
 export type Plan = "semilla" | "estudio" | "agencia";
 
+/** Rol de plataforma. La fuente de verdad es la BD, nunca el token. */
+export type Rol = "usuario" | "admin";
+
 export interface Paleta {
   id: string;
   nombre: string;
@@ -106,6 +109,7 @@ export interface Usuario {
   id: string;
   email: string;
   plan: Plan;
+  rol: Rol;
   creditosDisponibles: number;
   renuevaEn: string;
   creadoEn: string;
@@ -119,7 +123,12 @@ export interface MovimientoCredito {
   campanaNombre: string;
   /** Negativo consume, positivo devuelve o recarga. */
   delta: number;
-  motivo: "generacion" | "devolucion" | "recarga-plan" | "bienvenida";
+  motivo:
+    | "generacion"
+    | "devolucion"
+    | "recarga-plan"
+    | "bienvenida"
+    | "ajuste-admin";
   fecha: string;
 }
 
@@ -133,4 +142,118 @@ export interface EntradaPrompt {
   producto: Producto;
   paleta: Paleta;
   tipologia: TipologiaSeccion;
+}
+
+/* ------------------------------------------------------------------
+   Administración de plataforma
+   ------------------------------------------------------------------ */
+
+/**
+ * Acciones que quedan registradas. Es una unión cerrada a propósito: si
+ * mañana alguien añade una mutación al panel, el compilador le obliga a
+ * declararla aquí y por tanto a auditarla. Una acción no auditada no
+ * compila.
+ */
+export type AccionAuditoria =
+  | "usuario.plan"
+  | "usuario.creditos"
+  | "usuario.rol"
+  | "usuario.borrado"
+  | "campana.borrada";
+
+export type ObjetivoAuditoria = "usuario" | "campana";
+
+export interface EventoAuditoria {
+  id: string;
+  /** `null` cuando el actor es el arranque del sistema, no una persona. */
+  actorId: string | null;
+  actorEmail: string;
+  accion: AccionAuditoria;
+  objetivoTipo: ObjetivoAuditoria;
+  objetivoId: string;
+  /** Copia del nombre o correo al momento del hecho: sobrevive al borrado. */
+  objetivoEtiqueta: string;
+  detalle: Record<string, unknown>;
+  ip: string;
+  fecha: string;
+}
+
+/** Una fila de la lista de usuarios del panel, con sus cifras ya contadas. */
+export interface UsuarioConMetricas extends Usuario {
+  campanas: number;
+  prompts: number;
+  creditosConsumidos: number;
+  ultimaActividad: string | null;
+}
+
+/** Una fila del inspector global de campañas. */
+export interface CampanaConDueno {
+  id: string;
+  usuarioId: string;
+  usuarioEmail: string;
+  nombre: string;
+  productoNombre: string;
+  estado: EstadoCampana;
+  prompts: number;
+  bloqueos: number;
+  avisos: number;
+  actualizadaEn: string;
+}
+
+/** Página de resultados. El total permite dibujar el paginador. */
+export interface Pagina<T> {
+  filas: T[];
+  total: number;
+  pagina: number;
+  porPagina: number;
+}
+
+/** Un punto de las series diarias del tablero. */
+export interface PuntoSerie {
+  fecha: string;
+  valor: number;
+}
+
+export interface ResumenPlataforma {
+  usuarios: number;
+  usuariosNuevos30d: number;
+  admins: number;
+  campanas: number;
+  campanasPorEstado: Record<EstadoCampana, number>;
+  prompts: number;
+  creditosConsumidos: number;
+  creditosDevueltos: number;
+  usuariosPorPlan: Record<Plan, number>;
+  altasPorDia: PuntoSerie[];
+  campanasPorDia: PuntoSerie[];
+}
+
+/** Salud del proceso. Se lee, no se configura desde el panel. */
+export interface SaludSistema {
+  modeloReal: boolean;
+  imagenesHabilitadas: boolean;
+  nodo: string;
+  entorno: string;
+  bytesBaseDatos: number;
+  rateLimitDistribuido: boolean;
+}
+
+/** Cuadro de calidad de la metodología: una fila por regla del validador. */
+export interface CalidadRegla {
+  regla: ReglaAdvertencia;
+  severidad: Advertencia["severidad"];
+  ocurrencias: number;
+  promptsAfectados: number;
+}
+
+export interface CalidadMetodologia {
+  promptsTotales: number;
+  promptsLimpios: number;
+  promptsConBloqueo: number;
+  porRegla: CalidadRegla[];
+  /** Matriz regla × tipología: `matriz[tipologia][regla]` = nº de prompts. */
+  matriz: Record<string, Partial<Record<ReglaAdvertencia, number>>>;
+  promptsPorTipologia: Record<string, number>;
+  palabrasProhibidas: { palabra: string; veces: number }[];
+  bloqueoPorDia: PuntoSerie[];
 }

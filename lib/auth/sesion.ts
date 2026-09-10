@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import type { Usuario } from "@/lib/datos/tipos";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { COOKIE_SESION, firmarSesion, verificarSesion } from "@/lib/auth/token";
 
 /**

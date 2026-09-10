@@ -3,6 +3,7 @@
  *
  *   node scripts/crear-usuario.mjs
  *   node scripts/crear-usuario.mjs otro@correo.co MiClave1234 agencia
+ *   node scripts/crear-usuario.mjs jefe@correo.co MiClave1234 agencia admin
  *
  * Escribe directo en SQLite en vez de llamar a /api/auth a propósito: así
  * funciona con el servidor apagado, que es justo cuando hace falta —cuando no
@@ -23,12 +24,20 @@ const [
   email = "prueba@landingforge.co",
   contrasena = "Prueba1234",
   plan = "estudio",
+  /* El arranque normal del primer administrador es ADMIN_EMAILS, que promueve
+     al entrar. Esto es el atajo para cuando lo que quieres es una cuenta de
+     pruebas con panel y no tocar el entorno. */
+  rol = "usuario",
 ] = process.argv.slice(2);
 
 /* Los mismos números que lib/planes.ts. */
 const CREDITOS = { semilla: 30, estudio: 120, agencia: 400 };
 if (!CREDITOS[plan]) {
   console.error(`Plan desconocido: ${plan}. Usa semilla, estudio o agencia.`);
+  process.exit(1);
+}
+if (!["usuario", "admin"].includes(rol)) {
+  console.error(`Rol desconocido: ${rol}. Usa usuario o admin.`);
   process.exit(1);
 }
 if (contrasena.length < 8) {
@@ -45,7 +54,8 @@ bd.exec("PRAGMA foreign_keys = ON");
 bd.exec(`
   CREATE TABLE IF NOT EXISTS usuarios (
     id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, hash TEXT NOT NULL,
-    plan TEXT NOT NULL DEFAULT 'semilla', creditos INTEGER NOT NULL DEFAULT 0,
+    plan TEXT NOT NULL DEFAULT 'semilla', rol TEXT NOT NULL DEFAULT 'usuario',
+    creditos INTEGER NOT NULL DEFAULT 0,
     renueva_en TEXT NOT NULL, creado_en TEXT NOT NULL
   );
   CREATE TABLE IF NOT EXISTS movimientos (
@@ -72,20 +82,28 @@ renueva.setMonth(renueva.getMonth() + 1);
 const correo = email.trim().toLowerCase();
 const existente = bd.prepare("SELECT id FROM usuarios WHERE email = ?").get(correo);
 
+/* La base puede venir de antes de que existiera el rol: misma migración que
+   hace lib/datos/sqlite.ts al conectar, porque este script corre sin servidor
+   y tiene que poder arreglar una base vieja él solo. */
+const columnas = bd.prepare("PRAGMA table_info(usuarios)").all().map((c) => c.name);
+if (!columnas.includes("rol")) {
+  bd.exec("ALTER TABLE usuarios ADD COLUMN rol TEXT NOT NULL DEFAULT 'usuario'");
+}
+
 bd.exec("BEGIN IMMEDIATE");
 try {
   let usuarioId;
   if (existente) {
     usuarioId = existente.id;
     bd.prepare(
-      "UPDATE usuarios SET hash = ?, plan = ?, creditos = ?, renueva_en = ? WHERE id = ?",
-    ).run(hashear(contrasena), plan, CREDITOS[plan], renueva.toISOString(), usuarioId);
+      "UPDATE usuarios SET hash = ?, plan = ?, rol = ?, creditos = ?, renueva_en = ? WHERE id = ?",
+    ).run(hashear(contrasena), plan, rol, CREDITOS[plan], renueva.toISOString(), usuarioId);
   } else {
     usuarioId = identificador("usr");
     bd.prepare(
-      `INSERT INTO usuarios (id, email, hash, plan, creditos, renueva_en, creado_en)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    ).run(usuarioId, correo, hashear(contrasena), plan, CREDITOS[plan], renueva.toISOString(), ahora);
+      `INSERT INTO usuarios (id, email, hash, plan, rol, creditos, renueva_en, creado_en)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(usuarioId, correo, hashear(contrasena), plan, rol, CREDITOS[plan], renueva.toISOString(), ahora);
   }
 
   bd.prepare(
@@ -99,6 +117,7 @@ try {
   console.log(`  Correo      ${correo}`);
   console.log(`  Contraseña  ${contrasena}`);
   console.log(`  Plan        ${plan} · ${CREDITOS[plan]} créditos`);
+  console.log(`  Rol         ${rol}${rol === "admin" ? "  ·  panel en /admin" : ""}`);
   console.log(`  Id          ${usuarioId}\n`);
   console.log("  Entra en http://localhost:3000/entrar\n");
 } catch (e) {

@@ -370,6 +370,246 @@ seccion("10 · Cierre de sesión");
   afirmar(r.status === 401, "tras cerrar sesión ya no hay acceso");
 }
 
+/* ==================================================================
+   11 · Panel de administración
+   ==================================================================
+
+   El servidor tiene que estar levantado con ADMIN_EMAILS incluyendo el
+   correo de abajo, porque el primer administrador no puede crearse desde
+   un panel al que todavía nadie puede entrar:
+
+     ADMIN_EMAILS=admin-e2e@landingforge.test npm run dev
+*/
+
+const CORREO_ADMIN =
+  process.env.ADMIN_EMAILS?.split(",")[0]?.trim() || "admin-e2e@landingforge.test";
+const CLAVE = "unaClaveLarga123";
+
+/** El límite de /api/auth es de 8 por minuto: se espera en vez de fallar. */
+async function autenticar(email, modo) {
+  for (let intento = 0; intento < 4; intento++) {
+    const r = await pedir("/api/auth", {
+      method: "POST",
+      body: JSON.stringify({ modo, email, contrasena: CLAVE }),
+    });
+    if (r.status !== 429) return r;
+    const espera = Number(r.headers.get("retry-after") ?? 5);
+    await new Promise((listo) => setTimeout(listo, (espera + 1) * 1000));
+  }
+  return pedir("/api/auth", {
+    method: "POST",
+    body: JSON.stringify({ modo, email, contrasena: CLAVE }),
+  });
+}
+
+/** Registra si la cuenta es nueva; si ya existía de una corrida anterior, entra. */
+async function entrarComo(email) {
+  const registro = await autenticar(email, "registro");
+  if (registro.status === 200) return (await registro.json()).usuario;
+  const entrada = await autenticar(email, "entrar");
+  if (entrada.status !== 200) return null;
+  return (await entrada.json()).usuario;
+}
+
+seccion("11 · Panel de administración");
+
+let idNormal = null;
+{
+  /* --- Sin sesión, el panel ni siquiera se plantea --- */
+  const anonimo = await pedir("/admin");
+  afirmar(
+    anonimo.status >= 300 && anonimo.status < 400,
+    "/admin sin sesión redirige a /entrar",
+    `recibí ${anonimo.status}`,
+  );
+
+  /* --- Con sesión pero sin rol, la ruta no existe --- */
+  const normal = await entrarComo(`normal_${Date.now()}@landingforge.test`);
+  afirmar(Boolean(normal?.id), "se crea la cuenta sin privilegios");
+  idNormal = normal?.id ?? null;
+  afirmar(normal?.rol === "usuario", "una cuenta nueva nace con rol usuario", `rol ${normal?.rol}`);
+
+  const panel = await pedir("/admin");
+  afirmar(panel.status === 404, "/admin con sesión normal devuelve 404, no 403", `recibí ${panel.status}`);
+
+  const usuarios = await pedir("/admin/usuarios");
+  afirmar(usuarios.status === 404, "/admin/usuarios con sesión normal devuelve 404");
+
+  const api = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "rol", rol: "admin" }),
+  });
+  afirmar(
+    api.status === 404,
+    "la API de administración no se puede llamar sin rol, ni conociendo la ruta",
+    `recibí ${api.status}`,
+  );
+
+  const csv = await pedir("/api/admin/auditoria");
+  afirmar(csv.status === 404, "la exportación de auditoría también exige rol");
+
+  await pedir("/api/auth", { method: "DELETE" });
+}
+
+let idAdmin = null;
+{
+  /* --- El administrador sembrado por ADMIN_EMAILS --- */
+  const admin = await entrarComo(CORREO_ADMIN);
+  idAdmin = admin?.id ?? null;
+  afirmar(
+    admin?.rol === "admin",
+    "ADMIN_EMAILS promueve la cuenta al entrar",
+    `rol ${admin?.rol}. Levanta el servidor con ADMIN_EMAILS=${CORREO_ADMIN}`,
+  );
+}
+
+if (idAdmin && idNormal) {
+  /* --- Las cinco pantallas responden --- */
+  for (const ruta of [
+    "/admin",
+    "/admin/usuarios",
+    "/admin/campanas",
+    "/admin/calidad",
+    "/admin/auditoria",
+  ]) {
+    const r = await pedir(ruta);
+    afirmar(r.status === 200, `${ruta} responde 200 al administrador`, `recibí ${r.status}`);
+  }
+
+  const ficha = await pedir(`/admin/usuarios/${idNormal}`);
+  afirmar(ficha.status === 200, "la ficha de un usuario concreto responde 200");
+
+  const filtrada = await pedir("/admin/usuarios?plan=semilla&orden=creditos&pagina=1");
+  afirmar(filtrada.status === 200, "los filtros y la paginación de usuarios responden");
+
+  const basura = await pedir("/admin/usuarios?pagina=-9&plan=inventado");
+  afirmar(
+    basura.status === 200,
+    "un filtro inválido en la URL no rompe la pantalla",
+    `recibí ${basura.status}`,
+  );
+
+  const conBloqueo = await pedir("/admin/campanas?soloConBloqueo=true&tipologia=hero");
+  afirmar(conBloqueo.status === 200, "el filtro de bloqueos y tipología responde");
+
+  /* --- Ajuste de créditos: saldo, movimiento y auditoría --- */
+  const ajuste = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "creditos", delta: 12, motivo: "Compensación de prueba e2e" }),
+  });
+  const datosAjuste = await ajuste.json();
+  afirmar(ajuste.status === 200, "el administrador puede ajustar créditos", JSON.stringify(datosAjuste).slice(0, 120));
+  afirmar(
+    datosAjuste.usuario?.creditosDisponibles === 17,
+    "el saldo pasa de 5 a 17 créditos",
+    `quedó en ${datosAjuste.usuario?.creditosDisponibles}`,
+  );
+
+  const sinMotivo = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "creditos", delta: 5, motivo: "" }),
+  });
+  afirmar(sinMotivo.status === 400, "un ajuste sin motivo se rechaza");
+
+  const enNegativo = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "creditos", delta: -9999, motivo: "Intento de dejar en negativo" }),
+  });
+  const datosNegativo = await enNegativo.json();
+  afirmar(
+    enNegativo.status === 409 && datosNegativo.codigo === "SALDO_NEGATIVO",
+    "el saldo no puede quedar en negativo",
+    `${enNegativo.status} ${datosNegativo.codigo}`,
+  );
+
+  /* --- Cambio de plan --- */
+  const plan = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "plan", plan: "estudio" }),
+  });
+  const datosPlan = await plan.json();
+  afirmar(
+    plan.status === 200 && datosPlan.usuario?.plan === "estudio",
+    "el administrador puede cambiar el plan de una cuenta",
+  );
+
+  /* --- Las dos salvaguardas --- */
+  const autoDegradar = await pedir(`/api/admin/usuarios/${idAdmin}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "rol", rol: "usuario" }),
+  });
+  const datosDegradar = await autoDegradar.json();
+  afirmar(
+    autoDegradar.status === 409 && datosDegradar.codigo === "AUTO_DEGRADACION",
+    "un administrador no puede quitarse el rol a sí mismo",
+    `${autoDegradar.status} ${datosDegradar.codigo}`,
+  );
+
+  const autoBorrar = await pedir(`/api/admin/usuarios/${idAdmin}`, {
+    method: "DELETE",
+    body: JSON.stringify({ confirmacion: CORREO_ADMIN }),
+  });
+  const datosBorrar = await autoBorrar.json();
+  afirmar(
+    autoBorrar.status === 409 && datosBorrar.codigo === "AUTO_BORRADO",
+    "un administrador no puede borrarse a sí mismo",
+    `${autoBorrar.status} ${datosBorrar.codigo}`,
+  );
+
+  /* --- Promoción y degradación de otra cuenta --- */
+  const promover = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "rol", rol: "admin" }),
+  });
+  afirmar(promover.status === 200, "puede nombrar administrador a otra cuenta");
+
+  const degradar = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "rol", rol: "usuario" }),
+  });
+  afirmar(degradar.status === 200, "y puede volver a quitárselo");
+
+  /* --- La auditoría registró todo lo anterior --- */
+  const csv = await pedir("/api/admin/auditoria");
+  const textoCsv = await csv.text();
+  afirmar(csv.status === 200, "la exportación CSV responde 200");
+  afirmar(
+    (csv.headers.get("content-type") ?? "").includes("text/csv"),
+    "la exportación llega como text/csv",
+  );
+  afirmar(
+    textoCsv.includes("usuario.creditos") && textoCsv.includes("usuario.rol"),
+    "el CSV contiene las acciones que se acaban de ejecutar",
+  );
+  afirmar(
+    textoCsv.includes("Compensación de prueba e2e"),
+    "el motivo del ajuste queda registrado literalmente",
+  );
+
+  const filtradoCsv = await pedir("/api/admin/auditoria?accion=usuario.plan");
+  const textoFiltrado = await filtradoCsv.text();
+  afirmar(
+    !textoFiltrado.includes("usuario.creditos"),
+    "el filtro de la exportación se aplica de verdad",
+  );
+
+  /* --- Borrado de cuenta, con su confirmación --- */
+  const malConfirmado = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "DELETE",
+    body: JSON.stringify({ confirmacion: "otro@correo.test" }),
+  });
+  afirmar(malConfirmado.status === 400, "el borrado exige el correo exacto");
+
+  const fichaNormal = await pedir(`/admin/usuarios/${idNormal}`);
+  afirmar(fichaNormal.status === 200, "la cuenta sigue existiendo tras la confirmación fallida");
+
+  const usuarioNormal = await pedir(`/api/admin/usuarios/${idNormal}`, {
+    method: "PATCH",
+    body: JSON.stringify({ accion: "inventada" }),
+  });
+  afirmar(usuarioNormal.status === 400, "una acción desconocida se rechaza con 400");
+}
+
 console.log(
   `\n${pruebas - fallos} de ${pruebas} comprobaciones pasan.${fallos ? ` ${fallos} fallan.` : ""}`,
 );

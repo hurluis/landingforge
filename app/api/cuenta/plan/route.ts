@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { esquemaPlan } from "@/lib/esquemas";
 
 export const runtime = "nodejs";

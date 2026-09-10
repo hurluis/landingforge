@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { esquemaGeneracion } from "@/lib/esquemas";
-import { repositorio } from "@/lib/datos/sqlite";
+import { repositorio } from "@/lib/datos";
 import { clienteIA } from "@/lib/ia";
 import { usuarioActual } from "@/lib/auth/sesion";
 import { limitar } from "@/lib/rate-limit";
