@@ -39,20 +39,41 @@ const nav = await chromium.launch();
 let peor = null;
 const fallos = [];
 
-/* Escritorio y móvil. En móvil el contexto de cada capítulo va a todo el
-   ancho y cruza el frasco, que en escritorio queda entre las esquinas. */
+/* Estudio y papel, escritorio y móvil. En móvil cada tramo va a todo el ancho
+   y cruza el frasco, que en escritorio queda al lado. Sobre papel la toma se
+   revela en clave alta y la tinta es oscura: es otro par entero. */
+for (const tema of ["oscuro", "claro"])
 for (const [VW, VH] of [[1440, 900], [390, 844]]) {
-const p = await (await nav.newContext({ viewport: { width: VW, height: VH }, colorScheme: "dark" })).newPage();
+const ctx = await nav.newContext({ viewport: { width: VW, height: VH }, colorScheme: "dark" });
+await ctx.addInitScript((t) => localStorage.setItem("lf_a11y", JSON.stringify({ tema: t })), tema);
+const p = await ctx.newPage();
 await p.goto(BASE + RUTA, { waitUntil: "networkidle" });
 await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
 await p.waitForTimeout(6000);
 
 const alto = await p.evaluate(() => document.documentElement.scrollHeight);
 
-const reposos = await p.evaluate(() => ["metodo", "llevas"]
-  .map((id) => document.getElementById(id))
-  .filter(Boolean)
-  .map((e) => e.getBoundingClientRect().bottom + window.scrollY - window.innerHeight));
+/* El reposo de cada tramo y del cierre, y los dos fundidos del velo —al salir
+   de la apertura y al entrar en el cierre—, que es donde texto de una sección
+   y película a medio velar coinciden. */
+const reposos = await p.evaluate(() => {
+  const vh = innerHeight;
+  const ys = [...document.querySelectorAll("[data-tramo]")].slice(1).map((t) => {
+    const b = t.firstElementChild.firstElementChild.getBoundingClientRect();
+    return b.top + scrollY + b.height / 2 - vh / 2;
+  });
+  const z = document.getElementById("pelicula-zona");
+  if (z) {
+    const fin = z.getBoundingClientRect().bottom + scrollY - vh;
+    ys.push(fin + vh * 0.15, fin + vh * 0.3, fin + vh * 0.45);
+  }
+  const c = document.getElementById("cierre-zona");
+  if (c) {
+    const top = c.getBoundingClientRect().top + scrollY;
+    ys.push(top - vh * 0.45, top - vh * 0.3, top - vh * 0.15, top + (c.offsetHeight - vh) / 2);
+  }
+  return ys;
+});
 const puntos = [0, ...reposos.map((y) => y / (alto - VH)), 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 for (const f of puntos) {
   await p.evaluate((y) => window.scrollTo(0, y), (alto - VH) * f);
@@ -75,6 +96,12 @@ for (const f of puntos) {
           .reduce((m, h) => Math.max(m, h.getBoundingClientRect().bottom), 0);
         const arriba = Math.max(r.top, techo), abajo = Math.min(r.bottom, innerHeight);
         if (abajo - arriba < r.height * 0.5) continue;
+        /* Y en horizontal igual. Las pestañas de la tira que aún no han
+           entrado por la derecha están fuera de la ventana; medirlas leía
+           píxeles de fuera de la captura —negro transparente— y daba fallos
+           falsos a 3,37:1 sobre papel. */
+        const izquierda = Math.max(r.left, 0), derecha = Math.min(r.right, innerWidth);
+        if (derecha - izquierda < r.width * 0.5) continue;
         const t = (el.innerText || "").trim();
         if (!t) continue;
         const s = getComputedStyle(el);
@@ -153,7 +180,7 @@ for (const f of puntos) {
     const fondoCanal = 255 * (fondo <= 0.0031308 ? fondo * 12.92 : 1.055 * fondo ** (1 / 2.4) - 0.055);
     const mezcla = (c) => al * c + (1 - al) * fondoCanal;
     const c = ratio(lum(mezcla(r), mezcla(g), mezcla(bl)), fondo);
-    const dato = { ...b, contraste: Number(c.toFixed(2)), en: `${VW}px ${Math.round(f * 100)}%` };
+    const dato = { ...b, contraste: Number(c.toFixed(2)), en: `${tema} ${VW}px ${Math.round(f * 100)}%` };
     if (!peor || c < peor.contraste) peor = dato;
     if (c < b.minimo) fallos.push(dato);
   }

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import { Movimiento } from "@/components/motion/movimiento";
@@ -7,22 +7,21 @@ import { PanelAccesibilidad } from "@/components/a11y/panel-accesibilidad";
 import "./globals.css";
 
 /**
- * UNA SOLA FAMILIA: Outfit. Geométrica de bowls circulares y remates rectos,
- * variable de 100 a 900.
+ * UNA SOLA FAMILIA: Nunito. Sans de remates redondeados, variable de 200 a
+ * 1000.
  *
- * Sustituye al par Bodoni + Geist. El didone se eligió cuando la página era
- * una sala oscura con objetos dentro: su contraste altísimo entre astas y
- * perfiles brillaba sobre el estudio y desaparecía sobre el papel, y esa
- * ambigüedad era el argumento. Ahora la identidad es la película, que ocupa
- * la pantalla entera y ya lleva toda la textura que la página necesita.
- * Encima de ella un didone compite; una geométrica redonda en peso alto se
- * apoya. La referencia usa Halyard Display en 500-600, que es exactamente
- * esta forma: círculo, remate recto, nada de gracia.
+ * El encargo fue una letra «más bold, mucho más redondeada»: simple, y que
+ * cargue con el minimalismo de la identidad. Outfit, la anterior, era
+ * geométrica —bowls circulares— pero sus remates eran rectos, así que a
+ * tamaño display se leía más seca que redonda. Nunito redondea el final de
+ * cada trazo, y en peso 800 el titular gana cuerpo sin volverse infantil. Se
+ * compararon Fredoka (más de juguete), M PLUS Rounded (más ancha, se come la
+ * medida del titular) y Rubik (apenas redondeada).
  *
  * Que sea la MISMA familia para display y para texto es la mitad del
  * minimalismo: la página deja de tener dos voces.
  */
-const outfit = Outfit({
+const nunito = Nunito({
   variable: "--font-round",
   subsets: ["latin"],
   display: "swap",
@@ -54,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="es-CO"
-      className={`${outfit.variable} ${GeistMono.variable} h-full`}
+      className={`${nunito.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
       <head>

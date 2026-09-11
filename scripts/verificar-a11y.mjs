@@ -131,9 +131,19 @@ ok(e.tema === "claro", "el tema claro se escribe en el <html>");
 ok(e.tinta === "rgb(20, 22, 26)", "los tokens invierten a papel", e.tinta);
 await p.screenshot({ path: `${OUT}/a11y-tema-claro.png` });
 
+/* Sobre papel la película no se apaga —se apagaba, y con ella la página
+   entera—: se conserva, revelada en clave alta. */
 await p.waitForTimeout(400);
-ok(await p.locator("[data-pelicula] canvas").count() === 0,
-  "sobre papel no se monta el canvas: no se descargan fotogramas que no se ven");
+const sobrePapel = await p.evaluate(() => {
+  const d = document.querySelector("[data-pelicula]");
+  return {
+    display: getComputedStyle(d).display,
+    canvas: d.querySelectorAll("canvas").length,
+    filtro: getComputedStyle(d.querySelector(".pelicula-capa")).filter,
+  };
+});
+ok(sobrePapel.display !== "none" && sobrePapel.canvas === 1 && sobrePapel.filtro.includes("brightness"),
+  "sobre papel la película se conserva, en clave alta", JSON.stringify(sobrePapel));
 
 await p.getByRole("radio", { name: /Enorme/ }).check();
 await p.waitForTimeout(200);

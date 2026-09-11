@@ -75,6 +75,13 @@
      letra del fotograma sin necesidad de apagar la imagen. La referencia hace
      exactamente esto en sus titulares. */
   --sombra-tinta: 0 2px 28px rgba(10, 12, 16, 0.62);
+
+  /* La película. Sus paños —viñeta, asiento, velo—, los halos y las sombras
+     de la letra que va encima salen de este color, y la toma se revela con
+     este filtro. Sobre papel cambian los dos y la película sigue ahí, en
+     clave alta: ver el tema claro, más abajo. */
+  --pelicula-sombra: 8 9 12;
+  --pelicula-filtro: saturate(0.96) contrast(1.04);
 }
 
 /* Gating de puntero. Tailwind v4 solo comprueba (hover: hover); el brief
@@ -201,7 +208,7 @@ body {
   color: var(--ash);
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 450;
+  font-weight: 500;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -252,17 +259,18 @@ input, textarea, select {
 /* ------------------------------------------------------------
    Tipografía · §5.4
 
-   Outfit en peso 600 para todo lo que es display. Tres decisiones, y las tres
-   salen de que ahora el fondo es una película a pantalla completa:
+   Nunito en peso 800 para todo lo que es display, 500 para el texto. Tres
+   decisiones, y las tres salen de que el fondo es una película:
 
    Peso alto porque el titular vive SOBRE imagen. Un peso 400 sobre vídeo se
-   deshace en cuanto el fotograma se aclara; un 600 aguanta el fondo entero
+   deshace en cuanto el fotograma se aclara; un 800 aguanta el fondo entero
    sin necesidad de una caja opaca detrás, que es lo que habría que poner si
    la letra fuese fina, y esa caja es justo lo que rompería la integración.
+   Y es el peso donde los remates redondos se notan: a 400 Nunito pasa por
+   una sans cualquiera.
 
-   Tracking negativo y interlínea por debajo de 1 porque a tamaño display las
-   contraformas de una geométrica son enormes: sin cerrarlas, el titular se
-   lee como palabras sueltas en vez de como un bloque.
+   Tracking negativo, pero menos que el de una geométrica: los remates
+   redondos ya acercan las letras, y a -0.035em se tocaban «rn» y «ri».
 
    Y las etiquetas en versales con tracking abierto. Es el único gesto
    decorativo que se permite la página: separa el rótulo del texto sin
@@ -272,9 +280,9 @@ input, textarea, select {
 .display-xl {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(3rem, 6.4vw, 6rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 0.94;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 0.96;
   text-wrap: balance;
   text-shadow: var(--sombra-tinta);
 }
@@ -282,9 +290,9 @@ input, textarea, select {
 .display-lg {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(2.5rem, 5.2vw, 4.5rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 0.96;
+  font-weight: 800;
+  letter-spacing: -0.022em;
+  line-height: 0.98;
   text-wrap: balance;
   text-shadow: var(--sombra-tinta);
 }
@@ -292,16 +300,16 @@ input, textarea, select {
 .display-md {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.75rem, 2.9vw, 2.5rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.06;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
   text-wrap: balance;
 }
 
 .titulo {
   font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.012em;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   line-height: 1.28;
 }
 
@@ -310,7 +318,7 @@ input, textarea, select {
 
 .etiqueta {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.4;
@@ -522,6 +530,21 @@ html[data-tema="claro"] {
 
   --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
   --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+
+  --sombra-tinta: 0 2px 28px rgb(236 234 228 / 0.7);
+  --pelicula-sombra: 236 234 228;
+  --pelicula-filtro: var(--pelicula-clave-alta);
+}
+
+/* LA PELÍCULA SOBRE PAPEL. Antes el tema claro la apagaba entera, y con ella
+   se iba la página: quedaba texto suelto sobre un color plano. Ahora se
+   conserva y se revela en clave alta. `contrast` y `brightness` juntos son
+   una recta: cada tono v pasa a 0,3·v + 0,7. El negro del estudio queda en
+   un gris claro, el frasco blanco sigue blanco, y el volumen del frasco —sus
+   grises— se conserva, más suave. Es la misma toma, con la luz de un estudio
+   de fondo blanco. */
+:root {
+  --pelicula-clave-alta: contrast(0.18) brightness(1.7) saturate(0.85);
 }
 
 /* «Del sistema» es una opción, nunca el valor por defecto: la identidad del
@@ -554,17 +577,16 @@ html[data-tema="claro"] {
 
     --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
     --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+
+    --sombra-tinta: 0 2px 28px rgb(236 234 228 / 0.7);
+    --pelicula-sombra: 236 234 228;
+    --pelicula-filtro: var(--pelicula-clave-alta);
   }
 }
 
-/* El campo de luz y la constelación son un gradiente oscuro fijo detrás de
-   todo: sobre papel taparían la página entera. Se apagan, no se recolorean. */
-html[data-tema="claro"] [data-decorativo],
+/* Quien viene a leer no quiere una toma moviéndose detrás del párrafo: en
+   modo lectura lo decorativo se apaga. Sobre papel ya no: se aclara. */
 html[data-lectura="true"] [data-decorativo] { display: none; }
-
-@media (prefers-color-scheme: light) {
-  html[data-tema="sistema"] [data-decorativo] { display: none; }
-}
 
 /* ---- Tamaño del texto ----
    Se mueve la raíz, no cada regla: todo el sistema está en rem, así que
@@ -631,7 +653,7 @@ html[data-lectura="true"] body { line-height: 1.85; }
 html[data-lectura="true"] .display-xl,
 html[data-lectura="true"] .display-lg,
 html[data-lectura="true"] .display-md {
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0;
   line-height: 1.22;
 }
@@ -717,8 +739,12 @@ html[data-lectura="true"] .vidrio {
    sobrevive al tema claro sin una regla extra: sobre papel, el mismo cristal
    pasa a ser un velo claro con filete de tinta.
    ------------------------------------------------------------ */
+/* 64 % y no 40 %: la toma nueva abre en un primer plano de la etiqueta que
+   deja el cuadro entero en blanco. Sobre blanco puro, la tinta del estudio
+   necesita un fondo al 60 % largo para pasar 4,5:1, y la letra al 90 % de
+   las descripciones, un poco más. Medido, no estimado. */
 .cristal {
-  background: color-mix(in oklab, var(--void) 40%, transparent);
+  background: color-mix(in oklab, var(--void) 64%, transparent);
   border: 1px solid color-mix(in oklab, var(--ash) 17%, transparent);
   backdrop-filter: blur(14px) saturate(125%);
   -webkit-backdrop-filter: blur(14px) saturate(125%);
@@ -731,21 +757,22 @@ html[data-lectura="true"] .cristal {
 }
 
 /* Texto sobre la toma. Dos sombras: una corta que define el borde de la letra
-   y una larga que la despega del fotograma. Sobre papel o en modo lectura no
-   hay toma detrás, y una sombra oscura bajo tinta oscura solo ensucia. */
+   y una larga que la despega del fotograma. Del color de los paños: oscuras
+   bajo la letra clara del estudio, claras bajo la tinta del papel. En modo
+   lectura no hay toma detrás. */
 .sobre-pelicula {
   text-shadow:
-    0 1px 2px rgb(0 0 0 / 0.45),
-    0 4px 26px rgb(0 0 0 / 0.5);
+    0 1px 2px rgb(var(--pelicula-sombra) / 0.45),
+    0 4px 26px rgb(var(--pelicula-sombra) / 0.5);
 }
 
-html[data-tema="claro"] .sobre-pelicula,
 html[data-lectura="true"] .sobre-pelicula {
   text-shadow: none;
 }
 
-@media (prefers-color-scheme: light) {
-  html[data-tema="sistema"] .sobre-pelicula { text-shadow: none; }
+/* El filtro de la toma: el grado del estudio, o la clave alta sobre papel. */
+.pelicula-capa {
+  filter: var(--pelicula-filtro);
 }
 
 /* Titulares de la apertura. La medida de la referencia: el titular del hero a
@@ -769,8 +796,8 @@ html[data-lectura="true"] .sobre-pelicula {
    el cilindro blanco y caían a 3:1.
 
    Es un pseudoelemento del propio bloque, así que entra y sale con él: cuando
-   el revelado lo trae, trae su halo. Sobre papel o en lectura no hay toma
-   detrás, y un halo oscuro sobre fondo claro sería una mancha. */
+   el revelado lo trae, trae su halo. Sobre papel es claro, como los paños de
+   la película; en lectura no hay toma detrás y se quita. */
 .halo {
   position: relative;
   isolation: isolate;
@@ -786,7 +813,7 @@ html[data-lectura="true"] .sobre-pelicula {
   z-index: -1;
   pointer-events: none;
   border-radius: 4rem;
-  background: rgb(8 9 12 / 0.6);
+  background: rgb(var(--pelicula-sombra) / 0.6);
   filter: blur(46px);
 }
 /* En vertical la toma se recorta al centro, y en el acto de La marca el
@@ -794,13 +821,9 @@ html[data-lectura="true"] .sobre-pelicula {
    hay esquinas oscuras donde apoyar la letra. El halo tiene que cargar con
    todo el contraste, así que en móvil es más denso. */
 @media (max-width: 767px) {
-  .halo::before { background: rgb(8 9 12 / 0.76); }
+  .halo::before { background: rgb(var(--pelicula-sombra) / 0.76); }
 }
 
-html[data-tema="claro"] .halo::before,
 html[data-lectura="true"] .halo::before {
   display: none;
-}
-@media (prefers-color-scheme: light) {
-  html[data-tema="sistema"] .halo::before { display: none; }
 }

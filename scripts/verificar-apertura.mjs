@@ -1,29 +1,43 @@
 /**
- * La apertura: que cada capítulo caiga en su acto, y que nada se pise.
+ * La apertura: que cada tramo caiga en su acto, de uno en uno, y que nada se
+ * pise.
  *
- * La apertura depende de una cuenta que no se ve: la zona mide tres pantallas
- * y dos pasillos, y la película reparte sus 480 fotogramas sobre ella. Si
- * alguien añade un párrafo a un capítulo o acorta un pasillo, la cuenta se
- * mueve y el primer plano de la marca deja de coincidir con la metodología
- * —sin que falle nada, sin un error en consola—. Esto lo mide.
+ * La apertura depende de una cuenta que no se ve: la película reparte sus 415
+ * fotogramas sobre la zona entera, y la altura de cada tramo decide en qué
+ * fotograma está la cámara cuando su bloque llega al centro. Si alguien añade
+ * un párrafo o cambia una altura, la cuenta se mueve y el primer plano de la
+ * marca deja de coincidir con su tramo —sin que falle nada, sin un error en
+ * consola—. Esto lo mide.
  *
  *   npm run dev                    (en otra terminal)
  *   npm run verificar:apertura
  *
  * Comprueba:
- *   1. Cada capítulo, entero en pantalla, enseña un fotograma de su acto, y
- *      la línea de tiempo dice ese mismo fotograma.
- *   2. Las cuatro esquinas de cada capítulo no se solapan entre sí, ni con
- *      los botones flotantes.
- *   3. Cada grupo del titular es una sola línea visual (si envuelve, la
- *      máscara ya no corta por línea y el revelado pierde el escalonado).
- *   4. Al salir de la zona la línea de tiempo se va; en móvil no hay scroll
- *      horizontal.
+ *   1. Cada tramo, en reposo —su bloque centrado en pantalla—, enseña un
+ *      fotograma de su acto.
+ *   2. En reposo no asoma otro tramo: se leen de uno en uno.
+ *   3. Los tramos alternan lado: izquierda, derecha, izquierda…
+ *   4. Ningún bloque queda bajo un botón flotante, y cada grupo del titular
+ *      es una sola línea visual (si envuelve, la máscara ya no corta por línea
+ *      y el revelado pierde el escalonado).
+ *   5. Entre la apertura y el cierre el velo está bajado; en el cierre la toma
+ *      es la del tarro y el velo está arriba.
+ *   6. Sobre papel la película se conserva; en móvil no hay scroll horizontal.
  */
 import { chromium } from "playwright";
 
 const BASE = process.env.BASE ?? "http://localhost:3000";
-const ACTOS = { hero: [0, 39], metodo: [200, 359], llevas: [360, 479] };
+
+/* Los actos de la toma principal, leídos de una hoja de contactos cada 18
+   fotogramas de public/secuencia. */
+const ACTOS = {
+  estudio: [0, 45],
+  despegue: [45, 110],
+  vuelo: [110, 228],
+  marca: [236, 290],
+  flotacion: [288, 345],
+  mano: [345, 414],
+};
 
 let fallos = 0, n = 0;
 const ok = (c, d, extra = "") => {
@@ -34,68 +48,75 @@ const ok = (c, d, extra = "") => {
 
 const nav = await chromium.launch();
 
-async function pagina(ancho, alto) {
-  const p = await (await nav.newContext({ viewport: { width: ancho, height: alto } })).newPage();
+async function pagina(ancho, alto, tema) {
+  const ctx = await nav.newContext({ viewport: { width: ancho, height: alto }, colorScheme: "dark" });
+  if (tema) await ctx.addInitScript((t) => localStorage.setItem("lf_a11y", JSON.stringify({ tema: t })), tema);
+  const p = await ctx.newPage();
   await p.goto(BASE, { waitUntil: "networkidle" });
   await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
   await p.waitForTimeout(3500);
   return p;
 }
 
-const solapan = (a, b) =>
-  a && b && !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+const pelicula = (p) => p.evaluate(() => {
+  const d = document.querySelector("[data-pelicula]");
+  return {
+    toma: d.dataset.toma,
+    fotograma: Number(d.dataset.fotograma),
+    velo: Number(getComputedStyle(d.querySelector("[data-velo]")).opacity),
+  };
+});
 
-/* ---------- 1 y 2 · escritorio ---------- */
+const ir = async (p, y) => {
+  await p.evaluate((v) => window.scrollTo(0, v), y);
+  await p.waitForTimeout(1600);
+};
+
+/* ---------- 1 a 5 · escritorio ---------- */
 for (const [ancho, alto] of [[1440, 900], [1280, 720]]) {
   console.log(`\n${ancho}×${alto}`);
   const p = await pagina(ancho, alto);
 
-  for (const [id, [min, max]] of Object.entries(ACTOS)) {
-    /* Se para con el capítulo entero en pantalla: su borde inferior en el
-       inferior de la ventana (el hero ya lo está en y=0). */
-    const y = await p.evaluate((id) => {
-      const s = id === "hero"
-        ? document.querySelector('[aria-labelledby="hero-titulo"]')
-        : document.getElementById(id);
-      const r = s.getBoundingClientRect();
-      return id === "hero" ? 0 : Math.max(0, r.bottom + window.scrollY - window.innerHeight);
-    }, id);
-    await p.evaluate((v) => window.scrollTo(0, v), y);
-    await p.waitForTimeout(1600);
+  /* El bloque de cada tramo es su nieto: tramo > fila > bloque. El reposo
+     del primero es la carga de la página. */
+  const tramos = await p.evaluate(() => [...document.querySelectorAll("[data-tramo]")].map((t, i) => {
+    const b = t.firstElementChild.firstElementChild.getBoundingClientRect();
+    return {
+      acto: t.dataset.tramo,
+      reposo: i === 0 ? 0 : Math.round(b.top + scrollY + b.height / 2 - innerHeight / 2),
+      centro: b.left + b.width / 2,
+    };
+  }));
 
-    /* textContent y no innerText: innerText aplica el `uppercase` del CSS y
-       devuelve «TOMA 01», que no es lo que está en el DOM. */
-    const hud = await p.evaluate(() => {
-      const t = [...document.querySelectorAll("[data-decorativo]")].find((e) => e.textContent.includes("Toma 01"));
-      const m = t?.textContent.match(/Toma 01 · (\d{4})/);
-      return m ? Number(m[1]) - 1 : null;
-    });
-    ok(hud !== null && hud >= min && hud <= max,
-      `«${id}» cae en su acto (fotogramas ${min}–${max})`, `fotograma ${hud}`);
+  const alternan = tramos.every((t, i) => (i % 2 === 0 ? t.centro < ancho / 2 : t.centro > ancho / 2));
+  ok(alternan, "los tramos alternan lado, empezando por la izquierda",
+    tramos.map((t) => `${t.acto}:${Math.round(t.centro)}`).join(" "));
 
-    /* Esquinas: bloques directos de las dos filas del capítulo. */
-    const cajas = await p.evaluate((id) => {
-      const s = id === "hero"
-        ? document.querySelector('[aria-labelledby="hero-titulo"]')
-        : document.getElementById(id);
-      const filas = [...s.children];
-      const rect = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
-      const bloques = filas.flatMap((f) => [...f.children].map(rect));
+  for (const [i, t] of tramos.entries()) {
+    await ir(p, t.reposo);
+    const { toma, fotograma } = await pelicula(p);
+    const [min, max] = ACTOS[t.acto];
+    ok(toma === "0" && fotograma >= min && fotograma <= max,
+      `«${t.acto}» cae en su acto (fotogramas ${min}–${max})`, `toma ${toma}, fotograma ${fotograma}`);
+
+    const vista = await p.evaluate((i) => {
+      const rect = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, height: r.height }; };
+      const techo = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+      const bloques = [...document.querySelectorAll("[data-tramo]")].map((t) => rect(t.firstElementChild.firstElementChild));
+      const asoman = bloques
+        .map((b, k) => ({ k, fraccion: Math.max(0, Math.min(b.bottom, innerHeight) - Math.max(b.top, techo)) / b.height }))
+        .filter((b) => b.k !== i && b.fraccion > 0.15);
       const flotantes = [...document.querySelectorAll("button")]
         .filter((b) => getComputedStyle(b).position === "fixed" && b.offsetWidth > 0)
         .map(rect);
-      return { bloques, flotantes };
-    }, id);
-    let choque = null;
-    for (let i = 0; i < cajas.bloques.length; i++)
-      for (let j = i + 1; j < cajas.bloques.length; j++)
-        if (solapan(cajas.bloques[i], cajas.bloques[j])) choque = `bloques ${i} y ${j}`;
-    ok(!choque, `«${id}»: las esquinas no se pisan`, choque ?? "");
-    const conFlotante = cajas.bloques.some((b) => cajas.flotantes.some((f) => solapan(b, f)));
-    ok(!conFlotante, `«${id}»: ningún bloque queda bajo un botón flotante`);
+      return { asoman, bloque: bloques[i], flotantes };
+    }, i);
+    ok(vista.asoman.length === 0, `«${t.acto}»: en reposo no asoma otro tramo`,
+      vista.asoman.map((a) => `${tramos[a.k].acto} al ${Math.round(a.fraccion * 100)} %`).join(", "));
+    const solapan = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
+    ok(!vista.flotantes.some((f) => solapan(vista.bloque, f)), `«${t.acto}»: no queda bajo un botón flotante`);
   }
 
-  /* 3 · una línea visual por grupo */
   const envuelven = await p.evaluate(() => {
     const out = [];
     for (const t of document.querySelectorAll("#pelicula-zona h1, #pelicula-zona h2")) {
@@ -109,21 +130,39 @@ for (const [ancho, alto] of [[1440, 900], [1280, 720]]) {
   });
   ok(envuelven.length === 0, "cada grupo del titular es una sola línea", envuelven.join(" · "));
 
-  /* 4 · la línea de tiempo se va al terminar la zona */
-  await p.evaluate(() => {
-    const z = document.getElementById("pelicula-zona");
-    window.scrollTo(0, z.offsetTop + z.offsetHeight + window.innerHeight);
+  const [medio, cierre] = await p.evaluate(() => {
+    const z = document.getElementById("pelicula-zona").getBoundingClientRect();
+    const c = document.getElementById("cierre-zona");
+    const cr = c.getBoundingClientRect();
+    const finZona = z.bottom + scrollY;
+    const inicioCierre = cr.top + scrollY;
+    return [(finZona + inicioCierre) / 2, inicioCierre + (c.offsetHeight - innerHeight) / 2];
   });
-  await p.waitForTimeout(1600);
-  const visible = await p.evaluate(() => {
-    const t = [...document.querySelectorAll("[data-decorativo]")].find((e) => e.textContent.includes("Toma 01"));
-    return t ? getComputedStyle(t).visibility : "sin-nodo";
-  });
-  ok(visible === "hidden", "pasada la apertura, la línea de tiempo se retira", visible);
+  await ir(p, medio);
+  const entre = await pelicula(p);
+  ok(entre.velo >= 0.8, "entre la apertura y el cierre, el velo está bajado", `velo ${entre.velo}`);
+  await ir(p, cierre);
+  const fin = await pelicula(p);
+  ok(fin.toma === "1" && fin.velo < 0.05, "en el cierre, la toma del tarro a plena luz",
+    `toma ${fin.toma}, velo ${fin.velo}`);
   await p.close();
 }
 
-/* ---------- móvil ---------- */
+/* ---------- 6 · papel y móvil ---------- */
+console.log("\npapel · 1440×900");
+const c = await pagina(1440, 900, "claro");
+const papel = await c.evaluate(() => {
+  const d = document.querySelector("[data-pelicula]");
+  return {
+    display: getComputedStyle(d).display,
+    canvas: d.querySelectorAll("canvas").length,
+    filtro: getComputedStyle(d.querySelector(".pelicula-capa")).filter,
+  };
+});
+ok(papel.display !== "none" && papel.canvas === 1 && papel.filtro.includes("brightness"),
+  "sobre papel la película se conserva, en clave alta", JSON.stringify(papel));
+await c.close();
+
 console.log("\n390×844");
 const m = await pagina(390, 844);
 const desborde = await m.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

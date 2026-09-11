@@ -5,36 +5,44 @@ import { RevealBloque, RevealLineas } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
 /**
- * LA APERTURA · tres capítulos sobre la toma de producto.
+ * LA APERTURA · seis tramos sobre la toma de producto, alternando lado.
  *
- * Esquema editorial de la referencia (NovaAI): cada capítulo es una pantalla
- * con el contenido anclado a las esquinas —rótulos arriba a la izquierda,
- * contexto arriba a la derecha, titular abajo a la izquierda, cristal abajo a
- * la derecha— y el centro vacío, que es donde está el frasco. Entre capítulo y
- * capítulo, un pasillo de 80vh sin nada encima: ahí la película es lo único
- * que pasa.
+ * Cada tramo es un solo bloque, a la izquierda o a la derecha, y el siguiente
+ * no entra hasta que el anterior se va: primero la afirmación a la izquierda,
+ * luego su prueba a la derecha, y así en zigzag. La versión anterior ponía
+ * cuatro bloques en las cuatro esquinas de cada pantalla y aparecían a la vez:
+ * el ojo no sabía por dónde empezar. De uno en uno se lee en orden, y entre
+ * bloque y bloque la película se queda sola.
  *
- * Lo que la referencia no tiene, y es el punto: los capítulos caen sobre los
- * actos de la toma. La zona mide 3 pantallas + 2 pasillos = 460vh, y
- * `Pelicula` reparte los 480 fotogramas sobre ella. Hecha la cuenta, cada
- * capítulo queda entero en pantalla justo cuando la cámara llega a su acto:
+ * Los tramos van por parejas, y cada pareja es una sección con su titular: el
+ * hero y una campaña real; lo que las plantillas no saben y lo que sí sabe la
+ * metodología; lo que te llevas y los pasos para llevártelo.
  *
- *   Estudio    (fotograma 0)    → el hero: el producto en su pedestal.
- *   La marca   (fotograma ~240) → la metodología: primer plano de la etiqueta.
- *   En la mano (fotograma 479)  → lo que te llevas; y la contraentrega, que se
- *                                  paga «cuando el producto está en la mano».
+ * Cada tramo cae sobre un acto de la toma. `Pelicula` reparte los 415
+ * fotogramas sobre la zona entera, así que la altura de los tramos decide en
+ * qué fotograma está la cámara cuando cada bloque llega al centro:
  *
- * Si cambia la altura de un capítulo o de un pasillo, el cruce se desplaza:
- * `scripts/verificar-apertura.mjs` comprueba que cada capítulo cae en su acto.
+ *   estudio    el hero                        el frasco en su pedestal
+ *   despegue   una campaña real               el frasco se levanta
+ *   vuelo      las plantillas venden igual    da vueltas en el aire
+ *   marca      lo que ninguna plantilla sabe  primer plano de la etiqueta
+ *   flotacion  te llevas los prompts          la cámara se abre
+ *   mano       once minutos, tres pasos       el frasco, en la mano
+ *
+ * El vuelo es el acto más largo y su tramo es el más alto; la marca, el más
+ * corto. Si cambia una altura el cruce se desplaza, y
+ * `scripts/verificar-apertura.mjs` comprueba que cada tramo cae en su acto.
  */
 
 const X = "px-5 sm:px-8 md:px-12";
-const ANCHO = "mx-auto w-full max-w-[1600px]";
-/* Abajo queda sitio para los botones flotantes —accesibilidad y asistente,
-   de 24 a 72 px desde el borde— y para la línea de tiempo. */
-const ABAJO = "pb-24 md:pb-28";
 
 const SERVICIOS = ["Las nueve secciones", "Metodología colombiana", "Prompts que son tuyos"];
+
+const MUESTRA = [
+  { src: "/secciones/hero.png", alt: "Sección hero de una campaña real de suplemento" },
+  { src: "/secciones/beneficios.png", alt: "Sección de beneficios de la misma campaña" },
+  { src: "/secciones/testimonios.png", alt: "Sección de testimonios de la misma campaña" },
+];
 
 const METODO = [
   {
@@ -73,42 +81,10 @@ const PASOS = [
 export function Apertura() {
   return (
     <div id="pelicula-zona">
-      {/* ── Capítulo 1 · Estudio ─────────────────────────────────────── */}
-      <section
-        aria-labelledby="hero-titulo"
-        className={cn(
-          /* overflow-x-clip: el halo sobresale 52 px por cada lado del bloque, y
-             en móvil los bloques ya van a todo el ancho; sin recortar, la página
-             ganaba 32 px de scroll horizontal. `clip` y no `hidden`: no crea un
-             contenedor de scroll. */
-          "relative flex min-h-[calc(100vh-4rem)] flex-col justify-between overflow-x-clip pt-8 sm:pt-12",
-          "supports-[height:100svh]:min-h-[calc(100svh-4rem)]",
-          X,
-          ABAJO,
-        )}
-      >
-        <div className={cn(ANCHO, "flex flex-col gap-8 sm:flex-row sm:justify-between")}>
-          <ul className="halo flex flex-col gap-2">
-            {SERVICIOS.map((s, i) => (
-              <li key={s}>
-                <RevealBloque retraso={0.15 + i * 0.12}>
-                  <span className="etiqueta text-ash/90 sobre-pelicula">/ {s}</span>
-                </RevealBloque>
-              </li>
-            ))}
-          </ul>
-          <RevealBloque retraso={0.3} className="halo max-w-xs sm:text-right">
-            <p className="text-lg leading-relaxed text-ash sobre-pelicula sm:text-xl">
-              Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin
-              plantillas.
-            </p>
-          </RevealBloque>
-        </div>
-
-        <div
-          className={cn(ANCHO, "flex flex-col gap-8 md:flex-row md:items-end md:justify-between")}
-        >
-          <div className="halo">
+      {/* ── El hero y su prueba ─────────────────────────────────────── */}
+      <section aria-labelledby="hero-titulo">
+        <Tramo acto="estudio" lado="izquierda" primero>
+          <div className="halo max-w-[44rem]">
             <RevealBloque retraso={0.15}>
               <Insignia>3.412 campañas generadas</Insignia>
             </RevealBloque>
@@ -119,182 +95,154 @@ export function Apertura() {
               className="mt-5 display-xl apertura-titular text-ash sobre-pelicula"
               lineas={["Tu producto no se", "parece a ningún otro.", "Tu landing tampoco", "debería."]}
             />
+            <RevealBloque retraso={0.55}>
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula sm:text-xl">
+                Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin
+                plantillas.
+              </p>
+            </RevealBloque>
+            <RevealBloque retraso={0.68} className="mt-8 flex flex-wrap gap-3">
+              <BotonClaro href="/app/nueva">Crear mi primera landing</BotonClaro>
+              <BotonCristal href="#tira-titulo">Ver las nueve secciones</BotonCristal>
+            </RevealBloque>
           </div>
-          <RevealBloque retraso={0.42} className="shrink-0">
-            <TarjetaCampana />
-          </RevealBloque>
-        </div>
+        </Tramo>
+
+        <Tramo acto="despegue" lado="derecha" alto="min-h-[110svh]">
+          <CampanaReal />
+        </Tramo>
       </section>
 
-      <Pasillo />
+      {/* ── La metodología ──────────────────────────────────────────── */}
+      <section id="metodo" aria-labelledby="metodo-titulo">
+        <Tramo acto="vuelo" lado="izquierda" alto="min-h-[130svh]">
+          <div className="halo max-w-[44rem]">
+            <Insignia>La metodología colombiana</Insignia>
+            <RevealLineas
+              as="h2"
+              id="metodo-titulo"
+              retraso={0.18}
+              className="mt-5 display-xl apertura-subtitular text-ash sobre-pelicula"
+              lineas={["Las plantillas venden", "lo mismo diez mil veces."]}
+            />
+            <RevealBloque retraso={0.4}>
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula">
+                Un constructor de plantillas te da la misma estructura que a tus competidores, con
+                imágenes de stock o caras generadas que se notan a un kilómetro.
+              </p>
+            </RevealBloque>
+          </div>
+        </Tramo>
 
-      {/* ── Capítulo 2 · La marca ────────────────────────────────────── */}
-      <Capitulo
-        id="metodo"
-        insignia="La metodología colombiana"
-        lateral={
-          <>
-            Ninguna plantilla sabe que aquí la venta se cierra con contraentrega, ni que un precio
-            escrito <span className="mono-sm">$99,900</span> le dice a tu comprador que no eres de
-            aquí.
-          </>
-        }
-        titulo={["Las plantillas venden", "lo mismo diez mil veces."]}
-        cuerpo="Un constructor de plantillas te da la misma estructura que a tus competidores, con imágenes de stock o caras generadas que se notan a un kilómetro."
-        primario={{ href: "/app/nueva", texto: "Crear mi primera landing" }}
-        secundario={{ href: "#tira-titulo", texto: "Ver las nueve secciones" }}
-        filas={METODO}
-        enlaceFilas="/metodologia"
-      />
+        <Tramo acto="marca" lado="derecha">
+          <Panel
+            intro={
+              <>
+                Ninguna plantilla sabe que aquí la venta se cierra con contraentrega, ni que un
+                precio escrito <span className="mono-sm">$99,900</span> le dice a tu comprador que
+                no eres de aquí.
+              </>
+            }
+            filas={METODO}
+            enlace="/metodologia"
+            columnas
+          />
+        </Tramo>
+      </section>
 
-      <Pasillo />
+      {/* ── Lo que te llevas ────────────────────────────────────────── */}
+      <section id="llevas" aria-labelledby="llevas-titulo">
+        <Tramo acto="flotacion" lado="izquierda">
+          <div className="halo max-w-[44rem]">
+            <RevealLineas
+              as="h2"
+              id="llevas-titulo"
+              retraso={0.12}
+              className="display-xl apertura-subtitular text-ash sobre-pelicula"
+              lineas={["Te llevas los prompts,", "no solo las imágenes."]}
+            />
+            <RevealBloque retraso={0.35}>
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula">
+                Cada prompt se puede reescribir, versionar y volver a correr. La campaña es tuya
+                desde el primer minuto.
+              </p>
+            </RevealBloque>
+            <RevealBloque retraso={0.48}>
+              <p className="mt-5 max-w-md border-l-2 border-ash pl-4 text-lg font-bold leading-snug text-ash sobre-pelicula">
+                Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo.
+              </p>
+            </RevealBloque>
+          </div>
+        </Tramo>
 
-      {/* ── Capítulo 3 · En la mano ──────────────────────────────────── */}
-      <Capitulo
-        id="llevas"
-        insignia="Once minutos, tres pasos"
-        lateral="Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo."
-        titulo={["Te llevas los prompts,", "no solo las imágenes."]}
-        cuerpo="Cada prompt se puede reescribir, versionar y volver a correr. La campaña es tuya desde el primer minuto."
-        primario={{ href: "/app/nueva", texto: "Empezar ahora" }}
-        secundario={{ href: "/precios", texto: "Ver precios" }}
-        filas={PASOS}
-        ordenada
-      />
+        <Tramo acto="mano" lado="derecha" alto="min-h-[110svh]">
+          <Panel titulo="Once minutos, tres pasos" filas={PASOS} ordenada>
+            <BotonClaro href="/app/nueva">Empezar ahora</BotonClaro>
+            <BotonCristal href="/precios">Ver precios</BotonCristal>
+          </Panel>
+        </Tramo>
+      </section>
     </div>
   );
 }
 
 /* ---------------------------------------------------------------- */
 
-/** El tramo de 80vh donde solo pasa la película. */
-function Pasillo() {
-  return <div aria-hidden className="h-[80vh]" />;
-}
-
-function Capitulo({
-  id,
-  insignia,
-  lateral,
-  titulo,
-  cuerpo,
-  primario,
-  secundario,
-  filas,
-  enlaceFilas,
-  ordenada = false,
+/**
+ * Un tramo: una fila de al menos una pantalla con un solo bloque, pegado a su
+ * lado y centrado en vertical, que entra deslizándose desde ese mismo lado.
+ * El primero es la primera pantalla y apoya el bloque abajo, como el hero de
+ * la referencia.
+ */
+function Tramo({
+  acto,
+  lado,
+  alto = "min-h-[100svh]",
+  primero = false,
+  children,
 }: {
-  id: string;
-  insignia: string;
-  lateral: React.ReactNode;
-  titulo: string[];
-  cuerpo: string;
-  primario: { href: string; texto: string };
-  secundario: { href: string; texto: string };
-  filas: { titulo: string; texto: string }[];
-  /** Si las filas llevan a algún sitio, llevan flecha; si no, no la fingen. */
-  enlaceFilas?: string;
-  ordenada?: boolean;
+  /** El acto de la toma sobre el que cae. Lo lee la verificación. */
+  acto: string;
+  lado: "izquierda" | "derecha";
+  alto?: string;
+  primero?: boolean;
+  children: React.ReactNode;
 }) {
-  const Lista = ordenada ? "ol" : "ul";
   return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-titulo`}
+    <div
+      data-tramo={acto}
       className={cn(
-        "relative flex min-h-screen flex-col justify-between overflow-x-clip pt-24 sm:pt-28",
-        "supports-[height:100svh]:min-h-[100svh]",
+        /* overflow-x-clip: el halo sobresale 52 px por cada lado del bloque, y
+           en móvil los bloques ya van a todo el ancho; sin recortar, la página
+           ganaba scroll horizontal. `clip` y no `hidden`: no crea un
+           contenedor de scroll. */
+        "relative flex overflow-x-clip",
         X,
-        ABAJO,
+        primero
+          ? /* Abajo queda sitio para los botones flotantes. */
+            "min-h-[calc(100vh-4rem)] items-end pt-10 pb-24 supports-[height:100svh]:min-h-[calc(100svh-4rem)] md:pb-28"
+          : cn(alto, "items-center py-24"),
       )}
     >
-      <div className={cn(ANCHO, "flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between")}>
-        <RevealBloque retraso={0.12}>
-          <Insignia>{insignia}</Insignia>
-        </RevealBloque>
-        <RevealBloque retraso={0.22} className="halo max-w-sm sm:text-right">
-          <p className="text-lg leading-relaxed text-ash sobre-pelicula sm:text-xl">{lateral}</p>
-        </RevealBloque>
-      </div>
-
       <div
         className={cn(
-          ANCHO,
-          "mt-16 flex flex-1 flex-col justify-end gap-12 md:flex-row md:items-end md:justify-between md:gap-16",
+          "mx-auto flex w-full max-w-[1600px]",
+          lado === "derecha" ? "justify-end" : "justify-start",
         )}
       >
-        <div className="halo max-w-[48rem]">
-          <RevealLineas
-            as="h2"
-            id={`${id}-titulo`}
-            retraso={0.18}
-            className="display-xl apertura-subtitular text-ash sobre-pelicula"
-            lineas={titulo}
-          />
-          <RevealBloque retraso={0.32}>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-ash/85 sobre-pelicula">
-              {cuerpo}
-            </p>
-          </RevealBloque>
-          <RevealBloque retraso={0.42} className="mt-8 flex flex-wrap gap-3">
-            <BotonClaro href={primario.href}>{primario.texto}</BotonClaro>
-            <BotonCristal href={secundario.href}>{secundario.texto}</BotonCristal>
-          </RevealBloque>
-        </div>
-
-        <Lista className="cristal w-full max-w-md shrink-0 rounded-2xl px-5 sm:px-6">
-          {filas.map((f, i) => {
-            const contenido = (
-              <>
-                <span className="font-mono text-[11px] tracking-[0.15em] text-ash/60 tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="min-w-0">
-                  <span className="flex items-center gap-1.5 text-base font-medium text-ash sm:text-lg">
-                    {f.titulo}
-                    {enlaceFilas && (
-                      <CaretRight
-                        aria-hidden
-                        className="size-4 text-ash/45 transition-[transform,color] duration-300 group-hover:translate-x-0.5 group-hover:text-ash"
-                      />
-                    )}
-                  </span>
-                  <span className="mt-1.5 block text-sm leading-relaxed text-ash/75">
-                    {f.texto}
-                  </span>
-                </span>
-              </>
-            );
-            return (
-              <li
-                key={f.titulo}
-                className="border-b border-[color-mix(in_oklab,var(--ash)_15%,transparent)] last:border-b-0"
-              >
-                <RevealBloque retraso={0.3 + i * 0.11}>
-                  {enlaceFilas ? (
-                    <Link href={enlaceFilas} className="group flex gap-5 py-5 no-underline">
-                      {contenido}
-                    </Link>
-                  ) : (
-                    <div className="flex gap-5 py-5">{contenido}</div>
-                  )}
-                </RevealBloque>
-              </li>
-            );
-          })}
-        </Lista>
+        <RevealBloque direccion={lado} duracion={0.9} className="w-full md:w-auto">
+          {children}
+        </RevealBloque>
       </div>
-    </section>
+    </div>
   );
 }
-
-/* ---------------------------------------------------------------- */
 
 /** Rótulo con acento a la izquierda. */
 function Insignia({ children }: { children: React.ReactNode }) {
   return (
-    /* Fondo de cristal oscuro, no claro: en móvil el rótulo cae sobre el
-       frasco blanco, y un chip claro sobre blanco dejaba la letra en 4,4:1. */
+    /* Fondo de cristal, no plano: en móvil el rótulo cae sobre el frasco
+       blanco, y un chip claro sobre blanco dejaba la letra en 4,4:1. */
     <span className="inline-flex border-l-2 border-ash bg-[color-mix(in_oklab,var(--void)_48%,transparent)] px-3 py-1.5 backdrop-blur-md etiqueta text-[11px] text-ash">
       {children}
     </span>
@@ -306,7 +254,7 @@ function BotonClaro({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1.5 rounded-full bg-ash px-5 py-2.5 text-sm font-medium text-void no-underline transition-opacity duration-300 hf:opacity-85"
+      className="inline-flex items-center gap-1.5 rounded-full bg-ash px-5 py-2.5 text-sm font-bold text-void no-underline transition-opacity duration-300 hf:opacity-85"
     >
       {children}
       <CaretRight aria-hidden className="size-3.5" weight="bold" />
@@ -319,7 +267,7 @@ function BotonCristal({ href, children }: { href: string; children: React.ReactN
   return (
     <Link
       href={href}
-      className="cristal inline-flex items-center rounded-full px-5 py-2.5 text-sm text-ash no-underline transition-[filter] duration-300 hf:brightness-125"
+      className="cristal inline-flex items-center rounded-full px-5 py-2.5 text-sm font-bold text-ash no-underline transition-[filter] duration-300 hf:brightness-125"
     >
       {children}
     </Link>
@@ -327,35 +275,140 @@ function BotonCristal({ href, children }: { href: string; children: React.ReactN
 }
 
 /**
- * La tarjeta de la esquina. En la referencia es la cara de una cofundadora;
- * aquí no hay una persona que poner sin inventarla, y lo que sí hay es mejor
- * argumento: una sección de campaña real, generada con LandingForge.
+ * La prueba del hero. Esta página vende landings, así que después de
+ * prometer una lo primero que enseña es una: tres de las nueve secciones de
+ * una campaña real, generadas con LandingForge.
  */
-function TarjetaCampana() {
+function CampanaReal() {
   return (
-    <div className="cristal flex items-center gap-4 rounded-xl p-3">
-      <Image
-        src="/secciones/hero.png"
-        alt="Sección hero de una campaña real de suplemento, generada con LandingForge"
-        width={80}
-        height={96}
-        sizes="80px"
-        className="h-24 w-20 rounded-lg object-cover object-top"
-        priority
-      />
-      <div className="flex flex-col gap-1.5 pr-2">
-        <p className="text-sm font-medium text-ash">Una campaña real</p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-ash/65">
-          Sección hero · suplemento
-        </p>
-        <Link
-          href="/app/nueva"
-          className="mt-1.5 inline-flex w-fit items-center gap-1 rounded-full bg-ash px-4 py-2 text-xs font-medium text-void no-underline transition-opacity duration-300 hf:opacity-85"
-        >
-          Crear la mía
-          <CaretRight aria-hidden className="size-3.5" weight="bold" />
-        </Link>
+    <div className="w-full md:w-[27rem]">
+      <ul className="halo mb-6 flex flex-col gap-2 md:items-end">
+        {SERVICIOS.map((s, i) => (
+          <li key={s}>
+            <RevealBloque retraso={0.2 + i * 0.1} direccion="derecha">
+              <span className="etiqueta text-ash sobre-pelicula">/ {s}</span>
+            </RevealBloque>
+          </li>
+        ))}
+      </ul>
+      <div className="cristal rounded-2xl p-3 sm:p-4">
+        <div className="grid grid-cols-3 gap-2.5">
+          {MUESTRA.map((m, i) => (
+            <RevealBloque key={m.src} retraso={0.3 + i * 0.1}>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
+                <Image
+                  src={m.src}
+                  alt={m.alt}
+                  fill
+                  sizes="(max-width: 768px) 30vw, 140px"
+                  className="object-cover object-top"
+                />
+              </div>
+            </RevealBloque>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-3 px-1">
+          <div>
+            <p className="text-base font-bold text-ash">Una campaña real</p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.15em] text-ash/90">
+              3 de sus 9 secciones · suplemento
+            </p>
+          </div>
+          <Link
+            href="/app/nueva"
+            className="inline-flex items-center gap-1 rounded-full bg-ash px-4 py-2 text-xs font-bold text-void no-underline transition-opacity duration-300 hf:opacity-85"
+          >
+            Crear la mía
+            <CaretRight aria-hidden className="size-3.5" weight="bold" />
+          </Link>
+        </div>
       </div>
+    </div>
+  );
+}
+
+/** Panel de cristal con filas numeradas. */
+function Panel({
+  titulo,
+  intro,
+  filas,
+  enlace,
+  ordenada = false,
+  columnas = false,
+  children,
+}: {
+  titulo?: string;
+  intro?: React.ReactNode;
+  filas: { titulo: string; texto: string }[];
+  /** Si las filas llevan a algún sitio, llevan flecha; si no, no la fingen. */
+  enlace?: string;
+  ordenada?: boolean;
+  /* Dos columnas desde md. Con la introducción y cuatro filas en una sola
+     columna el panel medía más que una pantalla de 720 px, y el tramo se
+     metía debajo del botón del asistente. A dos columnas mide la mitad. */
+  columnas?: boolean;
+  /** Botones al pie del panel. */
+  children?: React.ReactNode;
+}) {
+  const Lista = ordenada ? "ol" : "ul";
+  return (
+    <div
+      className={cn(
+        "cristal w-full rounded-2xl px-5 pt-6 sm:px-6",
+        columnas ? "md:w-[40rem]" : "md:w-[28rem]",
+      )}
+    >
+      {titulo && <p className="etiqueta text-ash">{titulo}</p>}
+      {intro && <p className="text-base leading-relaxed text-ash sm:text-lg">{intro}</p>}
+      <Lista className={cn("mt-2", columnas && "md:grid md:grid-cols-2 md:gap-x-8")}>
+        {filas.map((f, i) => {
+          const contenido = (
+            <>
+              <span className="font-mono text-[11px] tracking-[0.15em] text-ash/85 tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0">
+                <span className="flex items-center gap-1.5 text-base font-bold text-ash sm:text-lg">
+                  {f.titulo}
+                  {enlace && (
+                    <CaretRight
+                      aria-hidden
+                      className="size-4 text-ash/50 transition-[transform,color] duration-300 group-hover:translate-x-0.5 group-hover:text-ash"
+                    />
+                  )}
+                </span>
+                <span className="mt-1.5 block text-sm leading-relaxed text-ash/90">{f.texto}</span>
+              </span>
+            </>
+          );
+          return (
+            <li
+              key={f.titulo}
+              className={cn(
+                "border-b border-[color-mix(in_oklab,var(--ash)_15%,transparent)] last:border-b-0",
+                /* A dos columnas, la fila de abajo tampoco lleva filete. */
+                columnas && "md:[&:nth-last-child(2)]:border-b-0",
+              )}
+            >
+              <RevealBloque retraso={0.3 + i * 0.11}>
+                {enlace ? (
+                  <Link href={enlace} className="group flex gap-5 py-5 no-underline">
+                    {contenido}
+                  </Link>
+                ) : (
+                  <div className="flex gap-5 py-5">{contenido}</div>
+                )}
+              </RevealBloque>
+            </li>
+          );
+        })}
+      </Lista>
+      {children && (
+        <div className="flex flex-wrap gap-3 border-t border-[color-mix(in_oklab,var(--ash)_15%,transparent)] py-5">
+          {children}
+        </div>
+      )}
+      {!children && <div className="pb-1" />}
     </div>
   );
 }

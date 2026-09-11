@@ -119,7 +119,7 @@ export function EstudioVivo() {
           <div className="mt-12 grid gap-8 lg:grid-cols-2">
             <form onSubmit={generar} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <label htmlFor="prueba-desc" className="etiqueta text-smoke">
+                <label htmlFor="prueba-desc" className="etiqueta text-ash">
                   Describe tu producto en una línea
                 </label>
                 <textarea
@@ -143,7 +143,7 @@ export function EstudioVivo() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="prueba-tipo" className="etiqueta text-smoke">
+                <label htmlFor="prueba-tipo" className="etiqueta text-ash">
                   Qué sección quieres ver
                 </label>
                 <Select value={tipologia} onValueChange={setTipologia}>
@@ -215,7 +215,7 @@ export function EstudioVivo() {
                   </pre>
                 </>
               ) : (
-                <p className="m-auto max-w-[36ch] text-center cuerpo text-slag">
+                <p className="m-auto max-w-[36ch] text-center cuerpo text-smoke">
                   {cargando
                     ? "Construyendo el prompt con la metodología…"
                     : "El prompt aparece aquí, en prosa narrativa y con su bloque de paleta al inicio."}
