@@ -48,7 +48,7 @@ const TERCIO = "w-full md:max-w-[38vw]";
 const SERVICIOS = ["Las nueve secciones", "Adaptada a tu mercado", "Prompts que son tuyos"];
 
 const MUESTRA = [
-  { src: "/secciones/hero-potencia.png", alt: "Sección hero de una campaña real de suplemento" },
+  { src: "/secciones/potencia.png", alt: "Sección hero de una campaña real de suplemento" },
   { src: "/secciones/precios.png", alt: "Sección de precios de la misma campaña" },
   { src: "/secciones/testimonios.png", alt: "Sección de testimonios de la misma campaña" },
 ];
