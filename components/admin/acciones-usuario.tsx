@@ -101,10 +101,12 @@ export function AccionesUsuario({
     }
   }
 
-  const marco = "rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-6";
+  /* Sin tarjeta: cada acción es una sección con su filete, como el resto
+     del panel. La de borrar lleva el filete en rojo. */
+  const marco = "border-t border-[var(--scale)] pt-6";
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-x-14 gap-y-12 lg:grid-cols-2">
       {/* ---------------- Plan ---------------- */}
       <section aria-labelledby="accion-plan" className={marco}>
         <h2 id="accion-plan" className="titulo">
@@ -119,7 +121,7 @@ export function AccionesUsuario({
             <select
               value={plan}
               onChange={(e) => setPlan(e.target.value as Usuario["plan"])}
-              className="h-10 min-w-[160px] rounded-[10px] border border-[var(--scale)] bg-[var(--anvil-hi)] px-3 text-[0.9375rem] text-ash"
+              className="h-10 min-w-[160px] rounded-full border border-[var(--scale-hi)] bg-[var(--void)] px-4 text-[0.9375rem] text-ash"
             >
               {PLANES.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -217,7 +219,7 @@ export function AccionesUsuario({
       {/* -------------- Borrado -------------- */}
       <section
         aria-labelledby="accion-borrar"
-        className={cn(marco, "border-[color-mix(in_oklab,var(--danger)_35%,var(--scale))]")}
+        className={cn(marco, "border-[color-mix(in_oklab,var(--danger)_55%,var(--scale))]")}
       >
         <h2 id="accion-borrar" className="titulo">
           Borrar la cuenta

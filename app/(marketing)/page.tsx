@@ -25,8 +25,8 @@ import { Preguntas } from "@/components/marketing/preguntas";
  * última frase. La página abre con un frasco y cierra con otro producto: lo
  * que vende no es una plantilla, es una landing para el tuyo.
  *
- * Ninguna sección tiene fondo opaco. Donde hace falta superficie para leer es
- * cristal o vidrio, no pintura: una caja opaca taparía la toma.
+ * Sobre la película no hay cajas: la letra va impresa sobre la toma, y es su
+ * sitio en el encuadre —el lado oscuro, nunca el frasco— lo que la deja leer.
  */
 
 export default function Home() {
@@ -62,8 +62,10 @@ export default function Home() {
       >
         <div className="sticky top-0 flex h-screen items-center overflow-x-clip px-5 sm:px-8 md:px-12 supports-[height:100svh]:h-[100svh]">
           <div className="mx-auto w-full max-w-[1600px]">
-            <div className="halo w-fit">
-              <h2 id="cierre-titulo" className="display-lg max-w-[16ch] sobre-pelicula">
+            {/* El tarro gira en el centro y la mano entra por la derecha: la
+                frase ocupa el tercio izquierdo, que es el que queda oscuro. */}
+            <div className="md:max-w-[28vw]">
+              <h2 id="cierre-titulo" className="display-lg cierre-titular sobre-pelicula">
                 La primera campaña te toma once minutos.
               </h2>
               <div className="mt-12">

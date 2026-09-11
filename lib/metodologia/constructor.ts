@@ -1,13 +1,13 @@
 import type { EntradaPrompt, Producto, TipologiaSeccion } from "@/lib/datos/tipos";
 import { tipologia } from "@/lib/metodologia/tipologias";
 import {
-  CIUDADES,
-  ORIGENES_REGIONALES,
-  requiereInvima,
+  mercadoDe,
+  requiereRegistro,
   senalesDeConfianza,
-} from "@/lib/metodologia/mercado-co";
+  type Mercado,
+} from "@/lib/metodologia/mercados";
 import { ETIQUETA_ILUMINACION, ETIQUETA_PALETA, LINEA_CIERRE } from "@/lib/metodologia/reglas-prompt";
-import { formatoCOP } from "@/lib/formato";
+import { formatoPrecio } from "@/lib/formato";
 
 /**
  * El constructor — la fórmula de siete componentes hecha código.
@@ -20,6 +20,10 @@ import { formatoCOP } from "@/lib/formato";
  *
  * Orden de los componentes: el modelo pondera más lo que aparece primero, así
  * que formato y paleta van al inicio y la configuración técnica al final.
+ *
+ * Todo lo que depende del país —moneda, registro sanitario, contraentrega,
+ * personas y ciudades— sale de `mercadoDe(producto)`. El constructor no sabe
+ * de ningún país en concreto.
  */
 
 function bloquePaleta(e: EntradaPrompt): string {
@@ -44,28 +48,42 @@ function sujeto(p: Producto): string {
     : p.nombre;
 }
 
+/** «de Colombia», o «del país de venta» cuando el mercado no es uno concreto. */
+function dePais(m: Mercado): string {
+  return m.id === "INT" ? "del país de venta" : `de ${m.nombre}`;
+}
+
 /** El componente de señales de mercado, distinto según la tipología. */
 function bloqueMercado(e: EntradaPrompt): string {
   const { producto, tipologia: t } = e;
-  const senales = senalesDeConfianza(producto.tipo);
+  const m = mercadoDe(producto);
+  const senales = senalesDeConfianza(producto.tipo, m);
+  const registro = requiereRegistro(producto.tipo);
 
   if (t === "confianza") {
-    return `Las señales de confianza van dibujadas como sellos metálicos con relieve, no como stickers planos: ${senales.join("; ")}. El sello de contraentrega es el más grande de los tres porque es la señal que más pesa en la decisión de compra en Colombia.`;
+    const principal = m.contraentrega
+      ? `El sello de ${m.contraentrega} es el más grande porque es la señal que más pesa en la decisión de compra en ${m.nombre}.`
+      : "El sello de la garantía es el más grande porque es la última objeción antes de comprar.";
+    return `Las señales de confianza van dibujadas como sellos metálicos con relieve, no como stickers planos: ${senales.join("; ")}. ${principal}`;
   }
   if (t === "testimonios") {
-    const gente = ORIGENES_REGIONALES.slice(0, 6);
-    return `Las seis personas son físicamente distintas y con imperfecciones reales: una ${gente[0]}, una ${gente[1]}, una ${gente[2]}, una persona ${gente[3]}, una ${gente[4]} y una ${gente[5]}. Cada reseña lleva nombre propio y ciudad real —${CIUDADES.slice(0, 4).join(", ")}— y suena a alguien contando su experiencia, no a texto de marca.`;
+    const gente = m.origenes.slice(0, 6).map((o) => `una persona ${o}`);
+    const ciudades = m.ciudades.length
+      ? `ciudad real —${m.ciudades.slice(0, 4).join(", ")}—`
+      : "la ciudad real de quien la escribe";
+    return `Las seis personas son físicamente distintas y con imperfecciones reales: ${gente.slice(0, -1).join(", ")} y ${gente[gente.length - 1]}. Cada reseña lleva nombre propio y ${ciudades}, y suena a alguien contando su experiencia, no a texto de marca.`;
   }
   if (t === "precios") {
-    const tachado = producto.precioTachadoCOP
-      ? ` El precio anterior aparece tachado en ${formatoCOP(producto.precioTachadoCOP)}, más pequeño y en el color secundario.`
+    const tachado = producto.precioTachado
+      ? ` El precio anterior aparece tachado en ${formatoPrecio(producto.precioTachado, m)}, más pequeño y en el color secundario.`
       : "";
-    return `El precio se escribe ${formatoCOP(producto.precioCOP)} con punto de miles, nunca con coma decimal.${tachado} La opción del medio es el ancla visual y se distingue por altura y por el borde en el color de acento, no por una etiqueta que diga que es la más popular.`;
+    return `El precio se escribe exactamente ${formatoPrecio(producto.precio, m)}, con la moneda y los separadores ${dePais(m)}.${tachado} La opción del medio es el ancla visual y se distingue por altura y por el borde en el color de acento, no por una etiqueta que diga que es la más popular.`;
   }
   if (t === "autoridad") {
-    return `El profesional aparenta entre 45 y 55 años y se ve como alguien que ejerce de verdad, no como un modelo de catálogo.${requiereInvima(producto.tipo) ? " El registro sanitario INVIMA se ve legible en un plano secundario." : ""}`;
+    return `El profesional aparenta entre 45 y 55 años y se ve como alguien que ejerce de verdad, no como un modelo de catálogo.${registro ? ` En un plano secundario se lee ${m.registro}.` : ""}`;
   }
-  return `Una pastilla discreta indica pago contraentrega en la esquina inferior del fotograma.${requiereInvima(producto.tipo) ? " Si hay espacio, el registro INVIMA aparece en tipografía pequeña sin robar protagonismo." : ""}`;
+  const pastilla = m.contraentrega ?? "garantía de devolución";
+  return `Una pastilla discreta indica ${pastilla} en la esquina inferior del fotograma.${registro ? ` Si hay espacio, ${m.registro} aparece en tipografía pequeña sin robar protagonismo.` : ""}`;
 }
 
 /** La composición: la estructura documentada de la tipología, en prosa. */
@@ -108,9 +126,15 @@ function bloqueVisual(e: EntradaPrompt): string {
 
 function bloqueAudiencia(e: EntradaPrompt): string {
   const { audiencia } = e.producto;
-  const genero =
-    audiencia.genero === "f" ? "mujeres" : audiencia.genero === "m" ? "hombres" : "personas";
-  return `Las personas que aparezcan son ${genero} colombianas de entre ${audiencia.edadMin} y ${audiencia.edadMax} años, con rasgos regionales reconocibles y piel con textura real.`;
+  const m = mercadoDe(e.producto);
+  const quienes =
+    audiencia.genero === "f"
+      ? `mujeres ${m.gentilicio.f}`
+      : audiencia.genero === "m"
+        ? `hombres ${m.gentilicio.m}`
+        : `personas ${m.gentilicio.f}`;
+  const rasgos = m.id === "INT" ? "rasgos diversos" : "rasgos regionales reconocibles";
+  return `Las personas que aparezcan son ${quienes} de entre ${audiencia.edadMin} y ${audiencia.edadMax} años, con ${rasgos} y piel con textura real.`;
 }
 
 /**
@@ -128,7 +152,9 @@ export function construirTexto(e: EntradaPrompt): string {
     bloqueAudiencia(e),
     bloqueIluminacion(e.tipologia),
     bloqueMercado(e),
-    `Regla crítica de esta tipología: ${t.reglaCritica.toLowerCase()}.`,
+    /* Solo la primera letra: `toLowerCase()` entero dejaba «siempre. es la
+       señal» tras un punto y «invima» en minúsculas. */
+    `Regla crítica de esta tipología: ${t.reglaCritica.charAt(0).toLowerCase()}${t.reglaCritica.slice(1)}.`,
     LINEA_CIERRE,
   ];
   return partes.join("\n\n");
@@ -141,6 +167,8 @@ export function construirTexto(e: EntradaPrompt): string {
  */
 export function instruccionesParaModelo(e: EntradaPrompt): string {
   const t = tipologia(e.tipologia);
+  const m = mercadoDe(e.producto);
+  const senales = senalesDeConfianza(e.producto.tipo, m);
   return [
     "Redacta un prompt de generación de imagen en ESPAÑOL, en prosa narrativa continua.",
     "No uses listas de keywords ni viñetas. No uses comillas dobles.",
@@ -155,22 +183,23 @@ export function instruccionesParaModelo(e: EntradaPrompt): string {
     "3. El texto que la imagen debe renderizar, entre comillas angulares « ».",
     "4. El visual principal.",
     "5. La composición.",
-    "6. Las personas, si las hay, con origen regional colombiano explícito.",
+    `6. Las personas, si las hay, con su origen ${dePais(m)} explícito.`,
     `7. Una línea que empiece por «${ETIQUETA_ILUMINACION}».`,
-    "8. Las señales del mercado colombiano.",
+    `8. Las señales del mercado ${dePais(m)}: ${senales.join("; ")}.`,
     `9. Termina exactamente con: ${LINEA_CIERRE}`,
     "",
     "RESTRICCIONES:",
     "- Ningún texto entre « » puede superar 25 caracteres.",
     "- Prohibidas estas palabras: 4K, 8K, masterpiece, highly detailed, ultra detailed, trending on ArtStation, hyperrealistic, photorealistic, best quality, award-winning, perfect, flawless, stunning, breathtaking, incredible, amazing.",
     "- Longitud total entre 150 y 350 palabras.",
-    "- Precios en formato colombiano con punto de miles.",
+    `- Precios con la moneda y los separadores ${dePais(m)}, exactamente como en: ${formatoPrecio(m.ejemplo, m)}.`,
     "",
     "DATOS DE LA CAMPAÑA:",
+    `- Mercado: ${m.id === "INT" ? "internacional" : m.nombre}`,
     `- Producto: ${e.producto.nombre}`,
     `- Descripción: ${e.producto.descripcion || "sin descripción"}`,
     `- Beneficio principal (usar como texto renderizado): ${e.producto.beneficioPrincipal}`,
-    `- Precio: ${formatoCOP(e.producto.precioCOP)}`,
+    `- Precio: ${formatoPrecio(e.producto.precio, m)}`,
     `- Audiencia: ${e.producto.audiencia.genero}, ${e.producto.audiencia.edadMin}–${e.producto.audiencia.edadMax} años`,
     `- Paleta «${e.paleta.nombre}»: ${e.paleta.fondo}, ${e.paleta.acento}, ${e.paleta.texto}, ${e.paleta.secundario}, ${e.paleta.energia}`,
     "",

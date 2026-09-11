@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { exigirAdminEnPagina } from "@/lib/auth/admin";
-import { BarraAdmin } from "@/components/admin/barra-admin";
+import { Barra } from "@/components/panel/barra";
 import { SaltarAlContenido } from "@/components/ui/saltar";
 
 export const metadata: Metadata = {
@@ -24,16 +24,10 @@ export default async function LayoutAdmin({ children }: { children: React.ReactN
   const admin = await exigirAdminEnPagina();
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col">
       <SaltarAlContenido />
-      {/* La hairline de temple recorre el ancho: la señal de que esto no es
-          la aplicación normal está siempre presente y nunca pide atención. */}
-      <div
-        aria-hidden
-        className="fixed inset-x-0 top-0 z-40 h-px bg-[var(--quench)] opacity-70"
-      />
-      <BarraAdmin admin={admin} />
-      <main id="contenido" className="min-w-0 flex-1">
+      <Barra usuario={admin} modo="admin" />
+      <main id="contenido" className="min-w-0 flex-1 pb-24">
         {children}
       </main>
     </div>

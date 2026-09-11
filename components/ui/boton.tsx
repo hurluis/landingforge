@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
  * `hf:`, que exige (hover: hover) y (pointer: fine).
  */
 
-type Variante = "heat" | "heat-linea" | "contorno" | "fantasma" | "peligro";
+type Variante = "heat" | "heat-linea" | "contorno" | "fantasma" | "peligro" | "tinta";
 type Tamano = "sm" | "md" | "lg";
 
 const BASE = [
@@ -35,6 +35,9 @@ const VARIANTES: Record<Variante, string> = {
   "heat-linea": "bg-transparent text-ash border-heat hf:bg-[color-mix(in_oklab,var(--heat)_14%,transparent)] hf:-translate-y-px",
   contorno: "bg-transparent text-ash border-scale-hi hf:border-heat hf:-translate-y-px",
   fantasma: "bg-transparent text-smoke border-transparent hf:text-ash hf:bg-anvil",
+  /* La píldora llena de la home: tinta sobre el fondo. Blanca en el estudio,
+     negra sobre papel. Pasa 4.5:1 en cualquier tamaño, al revés que heat. */
+  tinta: "bg-ash text-void border-transparent hf:opacity-85 hf:-translate-y-px",
   peligro: cn(
     "bg-transparent text-[var(--danger)] border-scale",
     "hf:bg-[color-mix(in_oklab,var(--danger)_14%,transparent)] hf:border-[var(--danger)]",

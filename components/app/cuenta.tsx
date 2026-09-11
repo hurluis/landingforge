@@ -2,12 +2,21 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { MovimientoCredito, Usuario } from "@/lib/datos/tipos";
 import { PLANES, plan as definicionPlan } from "@/lib/planes";
 import { fechaCorta, fechaLarga, formatoCOP } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
-import { Badge } from "@/components/ui/piezas";
+import {
+  ANCHO,
+  Banda,
+  Celda,
+  EstadoVacio,
+  Fila,
+  Seccion,
+  Tabla,
+} from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
 
 const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
@@ -20,6 +29,11 @@ const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
 
 /**
  * Cuenta — §6.3 y §7.2.
+ *
+ * Abre con el último acto de la película, el frasco en la mano: es la pantalla
+ * de lo que ya tienes. Debajo, el saldo en grande, los planes como columnas
+ * comparables separadas por filetes y el historial.
+ *
  * El cambio de plan es una SIMULACIÓN y la pantalla lo declara con esa misma
  * palabra. Disfrazarlo de pasarela real sería mentirle al usuario y al jurado.
  */
@@ -57,151 +71,155 @@ export function Cuenta({
     }
   }
 
+  const detalles: [string, string][] = [
+    ["Renueva el", fechaLarga(usuario.renuevaEn)],
+    [
+      "Campañas guardadas",
+      def.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(def.campanasGuardadas),
+    ],
+    ["Paletas alternativas", String(def.paletasAlternativas)],
+    ["Marcas o clientes", def.marcas === "ilimitadas" ? "Ilimitadas" : String(def.marcas)],
+    ["Soporte", def.soporte],
+  ];
+
   return (
-    <div className="mx-auto max-w-[900px] px-4 py-8 pt-20 sm:px-8 lg:pt-8">
-      <h1 className="display-md">Cuenta</h1>
-      <p className="mt-2 cuerpo text-smoke">{usuario.email}</p>
+    <>
+      <Banda
+        fotograma="/secuencia/0400.jpg"
+        encuadre="50% 38%"
+        rotulo="Cuenta"
+        titulo={`Plan ${def.nombre}`}
+        descripcion={usuario.email}
+      />
 
-      {/* Créditos */}
-      <section
-        aria-labelledby="creditos-titulo"
-        className="mt-10 rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-6"
-      >
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <h2 id="creditos-titulo" className="titulo">
-            Plan {def.nombre}
-          </h2>
-          <span className="mono-sm text-slag">
-            renueva el {fechaLarga(usuario.renuevaEn)}
-          </span>
-        </div>
-
-        <p className="mt-6 flex items-baseline gap-2">
-          <span className="font-[family-name:var(--font-round)] text-[3rem] font-[300] leading-none tabular-nums">
-            {usuario.creditosDisponibles}
-          </span>
-          <span className="mono-sm text-slag">de {def.creditosMes} créditos</span>
-        </p>
-
-        <div
-          aria-hidden
-          className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--anvil-hi)]"
+      <div className={cn(ANCHO, "mt-10 flex flex-col gap-16 pb-24")}>
+        {/* ---------------- Saldo ---------------- */}
+        <section
+          aria-labelledby="creditos-titulo"
+          className="grid gap-x-16 gap-y-10 border-t border-[var(--scale)] pt-10 lg:grid-cols-[1.3fr_1fr]"
         >
-          <span
-            style={{ width: `${porcentaje}%` }}
-            className="block h-full rounded-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
-          />
-        </div>
+          <div>
+            <h2 id="creditos-titulo" className="etiqueta text-slag">
+              Créditos este mes
+            </h2>
+            <p className="mt-4 flex items-baseline gap-3">
+              <span className="font-[family-name:var(--font-round)] text-[5rem] font-semibold leading-none tracking-[-0.04em] tabular-nums">
+                {usuario.creditosDisponibles}
+              </span>
+              <span className="mono-sm text-slag">de {def.creditosMes} créditos</span>
+            </p>
+            <div aria-hidden className="mt-6 h-1 w-full max-w-lg overflow-hidden rounded-full bg-[var(--scale)]">
+              <span
+                style={{ width: `${porcentaje}%` }}
+                className="block h-full rounded-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
+              />
+            </div>
+            <p className="mt-5 cuerpo text-smoke medida">
+              Un crédito es una sección. Los del plan no se acumulan entre meses; los que compras
+              aparte, sí.
+            </p>
+          </div>
 
-        <p className="mt-4 cuerpo text-slag">
-          Los créditos del plan no se acumulan entre meses. Los que compras aparte, sí.
-        </p>
-      </section>
-
-      {/* Planes */}
-      <section aria-labelledby="planes-titulo" className="mt-10">
-        <h2 id="planes-titulo" className="titulo">
-          Cambiar de plan
-        </h2>
-        <p className="mt-2 cuerpo text-smoke medida">
-          En esta versión el cambio es una simulación: ajusta tu plan y recarga los créditos
-          sin cobrar nada. Todavía no hay pasarela de pago conectada.
-        </p>
-
-        <ul className="mt-6 grid gap-3 sm:grid-cols-3">
-          {PLANES.map((p) => {
-            const actual = p.id === usuario.plan;
-            return (
-              <li
-                key={p.id}
-                className={cn(
-                  "flex flex-col rounded-[16px] p-5",
-                  actual
-                    ? "border border-[var(--heat)] bg-[var(--anvil-hi)]"
-                    : "border border-[var(--scale)] bg-[var(--anvil)]",
-                )}
+          <dl className="grid content-start gap-y-4">
+            {detalles.map(([dt, dd]) => (
+              <div
+                key={dt}
+                className="flex items-baseline justify-between gap-4 border-b border-[var(--scale)] pb-4 last:border-b-0"
               >
-                <h3 className="titulo">{p.nombre}</h3>
-                <p className="mt-2 mono-sm text-smoke">
-                  {formatoCOP(p.precioMensualCOP)} · {p.creditosMes} créditos
-                </p>
-                <div className="mt-4">
-                  {actual ? (
-                    <Badge tono="metal">plan actual</Badge>
-                  ) : (
-                    <Boton
-                      variante="contorno"
-                      tamano="sm"
-                      cargando={cambiando === p.id}
-                      textoCargando="Cambiando…"
-                      onClick={() => cambiarPlan(p.id)}
-                      className="w-full"
-                    >
-                      Cambiar a {p.nombre}
-                    </Boton>
-                  )}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+                <dt className="cuerpo text-smoke">{dt}</dt>
+                <dd className="mono-sm text-ash">{dd}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
 
-      {/* Historial */}
-      <section aria-labelledby="historial-titulo" className="mt-12">
-        <h2 id="historial-titulo" className="titulo">
-          Consumo
-        </h2>
-        {movimientos.length === 0 ? (
-          <p className="mt-4 cuerpo text-smoke">Todavía no has consumido créditos.</p>
-        ) : (
-          <table className="mt-4 w-full text-left">
-            <thead>
-              <tr className="border-b border-[var(--scale)]">
-                <th scope="col" className="etiqueta text-slag py-2 font-medium">
-                  Fecha
-                </th>
-                <th scope="col" className="etiqueta text-slag py-2 font-medium">
-                  Concepto
-                </th>
-                <th scope="col" className="etiqueta text-slag py-2 font-medium">
-                  Campaña
-                </th>
-                <th scope="col" className="etiqueta text-slag py-2 text-right font-medium">
-                  Créditos
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+        {/* ---------------- Planes ---------------- */}
+        <Seccion
+          titulo="Cambiar de plan"
+          descripcion="En esta versión el cambio es una simulación: ajusta tu plan y recarga los créditos sin cobrar nada. Todavía no hay pasarela de pago conectada."
+        >
+          <ul className="grid gap-px overflow-hidden bg-[var(--scale)] sm:grid-cols-3">
+            {PLANES.map((p) => {
+              const actual = p.id === usuario.plan;
+              return (
+                <li key={p.id} className="relative flex flex-col bg-[var(--void)] p-6 sm:p-8">
+                  {actual && (
+                    <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-[var(--heat)]" />
+                  )}
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="titulo">{p.nombre}</h3>
+                    {actual && (
+                      <span className="inline-flex items-center gap-1 etiqueta text-[var(--heat)]">
+                        <Check weight="bold" className="size-3.5" /> Actual
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-5 font-[family-name:var(--font-round)] text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">
+                    {formatoCOP(p.precioMensualCOP)}
+                    <span className="ml-1.5 mono-sm font-normal tracking-normal text-slag">/ mes</span>
+                  </p>
+                  <p className="mt-3 mono-sm text-smoke">{p.creditosMes} créditos al mes</p>
+                  <div className="mt-auto pt-8">
+                    {actual ? (
+                      <p className="cuerpo text-slag">Es tu plan.</p>
+                    ) : (
+                      <Boton
+                        variante="contorno"
+                        tamano="sm"
+                        cargando={cambiando === p.id}
+                        textoCargando="Cambiando…"
+                        onClick={() => cambiarPlan(p.id)}
+                        className="w-full rounded-full"
+                      >
+                        Cambiar a {p.nombre}
+                      </Boton>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Seccion>
+
+        {/* ---------------- Historial ---------------- */}
+        <Seccion titulo="Consumo" descripcion="Cada crédito que entra o sale, con la campaña a la que fue.">
+          {movimientos.length === 0 ? (
+            <EstadoVacio titulo="Todavía no has consumido créditos." />
+          ) : (
+            <Tabla
+              descripcion="Historial de consumo y recarga de créditos."
+              cabeceras={["Fecha", "Concepto", "Campaña", "Créditos"]}
+              ancho="min-w-[560px]"
+            >
               {movimientos.map((m) => (
-                <tr key={m.id} className="border-b border-[var(--scale)]">
-                  <td className="mono-sm text-slag py-3">{fechaCorta(m.fecha)}</td>
-                  <td className="cuerpo text-smoke py-3">{MOTIVO[m.motivo]}</td>
-                  <td className="cuerpo text-smoke py-3">{m.campanaNombre}</td>
-                  <td
+                <Fila key={m.id}>
+                  <Celda mono>{fechaCorta(m.fecha)}</Celda>
+                  <Celda>{MOTIVO[m.motivo]}</Celda>
+                  <Celda>{m.campanaNombre}</Celda>
+                  <Celda
+                    mono
                     className={cn(
-                      "mono-sm py-3 text-right tabular-nums",
+                      "pr-0 text-right tabular-nums",
                       m.delta < 0 ? "text-smoke" : "text-[var(--ok)]",
                     )}
                   >
                     {m.delta > 0 ? `+${m.delta}` : m.delta}
-                  </td>
-                </tr>
+                  </Celda>
+                </Fila>
               ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+            </Tabla>
+          )}
+        </Seccion>
 
-      {/* Honestidad sobre qué está corriendo debajo. */}
-      <section className="mt-12 rounded-[16px] border border-[var(--scale)] p-5">
-        <h2 className="etiqueta text-smoke">Motor de esta instancia</h2>
-        <p className="mt-2 cuerpo text-slag medida">
-          {modeloReal
-            ? "Los prompts los redacta Gemini sobre el esqueleto de la metodología. La clave vive solo en el servidor."
-            : "No hay clave de Gemini configurada, así que los prompts los construye el motor local con la misma metodología, sin modelo generativo. El resultado es válido; lo que falta es la redacción del modelo."}
-        </p>
-      </section>
-    </div>
+        {/* Honestidad sobre qué está corriendo debajo. */}
+        <Seccion titulo="Motor de esta instancia">
+          <p className="-mt-2 cuerpo text-smoke medida">
+            {modeloReal
+              ? "Los prompts los redacta Gemini sobre el esqueleto de la metodología. La clave vive solo en el servidor."
+              : "No hay clave de Gemini configurada, así que los prompts los construye el motor local con la misma metodología, sin modelo generativo. El resultado es válido; lo que falta es la redacción del modelo."}
+          </p>
+        </Seccion>
+      </div>
+    </>
   );
 }

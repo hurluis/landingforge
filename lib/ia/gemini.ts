@@ -40,7 +40,7 @@ export class ClienteGemini implements ClienteIA {
           temperature: 0.7,
           maxOutputTokens: 1200,
           systemInstruction:
-            "Eres el motor de construcción de prompts de LandingForge. Ejecutas una metodología documentada: no improvisas ni añades secciones que no se te piden. Escribes en español de Colombia, en prosa narrativa continua.",
+            "Eres el motor de construcción de prompts de LandingForge. Ejecutas una metodología documentada: no improvisas ni añades secciones que no se te piden. Escribes en español, en prosa narrativa continua, con las convenciones del mercado que te indican.",
         },
       });
 

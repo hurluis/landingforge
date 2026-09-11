@@ -58,8 +58,8 @@ export function Pie() {
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--scale)] pt-6">
           <Wordmark como="texto" tamano="0.9375rem" className="opacity-70" />
-          <p className="mono-sm text-slag">
-            {new Date().getFullYear()} · Hecho en Medellín, Colombia
+          <p className="text-[0.8125rem] text-slag">
+            Copyright © {new Date().getFullYear()} LandingForge® · Todos los derechos reservados.
           </p>
         </div>
       </div>

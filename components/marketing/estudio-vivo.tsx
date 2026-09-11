@@ -86,7 +86,10 @@ export function EstudioVivo() {
       <Parallax
         velocidad={0.6}
         recorrido={120}
-        className="pointer-events-none absolute inset-0 opacity-[0.38]"
+        /* Solo desde md. En móvil el formulario va apilado bajo el titular y
+           las láminas le caían justo detrás: el contador «0 / 200» se quedaba
+           en 2:1 sobre papel. */
+        className="pointer-events-none absolute inset-0 hidden opacity-[0.38] md:block"
       >
         <div aria-hidden className="flex gap-8 px-10 pt-16">
           {FONDO.map((id, i) => (

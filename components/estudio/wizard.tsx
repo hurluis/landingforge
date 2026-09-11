@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeft, Check } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { TipologiaSeccion, Usuario } from "@/lib/datos/tipos";
 import { nombreTipologia } from "@/lib/metodologia/tipologias";
@@ -12,12 +12,18 @@ import { PasoProducto } from "./paso-producto";
 import { PasoMercado } from "./paso-mercado";
 import { PasoIdentidad } from "./paso-identidad";
 import { PasoSecciones } from "./paso-secciones";
-import { CLAVE_ALMACEN, ESTADO_INICIAL, pasoCompleto, type EstadoEstudio } from "./estado";
+import {
+  CLAVE_ALMACEN,
+  ESTADO_INICIAL,
+  mercadoDelNavegador,
+  pasoCompleto,
+  type EstadoEstudio,
+} from "./estado";
 
 /**
  * F1 — Estudio de prompts (§7.1).
  *
- * Un paso por pantalla, barra de progreso superior de 2px en --heat. El paso
+ * Un paso por pantalla, con los cuatro pasos en un raíl arriba. El paso
  * vive en la URL (?paso=2) y el resto del estado en sessionStorage, así que
  * recargar no borra nada y volver atrás no pierde datos.
  *
@@ -27,7 +33,7 @@ import { CLAVE_ALMACEN, ESTADO_INICIAL, pasoCompleto, type EstadoEstudio } from 
 
 const TITULOS = [
   { titulo: "El producto", sub: "Qué vas a vender y cómo se ve." },
-  { titulo: "El mercado", sub: "Para quién es, qué promete y cuánto cuesta." },
+  { titulo: "El mercado", sub: "Dónde lo vendes, para quién es, qué promete y cuánto cuesta." },
   { titulo: "La identidad", sub: "La paleta que la matriz asigna a este producto." },
   { titulo: "Las secciones", sub: "Qué piezas quieres de esta campaña." },
 ];
@@ -47,7 +53,11 @@ function leerBorrador(): EstadoEstudio {
   if (typeof window === "undefined") return ESTADO_INICIAL;
   try {
     const guardado = window.sessionStorage.getItem(CLAVE_ALMACEN);
-    return guardado ? { ...ESTADO_INICIAL, ...JSON.parse(guardado) } : ESTADO_INICIAL;
+    /* Sin borrador, el país de partida es el del navegador. Un borrador de
+       antes de los mercados no trae país ni `precio`: se descarta su precio
+       viejo en vez de reinterpretarlo en otra moneda. */
+    const inicial = { ...ESTADO_INICIAL, mercado: mercadoDelNavegador() };
+    return guardado ? { ...inicial, ...JSON.parse(guardado) } : inicial;
   } catch {
     return ESTADO_INICIAL;
   }
@@ -121,8 +131,9 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
             tipo: estado.tipo,
             audiencia: estado.audiencia,
             beneficioPrincipal: estado.beneficioPrincipal,
-            precioCOP: estado.precioCOP,
-            precioTachadoCOP: estado.precioTachadoCOP,
+            mercado: estado.mercado,
+            precio: estado.precio,
+            precioTachado: estado.precioTachado,
           },
           paleta: estado.paleta,
           tipologias: estado.secciones,
@@ -195,23 +206,47 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      {/* Barra de progreso de 2px en --heat. */}
-      <div
-        aria-hidden
-        className="sticky top-0 z-10 h-0.5 w-full bg-[var(--scale)]"
-      >
-        <span
-          style={{ width: `${(paso / 4) * 100}%` }}
-          className="block h-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
-        />
-      </div>
+    <div className="flex flex-1 flex-col">
+      <div className="mx-auto w-full max-w-[1100px] flex-1 px-5 pb-10 pt-10 sm:px-8">
+        {/* Los cuatro pasos como raíl, no como barra de 2px: se ve dónde se
+            está, qué queda y a qué paso hecho se puede volver. */}
+        <ol className="flex flex-wrap gap-x-8 gap-y-2 border-b border-[var(--scale)]">
+          {TITULOS.map((t, i) => {
+            const n = i + 1;
+            const hecho = n < paso;
+            const actual = n === paso;
+            return (
+              <li key={t.titulo}>
+                <button
+                  type="button"
+                  disabled={n > paso}
+                  onClick={() => irA(n)}
+                  aria-current={actual ? "step" : undefined}
+                  className={cn(
+                    "relative flex items-center gap-2 pb-4 etiqueta transition-colors duration-[140ms]",
+                    actual ? "text-ash" : hecho ? "text-smoke hf:text-ash" : "text-slag",
+                  )}
+                >
+                  <span className="mono-sm tabular-nums">
+                    {hecho ? <Check className="size-3.5" weight="bold" /> : String(n).padStart(2, "0")}
+                  </span>
+                  {t.titulo}
+                  {actual && (
+                    <span aria-hidden className="absolute inset-x-0 -bottom-px h-0.5 bg-[var(--heat)]" />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
 
-      <div className="mx-auto w-full max-w-[900px] flex-1 px-4 py-8 pt-20 sm:px-8 lg:pt-10">
-        <header className="mb-10">
-          <p className="mono-sm text-slag">paso {paso} de 4</p>
-          <h1 className="display-md mt-2">{TITULOS[paso - 1].titulo}</h1>
-          <p className="mt-2 cuerpo text-smoke">{TITULOS[paso - 1].sub}</p>
+        <header className="mb-12 mt-10">
+          <p className="flex items-center gap-3 etiqueta text-smoke">
+            <span aria-hidden className="h-px w-8 bg-current" />
+            Nueva campaña · paso {paso} de 4
+          </p>
+          <h1 className="mt-4 display-lg">{TITULOS[paso - 1].titulo}</h1>
+          <p className="mt-3 cuerpo-lg text-smoke">{TITULOS[paso - 1].sub}</p>
         </header>
 
         {paso === 1 && <PasoProducto estado={estado} cambiar={cambiar} />}
@@ -227,7 +262,9 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
           "lg:static lg:border-0 lg:bg-transparent",
         )}
       >
-        <div className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-4 py-4 sm:px-8">
+        {/* En móvil, sitio a la izquierda para el botón de accesibilidad, que
+            vive en esa esquina y tapaba el «Atrás». */}
+        <div className="mx-auto flex w-full max-w-[1100px] items-center justify-between gap-4 py-4 pl-20 pr-5 sm:pr-8 lg:px-8">
           {paso > 1 ? (
             <Boton variante="fantasma" onClick={() => irA(paso - 1)}>
               <ArrowLeft /> Atrás
@@ -266,7 +303,7 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 /** Estado de carga con la forma real del contenido, no un spinner (§11). */
 function EsqueletoWizard() {
   return (
-    <div className="mx-auto w-full max-w-[900px] px-4 py-8 pt-20 sm:px-8 lg:pt-10">
+    <div className="mx-auto w-full max-w-[1100px] px-5 pb-8 pt-10 sm:px-8">
       <div className="h-4 w-24 rounded-full bg-[var(--anvil)]" />
       <div className="mt-4 h-8 w-56 rounded-[8px] bg-[var(--anvil)]" />
       <div className="mt-10 grid gap-8 md:grid-cols-[280px_1fr]">
@@ -290,7 +327,11 @@ function PantallaGenerando({
 }) {
   return (
     <div className="mx-auto w-full max-w-[560px] px-4 py-24 sm:px-8">
-      <h1 className="display-md">Construyendo la campaña</h1>
+      <p className="flex items-center gap-3 etiqueta text-smoke">
+        <span aria-hidden className="h-px w-8 bg-current" />
+        Nueva campaña
+      </p>
+      <h1 className="mt-4 display-lg">Construyendo la campaña</h1>
       <p className="mt-2 cuerpo text-smoke">
         Cada sección se valida contra las siete reglas antes de guardarse.
       </p>

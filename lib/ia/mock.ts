@@ -70,8 +70,8 @@ function respuestaLocal(pregunta: string): string {
   if (/(secci|nueve|tipolog)/.test(q)) {
     return "Nueve: hero, beneficios, antes y después, paso a paso, testimonios, autoridad, confianza y garantía, precios y estilo de vida. Cada una tiene su estructura y su regla crítica documentadas. ¿Quieres que te cuente la de antes y después?";
   }
-  if (/(contraentrega|invima|colomb)/.test(q)) {
-    return "Contraentrega va en todas las campañas: es la señal de confianza número uno del país. Para suplementos y cosméticos también se incluye el registro INVIMA, y los precios salen con punto de miles. Eso viene de fábrica, no hay que pedirlo.";
+  if (/(contraentrega|invima|cofepris|registro|colomb|pa[ií]s|mercado)/.test(q)) {
+    return "Cada campaña se adapta al país que eliges: contraentrega donde se usa, el registro sanitario que corresponde —INVIMA, COFEPRIS, DIGESA, FDA—, personas y ciudades de allí, y el precio con su moneda y su formato. Viene de fábrica, no hay que pedirlo.";
   }
   if (/(prompt|m[ií]o|export|propiedad|llev)/.test(q)) {
     return "Los prompts son tuyos. Se exportan en .md y .json, los puedes editar y correr donde quieras. Si dejas de usar LandingForge, tu trabajo sigue siendo tuyo.";

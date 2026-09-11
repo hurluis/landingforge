@@ -37,7 +37,7 @@ export const COMPONENTES = [
   { id: "visual", nombre: "Visual principal", peso: 1.0 },
   { id: "composicion", nombre: "Composición de la sección", peso: 0.8 },
   { id: "iluminacion", nombre: "Bloque de iluminación", peso: 0.9 },
-  { id: "mercado", nombre: "Señales de mercado colombiano", peso: 0.7 },
+  { id: "mercado", nombre: "Señales del mercado", peso: 0.7 },
   { id: "cierre", nombre: "Cierre de configuración", peso: 0.4 },
 ] as const;
 

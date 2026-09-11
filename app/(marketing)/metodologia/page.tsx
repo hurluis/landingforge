@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
 import { LISTA_NEGRA, COMPONENTES, LIMITE_CARACTERES_TEXTO, MAX_PALABRAS, MIN_PALABRAS } from "@/lib/metodologia/reglas-prompt";
-import { BLOQUES_MERCADO } from "@/lib/metodologia/mercado-co";
+import { BLOQUES_MERCADO } from "@/lib/metodologia/mercados";
 import { PALETAS } from "@/lib/metodologia/paletas";
 import { Boton } from "@/components/ui/boton";
 import { Hairline } from "@/components/ui/piezas";

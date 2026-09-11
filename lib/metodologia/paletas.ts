@@ -97,7 +97,7 @@ export const PALETAS: readonly DefinicionPaleta[] = [
     secundario: "#F0E3D2",
     energia: "#2FA6A0",
     argumento:
-      "Arena y naranja de sol de mediodía con turquesa de contraste: el mundo cromático del Caribe colombiano",
+      "Arena y naranja de sol de mediodía con turquesa de contraste: el mundo cromático del Caribe",
   },
   {
     id: "grafito-electrico",

@@ -12,6 +12,7 @@ import type { Repositorio } from "@/lib/datos/repositorio";
 import { cifra, ejecutar, fila, filas, enTransaccion } from "@/lib/datos/conexion-pg";
 import { CREDITOS_BIENVENIDA, plan as definicionPlan } from "@/lib/planes";
 import { id } from "@/lib/utils";
+import { productoGuardado } from "@/lib/datos/producto";
 
 /**
  * Implementación PostgreSQL de `Repositorio`.
@@ -75,7 +76,7 @@ export function aCampanaPG(f: FilaCampanaPG): Campana {
     id: f.id,
     usuarioId: f.usuario_id,
     nombre: f.nombre,
-    producto: f.producto,
+    producto: productoGuardado(f.producto),
     paleta: f.paleta,
     prompts: f.prompts,
     seccionesFallidas: f.secciones_fallidas,

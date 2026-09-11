@@ -70,14 +70,9 @@
   --dur-overlay: 320ms;
   --dur-focal:   700ms;
 
-  /* Sombra de tinta. Sobre un color plano es invisible —el desenfoque es
-     enorme y la opacidad baja—, pero sobre la película es lo que despega la
-     letra del fotograma sin necesidad de apagar la imagen. La referencia hace
-     exactamente esto en sus titulares. */
-  --sombra-tinta: 0 2px 28px rgba(10, 12, 16, 0.62);
 
-  /* La película. Sus paños —viñeta, asiento, velo—, los halos y las sombras
-     de la letra que va encima salen de este color, y la toma se revela con
+  /* La película. Sus paños —viñeta, asiento, velo— y las sombras de la
+     letra que va encima salen de este color, y la toma se revela con
      este filtro. Sobre papel cambian los dos y la película sigue ahí, en
      clave alta: ver el tema claro, más abajo. */
   --pelicula-sombra: 8 9 12;
@@ -160,7 +155,10 @@
 
   --ash:       #14161A;
   --smoke:     #494E57;
-  --slag:      #5C616A;
+  /* #54585F y no #5C616A: sobre --sunk, la franja de la metodología, el
+     valor viejo se quedaba en 4,1:1. Medido con verificar-contraste-pelicula
+     sobre papel. */
+  --slag:      #54585F;
 
   --heat:      #B93A11;
   --heat-lo:   #8E2B0A;
@@ -208,7 +206,7 @@ body {
   color: var(--ash);
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 450;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -259,18 +257,21 @@ input, textarea, select {
 /* ------------------------------------------------------------
    Tipografía · §5.4
 
-   Nunito en peso 800 para todo lo que es display, 500 para el texto. Tres
-   decisiones, y las tres salen de que el fondo es una película:
+   Outfit en peso 600 para todo lo que es display. Tres decisiones, y las tres
+   salen de que el fondo es una película a pantalla completa:
 
    Peso alto porque el titular vive SOBRE imagen. Un peso 400 sobre vídeo se
-   deshace en cuanto el fotograma se aclara; un 800 aguanta el fondo entero
+   deshace en cuanto el fotograma se aclara; un 600 aguanta el fondo entero
    sin necesidad de una caja opaca detrás, que es lo que habría que poner si
    la letra fuese fina, y esa caja es justo lo que rompería la integración.
-   Y es el peso donde los remates redondos se notan: a 400 Nunito pasa por
-   una sans cualquiera.
 
-   Tracking negativo, pero menos que el de una geométrica: los remates
-   redondos ya acercan las letras, y a -0.035em se tocaban «rn» y «ri».
+   Tracking negativo y interlínea por debajo de 1 porque a tamaño display las
+   contraformas de una geométrica son enormes: sin cerrarlas, el titular se
+   lee como palabras sueltas en vez de como un bloque.
+
+   Se probó Nunito, de remates redondos, y se volvió a Outfit: a peso 800
+   redondeaba de más y la página perdía el aire premium. Outfit es redonda en
+   los bowls y recta en los remates, y ese equilibrio es la identidad.
 
    Y las etiquetas en versales con tracking abierto. Es el único gesto
    decorativo que se permite la página: separa el rótulo del texto sin
@@ -280,36 +281,34 @@ input, textarea, select {
 .display-xl {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(3rem, 6.4vw, 6rem);
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  line-height: 0.96;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
   text-wrap: balance;
-  text-shadow: var(--sombra-tinta);
 }
 
 .display-lg {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(2.5rem, 5.2vw, 4.5rem);
-  font-weight: 800;
-  letter-spacing: -0.022em;
-  line-height: 0.98;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 0.96;
   text-wrap: balance;
-  text-shadow: var(--sombra-tinta);
 }
 
 .display-md {
   font-family: var(--font-round), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.75rem, 2.9vw, 2.5rem);
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
   text-wrap: balance;
 }
 
 .titulo {
   font-size: 1.375rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  letter-spacing: -0.012em;
   line-height: 1.28;
 }
 
@@ -318,7 +317,7 @@ input, textarea, select {
 
 .etiqueta {
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.4;
@@ -516,7 +515,7 @@ html[data-tema="claro"] {
 
   --ash:       #14161A;
   --smoke:     #494E57;
-  --slag:      #5C616A;
+  --slag:      #54585F;
 
   --heat:      #B93A11;
   --heat-lo:   #8E2B0A;
@@ -531,7 +530,6 @@ html[data-tema="claro"] {
   --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
   --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
 
-  --sombra-tinta: 0 2px 28px rgb(236 234 228 / 0.7);
   --pelicula-sombra: 236 234 228;
   --pelicula-filtro: var(--pelicula-clave-alta);
 }
@@ -563,7 +561,7 @@ html[data-tema="claro"] {
 
     --ash:       #14161A;
     --smoke:     #494E57;
-    --slag:      #5C616A;
+    --slag:      #54585F;
 
     --heat:      #B93A11;
     --heat-lo:   #8E2B0A;
@@ -578,8 +576,7 @@ html[data-tema="claro"] {
     --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
     --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
 
-    --sombra-tinta: 0 2px 28px rgb(236 234 228 / 0.7);
-    --pelicula-sombra: 236 234 228;
+      --pelicula-sombra: 236 234 228;
     --pelicula-filtro: var(--pelicula-clave-alta);
   }
 }
@@ -653,7 +650,7 @@ html[data-lectura="true"] body { line-height: 1.85; }
 html[data-lectura="true"] .display-xl,
 html[data-lectura="true"] .display-lg,
 html[data-lectura="true"] .display-md {
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.22;
 }
@@ -775,55 +772,21 @@ html[data-lectura="true"] .sobre-pelicula {
   filter: var(--pelicula-filtro);
 }
 
-/* Titulares de la apertura. La medida de la referencia: el titular del hero a
-   unos 72 px, los de capítulo algo menores porque comparten fila con un panel
-   de cristal. Declarados al final para ganar a .display-xl por orden. */
+/* Titulares de la apertura. Cada bloque vive en el tercio de su lado
+   (38vw), así que el titular se mide contra ese ancho: su línea más larga,
+   «tampoco debería.», cabe a 4,4vw. Declarados al final para ganar a
+   .display-xl por orden. */
 .apertura-titular {
-  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  font-size: clamp(2.4rem, 4.4vw, 4.25rem);
   line-height: 1.02;
 }
 .apertura-subtitular {
-  font-size: clamp(2.2rem, 4vw, 3.75rem);
+  font-size: clamp(2.1rem, 4vw, 3.75rem);
   line-height: 1.04;
 }
-
-/* HALO · el fondo solo debajo de la letra.
-
-   Un rectángulo oscuro muy difuminado detrás de cada bloque de texto que va
-   sobre la toma. Es lo que permite no oscurecer la imagen entera: el copy de
-   la esquina oscurece su esquina y nada más, y el resto del encuadre sigue a
-   plena luz. Sin él, en el acto de La marca el titular y el contexto cruzaban
-   el cilindro blanco y caían a 3:1.
-
-   Es un pseudoelemento del propio bloque, así que entra y sale con él: cuando
-   el revelado lo trae, trae su halo. Sobre papel es claro, como los paños de
-   la película; en lectura no hay toma detrás y se quita. */
-.halo {
-  position: relative;
-  isolation: isolate;
-}
-.halo::before {
-  content: "";
-  position: absolute;
-  /* Más grande y más difuminado de lo que haría falta para el contraste: con
-     28 px de desenfoque se leía como un rectángulo gris pegado sobre el
-     cilindro blanco. A 46 px y con más margen, deja de tener bordes y pasa a
-     leerse como sombra de la propia escena. */
-  inset: -2.75rem -3.25rem;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: 4rem;
-  background: rgb(var(--pelicula-sombra) / 0.6);
-  filter: blur(46px);
-}
-/* En vertical la toma se recorta al centro, y en el acto de La marca el
-   cilindro blanco pasa de ocupar el centro a llenar la pantalla entera: ya no
-   hay esquinas oscuras donde apoyar la letra. El halo tiene que cargar con
-   todo el contraste, así que en móvil es más denso. */
-@media (max-width: 767px) {
-  .halo::before { background: rgb(var(--pelicula-sombra) / 0.76); }
-}
-
-html[data-lectura="true"] .halo::before {
-  display: none;
+/* El cierre comparte encuadre con el tarro y la mano: le queda el tercio
+   izquierdo, más estrecho, y el titular baja para caber en tres líneas. */
+.cierre-titular {
+  font-size: clamp(2.2rem, 3.4vw, 3.4rem);
+  line-height: 1.02;
 }

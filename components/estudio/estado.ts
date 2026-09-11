@@ -1,5 +1,6 @@
-import type { Audiencia, Paleta, TipoProducto, TipologiaSeccion } from "@/lib/datos/tipos";
+import type { Audiencia, IdMercado, Paleta, TipoProducto, TipologiaSeccion } from "@/lib/datos/tipos";
 import { TIPOLOGIAS_POR_DEFECTO } from "@/lib/metodologia/tipologias";
+import { MERCADOS } from "@/lib/metodologia/mercados";
 
 /**
  * El estado del wizard. Vive en un solo sitio para que volver atrás no pierda
@@ -12,8 +13,10 @@ export interface EstadoEstudio {
   tipo: TipoProducto;
   audiencia: Audiencia;
   beneficioPrincipal: string;
-  precioCOP: number;
-  precioTachadoCOP?: number;
+  mercado: IdMercado;
+  /** En la unidad mínima de la moneda del mercado. */
+  precio: number;
+  precioTachado?: number;
   paleta: Paleta | null;
   alternativa: number;
   secciones: TipologiaSeccion[];
@@ -25,11 +28,22 @@ export const ESTADO_INICIAL: EstadoEstudio = {
   tipo: "suplemento-natural",
   audiencia: { genero: "mixto", edadMin: 25, edadMax: 45 },
   beneficioPrincipal: "",
-  precioCOP: 0,
+  mercado: "CO",
+  precio: 0,
   paleta: null,
   alternativa: 0,
   secciones: [...TIPOLOGIAS_POR_DEFECTO],
 };
+
+/**
+ * El país que sugiere el navegador: es-MX → México. Es solo el valor de
+ * partida del selector; si no es uno de los mercados, «otro país».
+ */
+export function mercadoDelNavegador(): IdMercado {
+  if (typeof navigator === "undefined") return ESTADO_INICIAL.mercado;
+  const region = navigator.language.split("-")[1]?.toUpperCase();
+  return region && region in MERCADOS ? (region as IdMercado) : "INT";
+}
 
 export const CLAVE_ALMACEN = "landingforge:estudio";
 
@@ -55,7 +69,7 @@ export function pasoCompleto(paso: number, e: EstadoEstudio): boolean {
   if (paso === 2) {
     return (
       e.beneficioPrincipal.trim().length >= 3 &&
-      e.precioCOP > 0 &&
+      e.precio > 0 &&
       e.audiencia.edadMax >= e.audiencia.edadMin
     );
   }

@@ -140,9 +140,20 @@ export function VistaCampana({
   const ordenadas = TIPOLOGIAS.filter((t) => pedidas.includes(t.id));
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex flex-1 flex-col">
       {/* ---- Cabecera: nombre editable y paleta con hex copiables ---- */}
-      <header className="border-b border-[var(--scale)] px-4 py-6 pt-20 sm:px-8 lg:pt-6">
+      {/* La tira de la paleta arriba, a todo el ancho: la identidad de esta
+          campaña, como el filete de temple es la del modo administración. */}
+      <div aria-hidden className="flex h-1.5">
+        {swatches(campana.paleta).map((s) => (
+          <span key={s.rol} className="flex-1" style={{ background: s.hex }} />
+        ))}
+      </div>
+      <header className="border-b border-[var(--scale)] px-5 pb-8 pt-10 sm:px-8">
+        <p className="mb-4 flex items-center gap-3 etiqueta text-smoke">
+          <span aria-hidden className="h-px w-8 bg-current" />
+          Campaña · {campana.producto.nombre}
+        </p>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <label htmlFor="nombre-campana" className="sr-only">
@@ -158,7 +169,7 @@ export function VistaCampana({
                 if (e.key === "Escape") setNombre(campana.nombre);
               }}
               className={cn(
-                "display-md w-full max-w-[28ch] rounded-[8px] bg-transparent px-2 -mx-2",
+                "display-lg w-full max-w-[24ch] rounded-[8px] bg-transparent px-2 -mx-2",
                 "border border-transparent",
                 "transition-colors duration-[140ms] ease-[var(--ease-out)]",
                 "hf:border-[var(--scale)] focus:border-[var(--scale-hi)] focus:bg-[var(--anvil)]",
@@ -171,10 +182,10 @@ export function VistaCampana({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Boton variante="contorno" tamano="sm" onClick={() => exportar("md")}>
+            <Boton variante="contorno" tamano="sm" className="rounded-full" onClick={() => exportar("md")}>
               <DownloadSimple  /> .md
             </Boton>
-            <Boton variante="contorno" tamano="sm" onClick={() => exportar("json")}>
+            <Boton variante="contorno" tamano="sm" className="rounded-full" onClick={() => exportar("json")}>
               <DownloadSimple  /> .json
             </Boton>
           </div>

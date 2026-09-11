@@ -52,6 +52,9 @@ export interface Audiencia {
   edadMax: number;
 }
 
+/** El país donde se vende. Ver `lib/metodologia/mercados.ts`. */
+export type IdMercado = "CO" | "MX" | "PE" | "CL" | "AR" | "EC" | "GT" | "ES" | "US" | "INT";
+
 export interface Producto {
   nombre: string;
   descripcion: string;
@@ -59,8 +62,11 @@ export interface Producto {
   tipo: TipoProducto;
   audiencia: Audiencia;
   beneficioPrincipal: string;
-  precioCOP: number;
-  precioTachadoCOP?: number;
+  /** Las campañas anteriores a los mercados no lo tienen: eran de Colombia. */
+  mercado?: IdMercado;
+  /** En la unidad mínima de la moneda del mercado: pesos, o céntimos donde los hay. */
+  precio: number;
+  precioTachado?: number;
 }
 
 export type ReglaAdvertencia =

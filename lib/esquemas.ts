@@ -20,6 +20,8 @@ export const esquemaTipoProducto = z.enum([
   "otro",
 ]);
 
+export const esquemaMercado = z.enum(["CO", "MX", "PE", "CL", "AR", "EC", "GT", "ES", "US", "INT"]);
+
 export const esquemaTipologia = z.enum([
   "hero",
   "beneficios",
@@ -44,8 +46,9 @@ export const esquemaProducto = z
       edadMax: z.number().int().min(13).max(90),
     }),
     beneficioPrincipal: z.string().trim().min(3, "Escribe el beneficio principal").max(80),
-    precioCOP: z.number().int().min(0).max(999_999_999),
-    precioTachadoCOP: z.number().int().min(0).max(999_999_999).optional(),
+    mercado: esquemaMercado.default("CO"),
+    precio: z.number().int().min(0).max(999_999_999),
+    precioTachado: z.number().int().min(0).max(999_999_999).optional(),
   })
   .refine((p) => p.audiencia.edadMax >= p.audiencia.edadMin, {
     message: "La edad máxima no puede ser menor que la mínima",

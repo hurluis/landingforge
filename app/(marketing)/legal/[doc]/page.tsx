@@ -5,8 +5,8 @@ import { formatoCOP } from "@/lib/formato";
 
 /**
  * Páginas legales. Están escritas en el mismo registro que el resto del
- * producto: §3.3 dice que la letra pequeña oculta destruye confianza en
- * Colombia, así que aquí no hay letra pequeña.
+ * producto: §3.3 dice que la letra pequeña oculta destruye la confianza del
+ * comprador, así que aquí no hay letra pequeña.
  */
 
 type Doc = { titulo: string; entrada: string; secciones: { h: string; p: string[] }[] };
@@ -35,7 +35,7 @@ const DOCS: Record<string, Doc> = {
         h: "Lo que no podemos garantizar",
         p: [
           "La salida de un modelo generativo varía. La metodología reduce mucho la variación, pero no la elimina.",
-          "Tú eres responsable de revisar que lo que publicas cumpla la regulación aplicable a tu producto, incluido el registro INVIMA cuando corresponda. LandingForge no valida afirmaciones de salud.",
+          "Tú eres responsable de revisar que lo que publicas cumpla la regulación aplicable a tu producto, incluido el registro sanitario de tu país —INVIMA, COFEPRIS, FDA u otro— cuando corresponda. LandingForge no valida afirmaciones de salud.",
         ],
       },
       {

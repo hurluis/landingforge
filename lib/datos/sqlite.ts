@@ -14,6 +14,7 @@ import type {
 import type { Repositorio } from "@/lib/datos/repositorio";
 import { CREDITOS_BIENVENIDA, plan as definicionPlan } from "@/lib/planes";
 import { id } from "@/lib/utils";
+import { productoGuardado } from "@/lib/datos/producto";
 
 /**
  * Persistencia — SQLite a través de `node:sqlite`, el módulo integrado de
@@ -165,7 +166,7 @@ export function aCampana(f: FilaCampana): Campana {
     id: f.id,
     usuarioId: f.usuario_id,
     nombre: f.nombre,
-    producto: JSON.parse(f.producto),
+    producto: productoGuardado(JSON.parse(f.producto)),
     paleta: JSON.parse(f.paleta),
     prompts: JSON.parse(f.prompts),
     seccionesFallidas: JSON.parse(f.secciones_fallidas),

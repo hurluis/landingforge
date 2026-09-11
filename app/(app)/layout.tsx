@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { usuarioActual } from "@/lib/auth/sesion";
-import { BarraLateral } from "@/components/app/barra-lateral";
+import { Barra } from "@/components/panel/barra";
 import { SaltarAlContenido } from "@/components/ui/saltar";
 
 /**
@@ -13,9 +13,9 @@ export default async function LayoutApp({ children }: { children: React.ReactNod
   if (!usuario) redirect("/entrar?volver=/app");
 
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 flex-col">
       <SaltarAlContenido />
-      <BarraLateral usuario={usuario} />
+      <Barra usuario={usuario} modo="app" />
       <main id="contenido" className="min-w-0 flex-1">
         {children}
       </main>

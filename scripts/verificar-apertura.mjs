@@ -33,9 +33,9 @@ const BASE = process.env.BASE ?? "http://localhost:3000";
 const ACTOS = {
   estudio: [0, 45],
   despegue: [45, 110],
-  vuelo: [110, 228],
+  vuelo: [110, 222],
   marca: [236, 290],
-  flotacion: [288, 345],
+  flotacion: [290, 350],
   mano: [345, 414],
 };
 
@@ -115,6 +115,32 @@ for (const [ancho, alto] of [[1440, 900], [1280, 720]]) {
       vista.asoman.map((a) => `${tramos[a.k].acto} al ${Math.round(a.fraccion * 100)} %`).join(", "));
     const solapan = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top);
     ok(!vista.flotantes.some((f) => solapan(vista.bloque, f)), `«${t.acto}»: no queda bajo un botón flotante`);
+  }
+
+  /* El pasillo de la marca: el primer plano blanco de la etiqueta, sin
+     texto encima. Se comprueba en su centro y en sus dos bordes, que es
+     donde un tramo vecino podría seguir asomando sobre el blanco. */
+  const pasillo = await p.evaluate(() => {
+    const r = document.querySelector("[data-pasillo]").getBoundingClientRect();
+    return { top: r.top + scrollY, alto: r.height };
+  });
+  for (const [nombre, y] of [
+    ["centro", pasillo.top + pasillo.alto / 2 - alto / 2],
+    ["entrada", pasillo.top + pasillo.alto * 0.2 - alto / 2],
+    ["salida", pasillo.top + pasillo.alto * 0.8 - alto / 2],
+  ]) {
+    await ir(p, y);
+    const { fotograma } = await pelicula(p);
+    const asoma = await p.evaluate(() => [...document.querySelectorAll("[data-tramo]")].some((t) => {
+      const b = t.firstElementChild.firstElementChild.getBoundingClientRect();
+      return b.bottom > 64 && b.top < innerHeight;
+    }));
+    if (nombre === "centro") {
+      const [min, max] = ACTOS.marca;
+      ok(fotograma >= min && fotograma <= max, "el pasillo cae en el primer plano de la marca", `fotograma ${fotograma}`);
+    }
+    ok(!asoma || fotograma < 222 || fotograma > 290,
+      `pasillo (${nombre}): ningún texto sobre el blanco de la etiqueta`, `fotograma ${fotograma}`);
   }
 
   const envuelven = await p.evaluate(() => {

@@ -8,17 +8,19 @@ import { ETIQUETA_ACCION, describirDetalle } from "@/lib/etiquetas-admin";
 import { Boton } from "@/components/ui/boton";
 import { Badge } from "@/components/ui/piezas";
 import {
+  ANCHO,
+  Banda,
   BarraFiltros,
   CampoFiltro,
   Celda,
-  Encabezado,
   EntradaFiltro,
   EstadoVacio,
   Fila,
   Paginador,
   SelectFiltro,
   Tabla,
-} from "@/components/admin/piezas-admin";
+} from "@/components/panel/piezas";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Auditoría" };
 export const dynamic = "force-dynamic";
@@ -74,101 +76,107 @@ export default async function PaginaAuditoria({
   if (filtro.hasta) parametrosCsv.set("hasta", filtro.hasta);
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-8 pt-20 sm:px-8 lg:pt-8">
-      <Encabezado
+    <>
+      <Banda
+        fotograma="/secuencia/0144.jpg"
+        encuadre="58% 50%"
+        alto="media"
+        rotulo="Administración"
         titulo="Auditoría"
         descripcion="Toda acción del panel que cambia algo queda aquí. Este registro no se puede editar ni borrar desde ninguna parte de la aplicación."
       >
-        <Boton asChild variante="contorno" tamano="sm">
+        <Boton asChild variante="tinta" tamano="md" className="rounded-full">
           <a href={`/api/admin/auditoria?${parametrosCsv.toString()}`}>
             <DownloadSimple className="size-4" />
             Exportar CSV
           </a>
         </Boton>
-      </Encabezado>
+      </Banda>
 
-      <BarraFiltros>
-        <CampoFiltro etiqueta="Acción">
-          <SelectFiltro
-            name="accion"
-            defaultValue={filtro.accion ?? ""}
-            opciones={OPCIONES_ACCION}
-          />
-        </CampoFiltro>
-        <CampoFiltro etiqueta="Desde">
-          <EntradaFiltro type="date" name="desde" defaultValue={filtro.desde ?? ""} />
-        </CampoFiltro>
-        <CampoFiltro etiqueta="Hasta">
-          <EntradaFiltro type="date" name="hasta" defaultValue={filtro.hasta ?? ""} />
-        </CampoFiltro>
-        <Boton type="submit" variante="contorno" tamano="md">
-          <MagnifyingGlass className="size-4" />
-          Filtrar
-        </Boton>
-      </BarraFiltros>
-
-      <div className="mt-8">
-        {filas.length === 0 ? (
-          <EstadoVacio
-            titulo="No hay ninguna acción registrada con estos filtros."
-            detalle="Si el panel es nuevo, esto es lo esperado: la bitácora empieza vacía y se llena sola."
-          />
-        ) : (
-          <>
-            <Tabla
-              descripcion="Acciones administrativas con actor, objetivo, detalle y origen."
-              cabeceras={["Fecha", "Actor", "Acción", "Objetivo", "Detalle", "IP"]}
-              ancho="min-w-[960px]"
-            >
-              {filas.map((e) => (
-                <Fila key={e.id}>
-                  {/* La píldora y la fecha no se parten: un `rounded-full` de
-                      altura fija con el texto en dos líneas se desborda de su
-                      propio borde. */}
-                  <Celda mono className="whitespace-nowrap">
-                    {fechaCorta(e.fecha)}
-                  </Celda>
-                  <Celda>
-                    {e.actorId ? (
-                      <Link
-                        href={`/admin/usuarios/${e.actorId}`}
-                        className="text-[var(--quench)] no-underline hf:underline"
-                      >
-                        {e.actorEmail}
-                      </Link>
-                    ) : (
-                      <span className="mono-sm text-slag">{e.actorEmail}</span>
-                    )}
-                  </Celda>
-                  <Celda>
-                    <Badge tono={TONO_ACCION[e.accion]} className="whitespace-nowrap">
-                      {ETIQUETA_ACCION[e.accion]}
-                    </Badge>
-                  </Celda>
-                  <Celda className="text-ash">
-                    {e.objetivoEtiqueta}
-                    <span className="block mono-sm text-slag">{e.objetivoTipo}</span>
-                  </Celda>
-                  <Celda mono>{describirDetalle(e.accion, e.detalle)}</Celda>
-                  <Celda mono>{e.ip}</Celda>
-                </Fila>
-              ))}
-            </Tabla>
-
-            <Paginador
-              total={total}
-              pagina={pagina}
-              porPagina={porPagina}
-              nombre="acciones"
-              parametros={{
-                accion: filtro.accion,
-                desde: filtro.desde,
-                hasta: filtro.hasta,
-              }}
+      <div className={cn(ANCHO, "mt-10")}>
+        <BarraFiltros>
+          <CampoFiltro etiqueta="Acción">
+            <SelectFiltro
+              name="accion"
+              defaultValue={filtro.accion ?? ""}
+              opciones={OPCIONES_ACCION}
             />
-          </>
-        )}
+          </CampoFiltro>
+          <CampoFiltro etiqueta="Desde">
+            <EntradaFiltro type="date" name="desde" defaultValue={filtro.desde ?? ""} />
+          </CampoFiltro>
+          <CampoFiltro etiqueta="Hasta">
+            <EntradaFiltro type="date" name="hasta" defaultValue={filtro.hasta ?? ""} />
+          </CampoFiltro>
+          <Boton type="submit" variante="tinta" tamano="md" className="rounded-full">
+            <MagnifyingGlass className="size-4" />
+            Filtrar
+          </Boton>
+        </BarraFiltros>
+
+        <div className="mt-10">
+          {filas.length === 0 ? (
+            <EstadoVacio
+              titulo="No hay ninguna acción registrada con estos filtros."
+              detalle="Si el panel es nuevo, esto es lo esperado: la bitácora empieza vacía y se llena sola."
+            />
+          ) : (
+            <>
+              <Tabla
+                descripcion="Acciones administrativas con actor, objetivo, detalle y origen."
+                cabeceras={["Fecha", "Actor", "Acción", "Objetivo", "Detalle", "IP"]}
+                ancho="min-w-[960px]"
+              >
+                {filas.map((e) => (
+                  <Fila key={e.id}>
+                    {/* La píldora y la fecha no se parten: un `rounded-full` de
+                        altura fija con el texto en dos líneas se desborda de su
+                        propio borde. */}
+                    <Celda mono className="whitespace-nowrap">
+                      {fechaCorta(e.fecha)}
+                    </Celda>
+                    <Celda>
+                      {e.actorId ? (
+                        <Link
+                          href={`/admin/usuarios/${e.actorId}`}
+                          className="text-ash no-underline hf:text-[var(--heat)]"
+                        >
+                          {e.actorEmail}
+                        </Link>
+                      ) : (
+                        <span className="mono-sm text-slag">{e.actorEmail}</span>
+                      )}
+                    </Celda>
+                    <Celda>
+                      <Badge tono={TONO_ACCION[e.accion]} className="whitespace-nowrap">
+                        {ETIQUETA_ACCION[e.accion]}
+                      </Badge>
+                    </Celda>
+                    <Celda className="text-ash">
+                      {e.objetivoEtiqueta}
+                      <span className="block mono-sm text-slag">{e.objetivoTipo}</span>
+                    </Celda>
+                    <Celda mono>{describirDetalle(e.accion, e.detalle)}</Celda>
+                    <Celda mono>{e.ip}</Celda>
+                  </Fila>
+                ))}
+              </Tabla>
+
+              <Paginador
+                total={total}
+                pagina={pagina}
+                porPagina={porPagina}
+                nombre="acciones"
+                parametros={{
+                  accion: filtro.accion,
+                  desde: filtro.desde,
+                  hasta: filtro.hasta,
+                }}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

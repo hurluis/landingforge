@@ -48,11 +48,15 @@ export function FormularioEntrada() {
   }
 
   return (
-    <div className="w-full max-w-[400px]">
-      <h1 className="display-md">
+    <div className="w-full max-w-[420px]">
+      <p className="flex items-center gap-3 etiqueta text-smoke">
+        <span aria-hidden className="h-px w-8 bg-current" />
+        {modo === "entrar" ? "Tu estudio" : "Cuenta nueva"}
+      </p>
+      <h1 className="mt-5 display-lg">
         {modo === "entrar" ? "Entra a tu cuenta" : "Crea tu cuenta"}
       </h1>
-      <p className="mt-3 cuerpo text-smoke">
+      <p className="mt-4 cuerpo-lg text-smoke">
         {modo === "entrar"
           ? "Tus campañas te esperan donde las dejaste."
           : `Empiezas con ${CREDITOS_BIENVENIDA} créditos gratis. No pedimos tarjeta.`}

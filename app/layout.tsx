@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import { Movimiento } from "@/components/motion/movimiento";
@@ -7,21 +7,22 @@ import { PanelAccesibilidad } from "@/components/a11y/panel-accesibilidad";
 import "./globals.css";
 
 /**
- * UNA SOLA FAMILIA: Nunito. Sans de remates redondeados, variable de 200 a
- * 1000.
+ * UNA SOLA FAMILIA: Outfit. Geométrica de bowls circulares y remates rectos,
+ * variable de 100 a 900.
  *
- * El encargo fue una letra «más bold, mucho más redondeada»: simple, y que
- * cargue con el minimalismo de la identidad. Outfit, la anterior, era
- * geométrica —bowls circulares— pero sus remates eran rectos, así que a
- * tamaño display se leía más seca que redonda. Nunito redondea el final de
- * cada trazo, y en peso 800 el titular gana cuerpo sin volverse infantil. Se
- * compararon Fredoka (más de juguete), M PLUS Rounded (más ancha, se come la
- * medida del titular) y Rubik (apenas redondeada).
+ * Sustituye al par Bodoni + Geist. El didone se eligió cuando la página era
+ * una sala oscura con objetos dentro: su contraste altísimo entre astas y
+ * perfiles brillaba sobre el estudio y desaparecía sobre el papel, y esa
+ * ambigüedad era el argumento. Ahora la identidad es la película, que ocupa
+ * la pantalla entera y ya lleva toda la textura que la página necesita.
+ * Encima de ella un didone compite; una geométrica redonda en peso alto se
+ * apoya. La referencia usa Halyard Display en 500-600, que es exactamente
+ * esta forma: círculo, remate recto, nada de gracia.
  *
  * Que sea la MISMA familia para display y para texto es la mitad del
  * minimalismo: la página deja de tener dos voces.
  */
-const nunito = Nunito({
+const outfit = Outfit({
   variable: "--font-round",
   subsets: ["latin"],
   display: "swap",
@@ -34,12 +35,12 @@ export const metadata: Metadata = {
     template: "%s · LandingForge",
   },
   description:
-    "Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin plantillas.",
+    "Sube la foto. LandingForge arma las nueve secciones que venden, adaptadas al país donde vendes. Sin plantillas.",
   openGraph: {
     title: "LandingForge",
     description:
       "El paquete visual completo de tu landing de e-commerce, construido con metodología.",
-    locale: "es_CO",
+    locale: "es_LA",
     type: "website",
   },
 };
@@ -52,8 +53,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="es-CO"
-      className={`${nunito.variable} ${GeistMono.variable} h-full`}
+      lang="es"
+      className={`${outfit.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
       <head>

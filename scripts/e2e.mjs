@@ -110,8 +110,9 @@ let campanaId = null;
     tipo: "suplemento-natural",
     audiencia: { genero: "f", edadMin: 30, edadMax: 55 },
     beneficioPrincipal: "Piel firme en 8 semanas",
-    precioCOP: 129900,
-    precioTachadoCOP: 169900,
+    mercado: "CO",
+    precio: 129900,
+    precioTachado: 169900,
   };
   const paleta = {
     id: "monte-humedo",

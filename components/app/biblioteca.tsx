@@ -1,14 +1,16 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Copy, MagnifyingGlass, Trash, PencilSimple } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRight, Copy, MagnifyingGlass, Trash } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { Campana } from "@/lib/datos/tipos";
-import { Lamina } from "@/components/marketing/lamina";
+import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
 import { Boton } from "@/components/ui/boton";
 import { Badge } from "@/components/ui/piezas";
+import { Rotulo } from "@/components/panel/piezas";
 import {
   Dialogo,
   DialogoCierre,
@@ -19,9 +21,17 @@ import { fechaCorta } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
 /**
- * Biblioteca — §6.3. Grilla de campañas con miniatura, paleta, fecha y estado.
- * Buscador. Los cinco estados de §11 viven aquí: vacío, cargando (skeleton en
- * la ruta), error, parcial (la campaña marca sus secciones fallidas) y lleno.
+ * Biblioteca — §6.3. Las campañas como carteles, no como tarjetas.
+ *
+ * Cada campaña se pinta con lo único que es suyo: su paleta y la foto de su
+ * producto. El fondo del cartel es el color de fondo que la matriz le asignó,
+ * el producto va encima como en su hero, y abajo corre la tira de sus cinco
+ * colores. Así dos campañas no se parecen nunca, que es la promesa del
+ * producto, y la biblioteca se lee de un vistazo por color antes que por
+ * nombre. Antes cada una llevaba la misma maqueta esquemática en DOM.
+ *
+ * Los cinco estados de §11 viven aquí: vacío, cargando (skeleton en la ruta),
+ * error, parcial (la campaña marca sus secciones fallidas) y lleno.
  */
 
 const ETIQUETA_ESTADO: Record<Campana["estado"], { texto: string; tono: "neutro" | "ok" | "aviso" | "peligro" | "maquina" }> = {
@@ -83,31 +93,18 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
      Abrir un modal para cambiar un nombre es justo el caso que §4.8 prohíbe:
      una tarea que no necesita interrupción ni foco protegido. */
 
-  /* Estado vacío: invita a actuar. Título, una línea y un botón (§11). */
-  if (campanas.length === 0) {
-    return (
-      <div className="mx-auto max-w-[520px] py-24 text-center">
-        <h2 className="display-md">Sube la foto de tu primer producto</h2>
-        <p className="mt-3 cuerpo text-smoke">
-          En cuatro preguntas tienes la paleta asignada y los prompts de las secciones que
-          elijas.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <Boton asChild variante="heat" tamano="lg">
-            <Link href="/app/nueva">Crear mi primera campaña</Link>
-          </Boton>
-        </div>
-      </div>
-    );
-  }
+  if (campanas.length === 0) return <Vacia />;
 
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="relative min-w-[240px] flex-1 max-w-[360px]">
-          <MagnifyingGlass 
+    <section aria-labelledby="campanas-titulo">
+      <div className="flex flex-wrap items-end justify-between gap-4 border-t border-[var(--scale)] pt-8">
+        <h2 id="campanas-titulo" className="titulo">
+          Tus campañas
+        </h2>
+        <div className="relative w-full max-w-[340px]">
+          <MagnifyingGlass
             aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slag"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slag"
           />
           <label htmlFor="buscar" className="sr-only">
             Buscar campañas
@@ -119,76 +116,81 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
             onChange={(e) => setBusqueda(e.target.value)}
             placeholder="Buscar por producto o paleta"
             className={cn(
-              "h-10 w-full rounded-[10px] pl-9 pr-3 text-[0.9375rem]",
-              "bg-[var(--anvil)] text-ash placeholder:text-slag",
-              "border border-[var(--scale)]",
-              "transition-colors duration-[140ms] ease-[var(--ease-out)]",
-              "focus:border-[var(--scale-hi)]",
+              "h-10 w-full rounded-full pl-10 pr-4 text-[0.9375rem]",
+              "border border-[var(--scale-hi)] bg-transparent text-ash placeholder:text-slag",
+              "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:border-ash focus:border-ash",
             )}
           />
         </div>
-        <Boton asChild variante="heat" tamano="md">
-          <Link href="/app/nueva">Nueva campaña</Link>
-        </Boton>
       </div>
 
       {filtradas.length === 0 ? (
-        <p className="mt-16 text-center cuerpo text-smoke">
-          Ninguna campaña coincide con «{busqueda}».
-        </p>
+        <p className="mt-16 cuerpo-lg text-smoke">Ninguna campaña coincide con «{busqueda}».</p>
       ) : (
-        <ul
-          className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        >
+        <ul className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtradas.map((c) => {
             const estado = ETIQUETA_ESTADO[c.estado];
             const parcial = c.seccionesFallidas.length > 0;
+            const colores = [c.paleta.fondo, c.paleta.acento, c.paleta.texto, c.paleta.secundario, c.paleta.energia];
             return (
-              <li
-                key={c.id}
-                className="flex flex-col rounded-[16px] border border-[var(--scale)] bg-[var(--anvil)] p-3"
-              >
+              <li key={c.id} className="group flex flex-col">
                 <Link
                   href={`/app/c/${c.id}`}
-                  className="relative block aspect-[9/16] overflow-hidden rounded-[10px] bg-[var(--sunk)] no-underline"
+                  aria-label={`Abrir ${c.nombre}`}
+                  className="relative block aspect-[4/5] overflow-hidden rounded-2xl no-underline shadow-[0_24px_60px_-30px_rgb(0_0_0/0.8)]"
+                  style={{ background: c.paleta.fondo }}
                 >
-                  <Lamina tipologia={c.prompts[0]?.tipologia ?? "hero"} paleta={c.paleta} />
+                  <span
+                    aria-hidden
+                    className="absolute left-6 top-6 h-1 w-10 rounded-full"
+                    style={{ background: c.paleta.acento }}
+                  />
+                  {c.producto.imagenUrl ? (
+                    <Image
+                      src={c.producto.imagenUrl}
+                      alt=""
+                      fill
+                      unoptimized
+                      sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-contain p-10 pb-14 transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                    />
+                  ) : (
+                    <span
+                      className="absolute inset-x-6 bottom-12 line-clamp-4 font-[family-name:var(--font-round)] text-[1.75rem] font-semibold leading-[1.02] tracking-[-0.03em]"
+                      style={{ color: c.paleta.texto }}
+                    >
+                      {c.producto.nombre}
+                    </span>
+                  )}
+                  <span aria-hidden className="absolute inset-x-0 bottom-0 flex h-2">
+                    {colores.map((hex, i) => (
+                      <span key={`${hex}-${i}`} className="flex-1" style={{ background: hex }} />
+                    ))}
+                  </span>
                 </Link>
 
-                <div className="mt-3 flex items-start justify-between gap-2">
-                  <Link href={`/app/c/${c.id}`} className="titulo text-ash no-underline hf:text-[var(--heat)]">
-                    {c.nombre}
-                  </Link>
-                  <Badge tono={parcial ? "aviso" : estado.tono}>
+                <div className="mt-4 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <Link
+                      href={`/app/c/${c.id}`}
+                      className="block truncate titulo text-ash no-underline transition-colors duration-[140ms] hf:text-[var(--heat)]"
+                    >
+                      {c.nombre}
+                    </Link>
+                    <p className="mt-1 mono-sm text-slag">
+                      {c.prompts.length} de {c.prompts.length + c.seccionesFallidas.length} secciones ·{" "}
+                      {fechaCorta(c.actualizadaEn)}
+                    </p>
+                  </div>
+                  <Badge tono={parcial ? "aviso" : estado.tono} className="shrink-0">
                     {parcial ? "parcial" : estado.texto}
                   </Badge>
                 </div>
 
-                <p className="mt-1 mono-sm text-slag">
-                  {c.prompts.length} de {c.prompts.length + c.seccionesFallidas.length} secciones ·{" "}
-                  {fechaCorta(c.actualizadaEn)}
-                </p>
-
-                <div className="mt-3 flex items-center gap-1.5" title={c.paleta.nombre}>
-                  {[c.paleta.fondo, c.paleta.acento, c.paleta.texto, c.paleta.secundario, c.paleta.energia].map(
-                    (hex) => (
-                      <span
-                        key={hex}
-                        aria-hidden
-                        style={{ background: hex }}
-                        className="size-3 rounded-full border border-[var(--scale)]"
-                      />
-                    ),
-                  )}
-                  <span className="ml-1 mono-sm text-slag">{c.paleta.nombre}</span>
-                </div>
-
-                <div className="mt-4 flex items-center gap-1 border-t border-[var(--scale)] pt-3">
-                  <Boton asChild variante="fantasma" tamano="sm">
-                    <Link href={`/app/c/${c.id}`} aria-label={`Abrir ${c.nombre}`}>
-                      <PencilSimple  />
-                    </Link>
-                  </Boton>
+                <div className="mt-3 flex items-center gap-1">
+                  <span className="mr-auto truncate mono-sm text-slag" title={c.paleta.razon}>
+                    {c.paleta.nombre}
+                  </span>
                   <Boton
                     variante="fantasma"
                     tamano="sm"
@@ -206,11 +208,11 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                       <Boton
                         variante="fantasma"
                         tamano="sm"
-                        className="ml-auto text-[var(--danger)]"
+                        className="text-[var(--danger)]"
                         disabled={ocupada === c.id}
                         aria-label={`Eliminar ${c.nombre}`}
                       >
-                        <Trash  />
+                        <Trash />
                       </Boton>
                     </DialogoDisparador>
                     <DialogoContenido
@@ -235,6 +237,55 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
           })}
         </ul>
       )}
-    </>
+    </section>
+  );
+}
+
+/**
+ * Estado vacío: invita a actuar (§11). Y enseña lo que se va a recibir: las
+ * nueve secciones de una campaña real, las mismas de la home, en fila.
+ */
+function Vacia() {
+  return (
+    <section aria-labelledby="vacia-titulo" className="border-t border-[var(--scale)] pt-10">
+      <div className="flex flex-wrap items-end justify-between gap-8">
+        <div className="max-w-xl">
+          <Rotulo className="text-smoke">Tu primera campaña</Rotulo>
+          <h2 id="vacia-titulo" className="mt-4 display-md">
+            Sube la foto de tu producto y recibe las nueve secciones.
+          </h2>
+          <p className="mt-4 cuerpo-lg text-smoke">
+            Cuatro preguntas: qué es, para quién, dónde lo vendes y cuánto cuesta. La matriz
+            asigna la paleta y el motor construye un prompt validado por sección.
+          </p>
+        </div>
+        <Boton asChild variante="heat" tamano="lg">
+          <Link href="/app/nueva">
+            Crear mi primera campaña
+            <ArrowRight className="size-5" />
+          </Link>
+        </Boton>
+      </div>
+
+      <ul className="mt-12 flex gap-4 overflow-x-auto pb-4 tira-nativa">
+        {TIPOLOGIAS.map((t) => (
+          <li key={t.id} className="w-[150px] shrink-0 sm:w-[170px]">
+            <div className="relative aspect-[9/16] overflow-hidden rounded-xl">
+              <Image
+                src={`/secciones/${t.id}.png`}
+                alt={`Sección ${t.nombre} de una campaña real`}
+                fill
+                sizes="170px"
+                className="object-cover object-top"
+              />
+            </div>
+            <p className="mt-3 flex items-baseline gap-2">
+              <span className="mono-sm text-slag">{String(t.numero).padStart(2, "0")}</span>
+              <span className="etiqueta text-smoke">{t.nombre}</span>
+            </p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

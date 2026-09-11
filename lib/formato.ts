@@ -1,6 +1,10 @@
+import type { Mercado } from "@/lib/metodologia/mercados";
+
 /**
  * Formato — el detalle pequeño que demuestra conocimiento del mercado.
- * $99.900 con punto de miles, nunca $99,900 con coma (§6.2.5, punto 4).
+ * Cada país escribe su precio a su manera: $99.900 en Bogotá, $99,900 en
+ * Ciudad de México, 39,90 € en Madrid. El error de separador delata que la
+ * pieza no es de allí.
  */
 
 const FORMATO_COP = new Intl.NumberFormat("es-CO", {
@@ -9,17 +13,39 @@ const FORMATO_COP = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
-/** 99900 → "$99.900" */
+/** 99900 → "$99.900". Los planes de LandingForge se cobran en pesos colombianos. */
 export function formatoCOP(valor: number): string {
   return FORMATO_COP.format(Math.round(valor)).replace(/\s/g, "");
 }
 
+const formatos = new Map<string, Intl.NumberFormat>();
+
+/**
+ * Precio de un producto en su mercado. `valor` va en la unidad mínima de la
+ * moneda: 99900 pesos, o 3999 céntimos para $39.99.
+ */
+export function formatoPrecio(valor: number, m: Mercado): string {
+  let f = formatos.get(m.id);
+  if (!f) {
+    f = new Intl.NumberFormat(m.locale, {
+      style: "currency",
+      currency: m.moneda,
+      minimumFractionDigits: m.decimales,
+      maximumFractionDigits: m.decimales,
+    });
+    formatos.set(m.id, f);
+  }
+  /* «$ 99.900» → «$99.900». Solo el dólar pegado: «S/ 89.90» y «39,90 €»
+     llevan el espacio por convención. */
+  return f.format(Math.round(valor) / 10 ** m.decimales).replace(/\$\s/, "$");
+}
+
 /** Máscara en vivo del campo de precio: deja solo dígitos y formatea. */
-export function mascaraCOP(entrada: string): { texto: string; valor: number } {
+export function mascaraPrecio(entrada: string, m: Mercado): { texto: string; valor: number } {
   const digitos = entrada.replace(/\D/g, "").slice(0, 12);
   if (digitos === "") return { texto: "", valor: 0 };
   const valor = Number(digitos);
-  return { texto: formatoCOP(valor), valor };
+  return { texto: formatoPrecio(valor, m), valor };
 }
 
 export function contarCaracteres(texto: string): number {

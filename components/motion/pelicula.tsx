@@ -49,6 +49,10 @@ const TOMAS = [
 ];
 
 const LOTE = 24;
+
+/* El velo mínimo en móvil, dentro de las zonas. Medido: sobre el frasco
+   blanco, 0,6 deja la letra blanca por encima de 5:1. */
+const VELO_MOVIL = 0.6;
 const ruta = (t: number, i: number) =>
   `/${TOMAS[t].carpeta}/${String(i + 1).padStart(4, "0")}.jpg`;
 
@@ -212,6 +216,7 @@ function Lienzo({ raiz, capa, velo }: { raiz: Ref; capa: Ref; velo: Ref }) {
     let toma = 0, objetivo = 0, presencia = 1;
     let px = 0, py = 0, mx = 0, my = 0;
     const fino = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const estrecha = window.matchMedia("(max-width: 767px)");
 
     const medir = () => {
       const vh = window.innerHeight;
@@ -239,10 +244,13 @@ function Lienzo({ raiz, capa, velo }: { raiz: Ref; capa: Ref; velo: Ref }) {
         presencia = Math.min(entra, sale);
       });
       if (!hay) {
-        /* Páginas sin zonas: la toma principal sobre el documento, a medio velo. */
+        /* Páginas sin zonas —metodología, precios, legales—: la toma se
+           reparte sobre el documento con el velo bajado, como entre las zonas
+           de la home. A medio velo, el texto de la metodología que cruzaba el
+           frasco blanco se quedaba por debajo de 4,5:1. */
         toma = 0;
         objetivo = limitar(sy / Math.max(1, document.documentElement.scrollHeight - vh));
-        presencia = 0.45;
+        presencia = 0;
       }
     };
 
@@ -275,8 +283,14 @@ function Lienzo({ raiz, capa, velo }: { raiz: Ref; capa: Ref; velo: Ref }) {
         capa.current.style.transform = `translate3d(${px.toFixed(2)}px, ${py.toFixed(2)}px, 0) scale(1.06)`;
       }
       /* 0,82 y no menos: medido en móvil, con 0,74 algún rótulo de las secciones
-         de abajo se quedaba en 4,4:1 sobre el último fotograma. */
-      if (velo.current) velo.current.style.opacity = ((1 - presencia) * 0.82).toFixed(3);
+         de abajo se quedaba en 4,4:1 sobre el último fotograma.
+         Dentro de una zona, en vertical, el velo no se levanta del todo: el
+         recorte deja el frasco blanco ocupando media pantalla, y el texto, que
+         en escritorio vive en su tercio, aquí lo cruza entero. */
+      const suelo = estrecha.matches ? VELO_MOVIL : 0;
+      if (velo.current) {
+        velo.current.style.opacity = ((1 - presencia) * 0.82 + presencia * suelo).toFixed(3);
+      }
 
       const quieto = suave === objetivo && Math.abs(mx - px) < 0.05 && Math.abs(my - py) < 0.05;
       raf = quieto ? 0 : requestAnimationFrame(paso);

@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { repositorioAdmin } from "@/lib/datos";
 import { esquemaFiltroUsuarios } from "@/lib/esquemas-admin";
 import { plan as definicionPlan } from "@/lib/planes";
-import { fechaCorta, fechaRelativa } from "@/lib/formato";
+import { fechaCorta, fechaRelativa, numero } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import { Badge } from "@/components/ui/piezas";
 import {
+  ANCHO,
+  Banda,
   BarraFiltros,
   CampoFiltro,
   Celda,
-  Encabezado,
+  EnlaceFila,
   EntradaFiltro,
   EstadoVacio,
   Fila,
   Paginador,
   SelectFiltro,
   Tabla,
-} from "@/components/admin/piezas-admin";
+} from "@/components/panel/piezas";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Usuarios" };
 export const dynamic = "force-dynamic";
@@ -69,107 +71,109 @@ export default async function PaginaUsuarios({
   const { filas, total, pagina, porPagina } = await repositorioAdmin().listarUsuarios(filtro);
 
   return (
-    <div className="mx-auto max-w-[1100px] px-4 py-8 pt-20 sm:px-8 lg:pt-8">
-      <Encabezado
+    <>
+      <Banda
+        fotograma="/secuencia-crema/0120.jpg"
+        encuadre="62% 50%"
+        alto="media"
+        rotulo="Administración"
         titulo="Usuarios"
-        descripcion="Todas las cuentas de la plataforma, con lo que cada una ha producido y consumido."
+        descripcion={`${numero(total)} ${total === 1 ? "cuenta" : "cuentas"}, con lo que cada una ha producido y consumido.`}
       />
 
-      <BarraFiltros>
-        <CampoFiltro etiqueta="Buscar por correo">
-          <EntradaFiltro
-            type="search"
-            name="busqueda"
-            defaultValue={filtro.busqueda ?? ""}
-            placeholder="ana@ejemplo.com"
-          />
-        </CampoFiltro>
-        <CampoFiltro etiqueta="Plan">
-          <SelectFiltro name="plan" defaultValue={filtro.plan ?? ""} opciones={OPCIONES_PLAN} />
-        </CampoFiltro>
-        <CampoFiltro etiqueta="Rol">
-          <SelectFiltro name="rol" defaultValue={filtro.rol ?? ""} opciones={OPCIONES_ROL} />
-        </CampoFiltro>
-        <CampoFiltro etiqueta="Orden">
-          <SelectFiltro
-            name="orden"
-            defaultValue={filtro.orden ?? "reciente"}
-            opciones={OPCIONES_ORDEN}
-          />
-        </CampoFiltro>
-        <Boton type="submit" variante="contorno" tamano="md">
-          <MagnifyingGlass className="size-4" />
-          Filtrar
-        </Boton>
-      </BarraFiltros>
-
-      <div className="mt-8">
-        {filas.length === 0 ? (
-          <EstadoVacio
-            titulo="Ninguna cuenta coincide con estos filtros."
-            detalle="Prueba a limpiar la búsqueda o a quitar el filtro de plan."
-          />
-        ) : (
-          <>
-            <Tabla
-              descripcion="Cuentas de la plataforma con plan, rol, saldo y actividad."
-              cabeceras={["Correo", "Plan", "Rol", "Créditos", "Campañas", "Prompts", "Actividad", null]}
-            >
-              {filas.map((u) => (
-                <Fila key={u.id}>
-                  <Celda className="text-ash">{u.email}</Celda>
-                  <Celda>{definicionPlan(u.plan).nombre}</Celda>
-                  <Celda>
-                    {u.rol === "admin" ? (
-                      <Badge tono="maquina">admin</Badge>
-                    ) : (
-                      <span className="mono-sm text-slag">usuario</span>
-                    )}
-                  </Celda>
-                  <Celda mono className="tabular-nums">
-                    {u.creditosDisponibles}
-                  </Celda>
-                  <Celda mono className="tabular-nums">
-                    {u.campanas}
-                  </Celda>
-                  <Celda mono className="tabular-nums">
-                    {u.prompts}
-                  </Celda>
-                  <Celda mono>
-                    {u.ultimaActividad ? fechaRelativa(u.ultimaActividad) : "—"}
-                  </Celda>
-                  <Celda className="pr-0 text-right">
-                    <Link
-                      href={`/admin/usuarios/${u.id}`}
-                      className="etiqueta text-[var(--quench)] no-underline hf:underline"
-                    >
-                      Ver ficha
-                      <span className="sr-only"> de {u.email}</span>
-                    </Link>
-                  </Celda>
-                </Fila>
-              ))}
-            </Tabla>
-
-            <Paginador
-              total={total}
-              pagina={pagina}
-              porPagina={porPagina}
-              nombre="usuarios"
-              parametros={{
-                busqueda: filtro.busqueda,
-                plan: filtro.plan,
-                rol: filtro.rol,
-                orden: filtro.orden,
-              }}
+      <div className={cn(ANCHO, "mt-10")}>
+        <BarraFiltros>
+          <CampoFiltro etiqueta="Buscar por correo">
+            <EntradaFiltro
+              type="search"
+              name="busqueda"
+              defaultValue={filtro.busqueda ?? ""}
+              placeholder="ana@ejemplo.com"
             />
-          </>
-        )}
-      </div>
+          </CampoFiltro>
+          <CampoFiltro etiqueta="Plan">
+            <SelectFiltro name="plan" defaultValue={filtro.plan ?? ""} opciones={OPCIONES_PLAN} />
+          </CampoFiltro>
+          <CampoFiltro etiqueta="Rol">
+            <SelectFiltro name="rol" defaultValue={filtro.rol ?? ""} opciones={OPCIONES_ROL} />
+          </CampoFiltro>
+          <CampoFiltro etiqueta="Orden">
+            <SelectFiltro
+              name="orden"
+              defaultValue={filtro.orden ?? "reciente"}
+              opciones={OPCIONES_ORDEN}
+            />
+          </CampoFiltro>
+          <Boton type="submit" variante="tinta" tamano="md" className="rounded-full">
+            <MagnifyingGlass className="size-4" />
+            Filtrar
+          </Boton>
+        </BarraFiltros>
 
-      <p className="mt-10 mono-sm text-slag">
-        Datos al {fechaCorta(new Date().toISOString())}. La lista se calcula en cada carga.
-      </p>
-    </div>
+        <div className="mt-10">
+          {filas.length === 0 ? (
+            <EstadoVacio
+              titulo="Ninguna cuenta coincide con estos filtros."
+              detalle="Prueba a limpiar la búsqueda o a quitar el filtro de plan."
+            />
+          ) : (
+            <>
+              <Tabla
+                descripcion="Cuentas de la plataforma con plan, rol, saldo y actividad."
+                cabeceras={["Correo", "Plan", "Rol", "Créditos", "Campañas", "Prompts", "Actividad", null]}
+              >
+                {filas.map((u) => (
+                  <Fila key={u.id}>
+                    <Celda className="text-ash">{u.email}</Celda>
+                    <Celda>{definicionPlan(u.plan).nombre}</Celda>
+                    <Celda>
+                      {u.rol === "admin" ? (
+                        <Badge tono="maquina">admin</Badge>
+                      ) : (
+                        <span className="mono-sm text-slag">usuario</span>
+                      )}
+                    </Celda>
+                    <Celda mono className="tabular-nums text-smoke">
+                      {u.creditosDisponibles}
+                    </Celda>
+                    <Celda mono className="tabular-nums">
+                      {u.campanas}
+                    </Celda>
+                    <Celda mono className="tabular-nums">
+                      {u.prompts}
+                    </Celda>
+                    <Celda mono>
+                      {u.ultimaActividad ? fechaRelativa(u.ultimaActividad) : "—"}
+                    </Celda>
+                    <Celda className="pr-0 text-right">
+                      <EnlaceFila href={`/admin/usuarios/${u.id}`}>
+                        Ver ficha<span className="sr-only"> de {u.email}</span>
+                      </EnlaceFila>
+                    </Celda>
+                  </Fila>
+                ))}
+              </Tabla>
+
+              <Paginador
+                total={total}
+                pagina={pagina}
+                porPagina={porPagina}
+                nombre="usuarios"
+                parametros={{
+                  busqueda: filtro.busqueda,
+                  plan: filtro.plan,
+                  rol: filtro.rol,
+                  orden: filtro.orden,
+                }}
+              />
+            </>
+          )}
+        </div>
+
+        <p className="mt-12 mono-sm text-slag">
+          Datos al {fechaCorta(new Date().toISOString())}. La lista se calcula en cada carga.
+        </p>
+      </div>
+    </>
   );
 }

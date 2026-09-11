@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { esquemaPruebaPublica } from "@/lib/esquemas";
 import { clienteIA } from "@/lib/ia";
 import { asignarPaleta } from "@/lib/metodologia/paletas";
+import { MERCADOS } from "@/lib/metodologia/mercados";
+import type { IdMercado } from "@/lib/datos/tipos";
 import { ipDe, limitar } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -54,6 +56,12 @@ export async function POST(peticion: Request) {
   const audiencia = { genero: "mixto", edadMin: 25, edadMax: 45 } as const;
   const paleta = asignarPaleta("otro", audiencia);
 
+  /* Sin formulario de país, el mercado sale del idioma del navegador: es-MX
+     recibe su prompt con pesos mexicanos y COFEPRIS. Si no es uno de los
+     mercados, el genérico. */
+  const region = peticion.headers.get("accept-language")?.match(/^[a-z]{2}-([A-Za-z]{2})/)?.[1]?.toUpperCase();
+  const mercado: IdMercado = region && region in MERCADOS ? (region as IdMercado) : "INT";
+
   try {
     const ia = await clienteIA();
     const prompt = await ia.generarPrompt({
@@ -65,7 +73,8 @@ export async function POST(peticion: Request) {
         tipo: "otro",
         audiencia,
         beneficioPrincipal: "Resultados en 30 días",
-        precioCOP: 99900,
+        mercado,
+        precio: MERCADOS[mercado].ejemplo,
       },
     });
 

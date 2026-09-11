@@ -37,7 +37,7 @@ export const TIPOLOGIAS: readonly Tipologia[] = [
       "Titular de promesa, máximo 25 caracteres",
       "Producto como sujeto físico dominante, tres cuartos de la altura",
       "Badge de garantía o contraentrega en la esquina inferior",
-      "Precio con formato de miles colombiano",
+      "Precio con la moneda y el separador de miles del país",
     ],
     erroresConocidos: [
       "Titular más pequeño que el nombre de la marca",
@@ -115,8 +115,8 @@ export const TIPOLOGIAS: readonly Tipologia[] = [
       "Seis personas físicamente distintas, con imperfecciones reales, no modelos",
     estructura: [
       "Rejilla de seis retratos con su reseña corta",
-      "Origen regional especificado por persona: paisa, costeña, rola, afrodescendiente, rasgos indígenas",
-      "Nombre y ciudad reales de Colombia bajo cada reseña",
+      "Origen especificado por persona, con la diversidad real del país donde se vende",
+      "Nombre y ciudad reales del país bajo cada reseña",
       "Cinco estrellas dibujadas, no en emoji",
     ],
     erroresConocidos: [
@@ -152,16 +152,16 @@ export const TIPOLOGIAS: readonly Tipologia[] = [
     nombre: "Confianza y garantía",
     proposito: "Última objeción antes del checkout",
     reglaCritica:
-      "Contraentrega va siempre. Es la señal de confianza número uno en Colombia",
+      "Donde se paga al recibir, la contraentrega va siempre. Es la señal de confianza que más pesa",
     estructura: [
       "Tres o cuatro sellos metálicos alineados",
-      "Pago contraentrega como sello principal",
-      "Registro INVIMA cuando el producto es suplemento o cosmético",
+      "Pago contraentrega como sello principal, en los mercados que lo usan",
+      "Registro sanitario del país cuando el producto es suplemento o cosmético",
       "Garantía con plazo concreto en días",
     ],
     erroresConocidos: [
       "Sellos que parecen stickers planos en vez de medallas con relieve",
-      "Omitir contraentrega: es la objeción que más ventas cuesta",
+      "Omitir la contraentrega donde se usa: es la objeción que más ventas cuesta",
       "Garantías vagas sin plazo",
     ],
     requiereImagenReferencia: false,
@@ -172,15 +172,15 @@ export const TIPOLOGIAS: readonly Tipologia[] = [
     numero: 8,
     nombre: "Precios",
     proposito: "Cerrar la venta",
-    reglaCritica: "La tarjeta del medio es el ancla visual. Precio en formato $99.900",
+    reglaCritica: "La tarjeta del medio es el ancla visual. El precio, con el formato del país",
     estructura: [
       "Tres opciones de cantidad, la del medio destacada",
-      "Precio tachado y precio final con punto de miles",
-      "Ahorro expresado en pesos, no solo en porcentaje",
+      "Precio tachado y precio final con la moneda y los separadores del país",
+      "Ahorro expresado en dinero, no solo en porcentaje",
       "Botón de compra con verbo de acción",
     ],
     erroresConocidos: [
-      "Formato $99,900 con coma: delata que la pieza no es de aquí",
+      "El separador equivocado —$99,900 en Bogotá, $99.900 en Ciudad de México—: delata que la pieza no es de allí",
       "Tres opciones sin jerarquía: el ojo no sabe cuál tomar",
       "Descuentos redondos poco creíbles",
     ],
@@ -194,7 +194,7 @@ export const TIPOLOGIAS: readonly Tipologia[] = [
     proposito: "Que el comprador se vea usándolo",
     reglaCritica: "Mismas manos y mismo tono de piel en todas las fotos del bloque",
     estructura: [
-      "El producto dentro de una escena cotidiana colombiana reconocible",
+      "El producto dentro de una escena cotidiana que el comprador reconoce como de su país",
       "Persona del rango de edad objetivo, en actitud de uso, no posando",
       "Luz ambiente coherente con la hora del día declarada",
     ],
