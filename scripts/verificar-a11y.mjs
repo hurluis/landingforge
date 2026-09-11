@@ -44,7 +44,7 @@ console.log("\n1 · La película");
 await p.goto(BASE, { waitUntil: "networkidle" });
 await sinOverlay(p);
 
-const seccion = p.locator("[data-decorativo]");
+const seccion = p.locator("[data-pelicula]");
 ok(await seccion.count() === 1, "la película se monta una sola vez");
 ok(
   await seccion.evaluate((el) => getComputedStyle(el).position) === "fixed",
@@ -67,11 +67,14 @@ ok(Number(dims.op) === 1, "el canvas ya es visible", `opacidad ${dims.op}`);
 
 /* Se compara el píxel del canvas en dos puntos del recorrido: si el scroll
    mueve el tiempo de verdad, la imagen tiene que cambiar. */
-const recorrido = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+/* El reloj de la película es la zona de la apertura, no el documento: pasada
+   la zona la toma se queda en su último fotograma. Se muestrea dentro. */
+const zona = await p.evaluate(() => {
+  const z = document.getElementById("pelicula-zona");
+  return { top: z.offsetTop, recorrido: z.offsetHeight - innerHeight };
+});
 const firma = async (frac) => {
-  /* El reloj de la película es el documento entero, así que el recorrido va de
-     la primera línea al pie. */
-  await p.evaluate((y) => window.scrollTo(0, y), recorrido * frac);
+  await p.evaluate(({ top, recorrido, frac }) => window.scrollTo(0, top + recorrido * frac), { ...zona, frac });
   await p.waitForTimeout(1400);
   return canvas.evaluate((c) => {
     const g = c.getContext("2d");
@@ -127,6 +130,10 @@ let e = await leer();
 ok(e.tema === "claro", "el tema claro se escribe en el <html>");
 ok(e.tinta === "rgb(20, 22, 26)", "los tokens invierten a papel", e.tinta);
 await p.screenshot({ path: `${OUT}/a11y-tema-claro.png` });
+
+await p.waitForTimeout(400);
+ok(await p.locator("[data-pelicula] canvas").count() === 0,
+  "sobre papel no se monta el canvas: no se descargan fotogramas que no se ven");
 
 await p.getByRole("radio", { name: /Enorme/ }).check();
 await p.waitForTimeout(200);
@@ -191,7 +198,7 @@ const tracking = await p.evaluate(() => {
 });
 ok(tracking === "normal" || parseFloat(tracking) >= 0, "el modo lectura suelta el tracking del display", tracking);
 const fondoOculto = await p.evaluate(() => {
-  const d = document.querySelector("[data-decorativo]");
+  const d = document.querySelector("[data-pelicula]");
   return d ? getComputedStyle(d).display : "sin-nodo";
 });
 ok(fondoOculto === "none", "el fondo decorativo se apaga en modo lectura", fondoOculto);
@@ -215,9 +222,9 @@ ok(antesDeHidratar === "enorme", "el script inline las aplica antes de pintar");
    El servidor pinta siempre la variante con canvas —no puede saber lo que hay
    en localStorage—, así que al hidratar el nodo se reemplaza; hay que esperar
    a ese cambio antes de medir. */
-await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]')
+await p.locator('[data-pelicula] img[src*="/secuencia/0001.jpg"]')
   .waitFor({ state: "attached", timeout: 8000 });
-const oculta = await p.locator("[data-decorativo]").evaluate((el) => getComputedStyle(el).display);
+const oculta = await p.locator("[data-pelicula]").evaluate((el) => getComputedStyle(el).display);
 ok(oculta === "none", "en modo lectura la película se apaga entera", oculta);
 
 /* Con movimiento reducido a secas, la página conserva su fondo: un fotograma
@@ -227,14 +234,31 @@ await p.evaluate(() => localStorage.setItem("lf_a11y", JSON.stringify({
   lectura: false, contraste: false, enlaces: false })));
 await p.reload({ waitUntil: "domcontentloaded" });
 await sinOverlay(p);
-await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]')
+await p.locator('[data-pelicula] img[src*="/secuencia/0001.jpg"]')
   .waitFor({ state: "attached", timeout: 8000 });
-const conReducido = await p.locator("[data-decorativo] canvas").count();
-const imgFija = await p.locator('[data-decorativo] img[src*="/secuencia/0001.jpg"]').count();
+const conReducido = await p.locator("[data-pelicula] canvas").count();
+const imgFija = await p.locator('[data-pelicula] img[src*="/secuencia/0001.jpg"]').count();
 ok(conReducido === 0 && imgFija === 1, "con movimiento reducido queda el fotograma fijo, sin canvas");
 const pedidosReducido = await p.evaluate(() =>
   performance.getEntriesByType("resource").filter((r) => r.name.includes("/secuencia/")).length);
 ok(pedidosReducido <= 2, `no descarga la secuencia (${pedidosReducido} peticiones)`);
+
+/* Los titulares tienen que VERSE con movimiento reducido. El revelado por
+   línea deja cada línea bajo una máscara hasta que entra; si la variante
+   suave no devuelve el transform a cero, el titular se queda escondido para
+   siempre, y a la vista solo falta el texto más importante de la página. */
+await p.waitForTimeout(1500);
+const titularesOcultos = await p.evaluate(() =>
+  [...document.querySelectorAll("h1 .linea-mascara > span, h2 .linea-mascara > span")]
+    .filter((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) return false;
+      const m = new DOMMatrix(getComputedStyle(el).transform);
+      return Math.abs(m.m42) > 1 || Number(getComputedStyle(el).opacity) < 0.9;
+    })
+    .map((el) => el.textContent.trim().slice(0, 30)));
+ok(titularesOcultos.length === 0, "con movimiento reducido los titulares se ven",
+  titularesOcultos.join(" · "));
 
 /* Restablecer deja el sitio como estaba. */
 await p.evaluate(() => window.scrollTo(0, 0));
@@ -289,9 +313,9 @@ const movil = await nav.newContext({ viewport: { width: 390, height: 844 }, isMo
 const pm = await movil.newPage();
 await pm.goto(BASE, { waitUntil: "domcontentloaded" });
 await sinOverlay(pm);
-await pm.locator("[data-decorativo]").scrollIntoViewIfNeeded();
+await pm.locator("[data-pelicula]").scrollIntoViewIfNeeded();
 await pm.waitForTimeout(2500);
-ok(await pm.locator("[data-decorativo] canvas").count() === 1, "la secuencia monta en móvil");
+ok(await pm.locator("[data-pelicula] canvas").count() === 1, "la secuencia monta en móvil");
 const solape = await pm.evaluate(() => {
   const b = [...document.querySelectorAll("button")];
   const a11y = b.find((x) => x.getAttribute("aria-label")?.startsWith("Accesibilidad"));

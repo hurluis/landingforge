@@ -2,6 +2,7 @@ import { Nav } from "@/components/marketing/nav";
 import { Pie } from "@/components/marketing/pie";
 import { Asistente } from "@/components/asistente/asistente";
 import { Pelicula } from "@/components/motion/pelicula";
+import { LineaTiempo } from "@/components/motion/linea-tiempo";
 
 /** Chrome público: barra, pie y el widget del asistente (§6.1). */
 export default function LayoutMarketing({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export default function LayoutMarketing({ children }: { children: React.ReactNod
       <div className="relative z-10">
         <Pie />
       </div>
+      <LineaTiempo />
       <Asistente />
     </>
   );

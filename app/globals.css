@@ -226,10 +226,18 @@ input, textarea, select {
   accent-color: var(--heat);
 }
 
-a {
-  color: inherit;
-  text-underline-offset: 0.25em;
-  text-decoration-thickness: 1px;
+/* En capa base, no suelta. En Tailwind v4 cualquier regla fuera de capa le
+   gana a cualquier utilidad, sea cual sea su especificidad: suelta, este
+   `color: inherit` pisaba cada `text-*` puesto en un enlace. Así salían en
+   blanco los enlaces del nav que debían ir en --smoke, en blanco el texto de
+   los botones naranja que Boton documenta en --void, y en blanco sobre blanco
+   las píldoras claras de la apertura. */
+@layer base {
+  a {
+    color: inherit;
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 1px;
+  }
 }
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -326,8 +334,8 @@ table, .cifras { font-variant-numeric: tabular-nums; }
 .linea-mascara {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.12em;
-  margin-bottom: -0.12em;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
 }
 
 /* M13 · barrido de calor. CSS puro: corre fuera del hilo principal, así que
@@ -695,35 +703,104 @@ html[data-lectura="true"] .vidrio {
 }
 
 /* ------------------------------------------------------------
-   TRAMOS DEL RELATO · la escala depende del ALTO de la pantalla
+   CRISTAL · el material de la apertura
 
-   Una sección normal crece hacia abajo y el scroll la alcanza. Un tramo
-   clavado no: lo que se sale de la pantalla no existe, porque el scroll lo
-   único que hace ahí es avanzar el tiempo. Medido en un portátil de 800 px el
-   tramo de metodología se salía 113 px, y en uno de 720 se salían dos.
+   Cristal esmerilado: tinta de fondo al 40 % con desenfoque fuerte. La
+   referencia usa blanco al 10-15 %, que sobre su vídeo —oscuro de punta a
+   punta— funciona. Esta toma no es oscura: en el acto de La marca el frasco
+   blanco ocupa el centro del encuadre, y un cristal blanco sobre un frasco
+   blanco deja de separar nada; la letra de encima se quedaba en 1,5:1. El
+   desenfoque es lo que se lee como cristal; el tinte oscuro es lo que deja
+   leer. Con los dos, el panel funciona sobre cualquier fotograma.
 
-   Así que la escala del tramo baja con el alto disponible. No es una
-   preferencia estética: es la condición para que el copy sea alcanzable. El
-   coste está declarado —el cuerpo baja a 15 y luego a 14 px en pantallas
-   bajas, por debajo del cuerpo del resto del sitio— y es preferible a que la
-   última tarjeta quede fuera de la pantalla para siempre.
-
-   `scripts/verificar-relato.mjs` lo comprueba y falla si un tramo desborda.
+   Se construye con --void y --ash, no con negro y blanco literales, y por eso
+   sobrevive al tema claro sin una regla extra: sobre papel, el mismo cristal
+   pasa a ser un velo claro con filete de tinta.
    ------------------------------------------------------------ */
-@media (max-height: 880px) {
-  .tramo .display-xl { font-size: clamp(2rem, 3.6vw, 3.3rem); }
-  .tramo .display-lg { font-size: clamp(1.7rem, 2.8vw, 2.5rem); }
-  .tramo .titulo     { font-size: 1.125rem; }
-  .tramo .cuerpo,
-  .tramo .cuerpo-lg  { font-size: 0.9375rem; line-height: 1.55; }
-  .tramo .display-md { font-size: 1.75rem; }
+.cristal {
+  background: color-mix(in oklab, var(--void) 40%, transparent);
+  border: 1px solid color-mix(in oklab, var(--ash) 17%, transparent);
+  backdrop-filter: blur(14px) saturate(125%);
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
 }
 
-@media (max-height: 780px) {
-  .tramo .display-xl { font-size: clamp(1.75rem, 3vw, 2.7rem); }
-  .tramo .display-lg { font-size: clamp(1.5rem, 2.3vw, 2rem); }
-  .tramo .titulo     { font-size: 1rem; }
-  .tramo .cuerpo,
-  .tramo .cuerpo-lg  { font-size: 0.875rem; line-height: 1.5; }
-  .tramo .display-md { font-size: 1.5rem; }
+html[data-lectura="true"] .cristal {
+  background: var(--anvil);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Texto sobre la toma. Dos sombras: una corta que define el borde de la letra
+   y una larga que la despega del fotograma. Sobre papel o en modo lectura no
+   hay toma detrás, y una sombra oscura bajo tinta oscura solo ensucia. */
+.sobre-pelicula {
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.45),
+    0 4px 26px rgb(0 0 0 / 0.5);
+}
+
+html[data-tema="claro"] .sobre-pelicula,
+html[data-lectura="true"] .sobre-pelicula {
+  text-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-tema="sistema"] .sobre-pelicula { text-shadow: none; }
+}
+
+/* Titulares de la apertura. La medida de la referencia: el titular del hero a
+   unos 72 px, los de capítulo algo menores porque comparten fila con un panel
+   de cristal. Declarados al final para ganar a .display-xl por orden. */
+.apertura-titular {
+  font-size: clamp(2.6rem, 5vw, 4.5rem);
+  line-height: 1.02;
+}
+.apertura-subtitular {
+  font-size: clamp(2.2rem, 4vw, 3.75rem);
+  line-height: 1.04;
+}
+
+/* HALO · el fondo solo debajo de la letra.
+
+   Un rectángulo oscuro muy difuminado detrás de cada bloque de texto que va
+   sobre la toma. Es lo que permite no oscurecer la imagen entera: el copy de
+   la esquina oscurece su esquina y nada más, y el resto del encuadre sigue a
+   plena luz. Sin él, en el acto de La marca el titular y el contexto cruzaban
+   el cilindro blanco y caían a 3:1.
+
+   Es un pseudoelemento del propio bloque, así que entra y sale con él: cuando
+   el revelado lo trae, trae su halo. Sobre papel o en lectura no hay toma
+   detrás, y un halo oscuro sobre fondo claro sería una mancha. */
+.halo {
+  position: relative;
+  isolation: isolate;
+}
+.halo::before {
+  content: "";
+  position: absolute;
+  /* Más grande y más difuminado de lo que haría falta para el contraste: con
+     28 px de desenfoque se leía como un rectángulo gris pegado sobre el
+     cilindro blanco. A 46 px y con más margen, deja de tener bordes y pasa a
+     leerse como sombra de la propia escena. */
+  inset: -2.75rem -3.25rem;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 4rem;
+  background: rgb(8 9 12 / 0.6);
+  filter: blur(46px);
+}
+/* En vertical la toma se recorta al centro, y en el acto de La marca el
+   cilindro blanco pasa de ocupar el centro a llenar la pantalla entera: ya no
+   hay esquinas oscuras donde apoyar la letra. El halo tiene que cargar con
+   todo el contraste, así que en móvil es más denso. */
+@media (max-width: 767px) {
+  .halo::before { background: rgb(8 9 12 / 0.76); }
+}
+
+html[data-tema="claro"] .halo::before,
+html[data-lectura="true"] .halo::before {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  html[data-tema="sistema"] .halo::before { display: none; }
 }

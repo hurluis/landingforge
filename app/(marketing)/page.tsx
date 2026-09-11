@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { Money, SealCheck, UsersThree, TextAa } from "@phosphor-icons/react/dist/ssr";
 import { Boton } from "@/components/ui/boton";
+import { Apertura } from "@/components/marketing/apertura";
 import { Marquesina } from "@/components/motion/marquesina";
 import { TiraPinned } from "@/components/motion/tira-pinned";
-import { Relato, type Tramo } from "@/components/motion/relato";
-import { ContadorScroll } from "@/components/motion/interacciones";
 import { EstudioVivo } from "@/components/marketing/estudio-vivo";
 import { TablaPrecios } from "@/components/marketing/tabla-precios";
 import { Preguntas } from "@/components/marketing/preguntas";
@@ -14,174 +12,26 @@ import { Preguntas } from "@/components/marketing/preguntas";
  *
  * La página tiene dos mitades, y la costura entre ellas es deliberada.
  *
- * LA PRIMERA ES UNA SOLA COSA. El relato —cinco tramos, del saludo a lo que
- * el cliente se lleva— no scrollea: se queda clavado en la pantalla mientras
- * el scroll avanza el tiempo de la toma que corre por detrás (`Pelicula`, en
- * el layout). Texto e imagen leen el mismo progreso, así que no hay dos
- * animaciones que cuadrar: hay una magnitud y dos cosas que la obedecen. Esa
- * es la razón de que se lean como un único objeto y no como un documento
- * pasando por delante de un vídeo.
+ * LA APERTURA ES LA PELÍCULA. Tres capítulos anclados a las esquinas, con
+ * pasillos de 80vh entre ellos, sobre la toma de producto que `Pelicula`
+ * reparte a lo largo de su zona. Cada capítulo cae sobre un acto de la toma
+ * —estudio, primer plano de la marca, la mano—, y la línea de tiempo de abajo
+ * enseña en qué fotograma va el visitante. Ver `components/marketing/apertura`.
  *
- * LA SEGUNDA ES LA PÁGINA DE SIEMPRE. La tira, el estudio, los precios y las
- * preguntas son contenido que se explora, no que se contempla: pinearlo
- * obligaría a esperar para leer una tabla de precios, que es exactamente lo
- * contrario de lo que alguien quiere hacer con una tabla de precios. Ahí el
- * contenido vuelve a fluir, sobre el tramo final de la misma toma.
+ * LO DE DEBAJO ES LA PÁGINA DE SIEMPRE. La tira, el estudio, los precios y las
+ * preguntas son contenido que se explora, no que se contempla. Al terminar la
+ * zona la toma se queda en su último fotograma y un velo baja sobre ella: la
+ * película acabó y la página pasa a leerse.
  *
  * Ninguna sección tiene fondo opaco. Donde hace falta superficie para leer es
- * vidrio (`.vidrio`), no pintura: una caja opaca taparía la película, que es
- * justo lo que sostiene la página.
+ * cristal o vidrio, no pintura: una caja opaca taparía la toma.
  */
-
-const CONSECUENCIAS = [
-  ["Misma estructura para todos los productos", "Tu producto premium se ve como el genérico de al lado"],
-  ["Caras de stock o caras de IA evidentes", "El comprador desconfía antes de leer el precio"],
-  ["Cero señales del mercado local", "Pagas tráfico que no convierte"],
-];
-
-const TARJETAS = [
-  {
-    id: "contraentrega",
-    titulo: "Contraentrega",
-    texto:
-      "La señal de confianza número uno del país: se paga cuando el producto está en la mano.",
-    sello: <Money className="size-5" weight="bold" />,
-  },
-  {
-    id: "invima",
-    titulo: "INVIMA",
-    texto:
-      "En suplementos y cosmética, el registro separa parecer un negocio de parecer un riesgo.",
-    sello: <SealCheck className="size-5" weight="bold" />,
-  },
-  {
-    id: "caras",
-    titulo: "Caras de aquí",
-    texto:
-      "Paisa, costeña, rola, afro, rasgos indígenas. A su suerte, el modelo devuelve un latino genérico.",
-    sello: <UsersThree className="size-5" weight="bold" />,
-  },
-  {
-    id: "formato",
-    titulo: "Formato y lenguaje",
-    texto:
-      "$99.900 con punto de miles. 3.412 clientes, no +3.000. Reseñas de alguien real.",
-    sello: <TextAa className="size-5" weight="bold" />,
-  },
-];
-
-const PASOS = [
-  ["Cuéntale sobre tu producto.", "Subes la foto y respondes cuatro preguntas: qué es, para quién, cuál es el beneficio principal y cuánto cuesta."],
-  ["Recibe paleta y secciones.", "La matriz cruza tipo de producto, audiencia y registro emocional. Ves la paleta con sus hex antes de generar nada."],
-  ["Llévate la campaña completa.", "Los nueve prompts en prosa narrativa, validados y listos para generar. Los puedes editar y volver a correr."],
-];
-
-const TRAMOS: Tramo[] = [
-  {
-    id: "hero",
-    eyebrow: "El paquete visual de tu landing",
-    titulo: ["Tu producto no se", "parece a ningún", "otro. Tu landing", "tampoco debería."],
-    cuerpo:
-      "Sube la foto. LandingForge arma las nueve secciones que venden en Colombia. Sin plantillas.",
-    pie: (
-      <div className="flex flex-wrap items-center gap-4">
-        <Boton asChild variante="heat" tamano="lg">
-          <Link href="/app/nueva">Crear mi primera landing</Link>
-        </Boton>
-        <Boton asChild variante="contorno" tamano="lg">
-          <Link href="#tira-titulo">Ver el método</Link>
-        </Boton>
-      </div>
-    ),
-  },
-  {
-    id: "problema",
-    eyebrow: "El problema",
-    titulo: ["Las plantillas venden", "lo mismo diez mil", "veces."],
-    cuerpo: (
-      <p>
-        Un constructor de plantillas te da la misma estructura que a tus competidores, con
-        imágenes de stock o caras generadas que se notan a un kilómetro. Y ninguno sabe que
-        aquí la venta se cierra con contraentrega, que un suplemento sin INVIMA no genera
-        confianza, y que un precio escrito <span className="mono-sm text-ash">$99,900</span>{" "}
-        en vez de <span className="mono-sm text-ash">$99.900</span> le dice a tu comprador
-        que no eres de aquí.
-      </p>
-    ),
-    items: CONSECUENCIAS.map(([afirmacion, consecuencia]) => ({
-      clave: afirmacion,
-      nodo: (
-        <div className="border-t border-scale py-3.5">
-          <p className="titulo text-ash text-balance">{afirmacion}</p>
-          <p className="cuerpo mt-0.5 text-smoke">{consecuencia}</p>
-        </div>
-      ),
-    })),
-    pie: (
-      <p className="mono-sm text-slag">
-        <ContadorScroll hasta={3412} className="text-ash" /> campañas generadas hasta hoy
-      </p>
-    ),
-  },
-  {
-    id: "metodologia",
-    eyebrow: "La metodología colombiana",
-    titulo: ["Lo que ninguna", "plataforma", "internacional sabe", "de vender en Colombia."],
-    claseItems: "flex flex-col gap-2",
-    items: TARJETAS.map((t) => ({
-      clave: t.id,
-      nodo: (
-        <div className="vidrio flex items-start gap-4 rounded-[14px] px-4 py-3">
-          <span
-            aria-hidden
-            className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full text-[#1A1206]"
-            style={{ background: "var(--templado)" }}
-          >
-            {t.sello}
-          </span>
-          <span className="min-w-0">
-            <h3 className="titulo text-ash">{t.titulo}</h3>
-            <p className="cuerpo mt-0.5 text-smoke">{t.texto}</p>
-          </span>
-        </div>
-      ),
-    })),
-  },
-  {
-    id: "pasos",
-    eyebrow: "Cómo funciona",
-    titulo: ["Once minutos,", "en tres pasos."],
-    itemsOrdenados: true,
-    claseItems: "flex flex-col gap-4",
-    items: PASOS.map(([titulo, texto], i) => ({
-      clave: titulo,
-      nodo: (
-        <div className="flex items-baseline gap-5 border-t border-scale pt-4">
-          <span aria-hidden className="display-md shrink-0 text-slag">
-            {i + 1}
-          </span>
-          <span className="min-w-0">
-            <h3 className="titulo text-ash text-balance">{titulo}</h3>
-            <p className="cuerpo mt-1 text-smoke">{texto}</p>
-          </span>
-        </div>
-      ),
-    })),
-  },
-  {
-    id: "llevas",
-    eyebrow: "Lo que te llevas",
-    titulo: ["Te llevas los prompts,", "no solo las imágenes."],
-    cuerpo:
-      "Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo. Cada prompt se puede reescribir, versionar y volver a correr.",
-  },
-];
 
 export default function Home() {
   return (
     <>
-      {/* 1 · El relato. Cinco tramos clavados en pantalla sobre la toma. */}
-      <Relato tramos={TRAMOS} />
+      {/* 1 · La apertura: tres capítulos sobre los actos de la toma. */}
+      <Apertura />
 
       {/* 2 · Muestrario, tira continua a sangre (M4).
              Sin titular: su único trabajo es probar que el producto produce. */}

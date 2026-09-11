@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "assets": "node scripts/generar-textura.mjs && node scripts/generar-pieza.mjs && node scripts/preparar-pieza3d.mjs",
+    "assets": "node scripts/generar-textura.mjs && node scripts/generar-pieza.mjs",
     "verificar:clave": "node scripts/verificar-clave.mjs",
     "verificar": "npm run typecheck && npm run lint && npm run verificar:contraste && npm run build",
     "e2e": "node scripts/e2e.mjs",
@@ -18,7 +18,7 @@
     "fotogramas": "node scripts/extraer-fotogramas.mjs",
     "verificar:a11y": "node scripts/verificar-a11y.mjs",
     "verificar:contraste-pelicula": "node scripts/verificar-contraste-pelicula.mjs",
-    "verificar:relato": "node scripts/verificar-relato.mjs"
+    "verificar:apertura": "node scripts/verificar-apertura.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.17.1",
@@ -42,7 +42,6 @@
     "server-only": "^0.0.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
-    "three": "^0.185.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -51,7 +50,6 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "^0.185.4",
     "eslint": "^9",
     "eslint-config-next": "^16.3.1",
     "playwright": "^1.62.1",

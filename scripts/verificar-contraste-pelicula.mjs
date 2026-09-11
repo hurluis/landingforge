@@ -34,21 +34,29 @@ const SELECTORES = [
 const canal = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
 const lum = (r, g, b) => 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
 const ratio = (a, b) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
-const rgb = (s) => (s.match(/\d+(\.\d+)?/g) ?? [0, 0, 0]).slice(0, 3).map(Number);
 
 const nav = await chromium.launch();
-const p = await (await nav.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: "dark" })).newPage();
+let peor = null;
+const fallos = [];
+
+/* Escritorio y móvil. En móvil el contexto de cada capítulo va a todo el
+   ancho y cruza el frasco, que en escritorio queda entre las esquinas. */
+for (const [VW, VH] of [[1440, 900], [390, 844]]) {
+const p = await (await nav.newContext({ viewport: { width: VW, height: VH }, colorScheme: "dark" })).newPage();
 await p.goto(BASE + RUTA, { waitUntil: "networkidle" });
 await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
 await p.waitForTimeout(6000);
 
 const alto = await p.evaluate(() => document.documentElement.scrollHeight);
-let peor = null;
-const fallos = [];
 
-for (const f of [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]) {
-  await p.evaluate((y) => window.scrollTo(0, y), (alto - 900) * f);
-  await p.waitForTimeout(900);
+const reposos = await p.evaluate(() => ["metodo", "llevas"]
+  .map((id) => document.getElementById(id))
+  .filter(Boolean)
+  .map((e) => e.getBoundingClientRect().bottom + window.scrollY - window.innerHeight));
+const puntos = [0, ...reposos.map((y) => y / (alto - VH)), 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
+for (const f of puntos) {
+  await p.evaluate((y) => window.scrollTo(0, y), (alto - VH) * f);
+  await p.waitForTimeout(1800);
 
   /* Las cajas y el color de tinta se leen CON el texto visible. */
   const bloques = await p.evaluate((sels) => {
@@ -57,20 +65,42 @@ for (const f of [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]) {
       for (const el of document.querySelectorAll(sel)) {
         const r = el.getBoundingClientRect();
         if (r.width < 40 || r.height < 8 || r.bottom < 0 || r.top > innerHeight) continue;
+        /* Se mide solo lo que el visitante puede ver: por debajo del chrome
+           fijo de arriba y dentro de la ventana. Un bloque que se está yendo
+           por arriba queda debajo del nav —tapado, no ilegible—, y medirlo
+           daba un fallo falso a 3,5:1 en móvil. Si más de la mitad del bloque
+           está oculto, se salta: se mide en otro punto del recorrido. */
+        const techo = [...document.querySelectorAll("header")]
+          .filter((h) => getComputedStyle(h).position === "fixed")
+          .reduce((m, h) => Math.max(m, h.getBoundingClientRect().bottom), 0);
+        const arriba = Math.max(r.top, techo), abajo = Math.min(r.bottom, innerHeight);
+        if (abajo - arriba < r.height * 0.5) continue;
         const t = (el.innerText || "").trim();
         if (!t) continue;
         const s = getComputedStyle(el);
-        if (s.visibility === "hidden" || Number(s.opacity) < 0.9) continue;
+        if (s.visibility === "hidden") continue;
+        /* Opacidad EFECTIVA: la de sus ancestros también. Un párrafo a
+           opacidad 1 dentro de un bloque a 0 —revelado a medias— no se ve, y
+           se medirá en otro punto del recorrido, ya revelado. */
+        let op = 1;
+        for (let a = el; a; a = a.parentElement) op *= Number(getComputedStyle(a).opacity);
+        if (op < 0.9) continue;
         /* Lo decorativo no se mide. Las láminas son maquetas de landing
            dibujadas en DOM —el lector de pantalla las ignora, y su paleta es
            la del cliente simulado, no la del sistema—, así que exigirles el
            piso del producto es medir la cosa equivocada. */
         if (el.closest('[aria-hidden="true"]')) continue;
+        /* El color se resuelve pintándolo: la regex de rgb() leía oklab(0.97 0 0
+           / 0.65) como casi negro y daba fallos falsos. */
+        const cv = document.createElement("canvas"); cv.width = cv.height = 1;
+        const cx = cv.getContext("2d");
+        cx.fillStyle = s.color; cx.fillRect(0, 0, 1, 1);
+        const [cr, cg, cb, ca] = cx.getImageData(0, 0, 1, 1).data;
         salida.push({
-          minimo, color: s.color, texto: t.slice(0, 34).replace(/\s+/g, " "),
-          x: Math.max(0, Math.round(r.x)), y: Math.max(0, Math.round(r.y)),
-          w: Math.round(Math.min(r.width, 1440 - r.x)),
-          h: Math.round(Math.min(r.height, 900 - Math.max(0, r.y))),
+          minimo, rgba: [cr, cg, cb, ca / 255], texto: t.slice(0, 34).replace(/\s+/g, " "),
+          x: Math.max(0, Math.round(r.x)), y: Math.round(arriba),
+          w: Math.round(Math.min(r.width, innerWidth - Math.max(0, r.x))),
+          h: Math.round(abajo - arriba),
         });
       }
     }
@@ -117,12 +147,18 @@ for (const f of [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]) {
     const b = bloques[i];
     const fondo = medias[i];
     if (fondo == null) continue;
-    const [r, g, bl] = rgb(b.color);
-    const c = ratio(lum(r, g, bl), fondo);
-    const dato = { ...b, contraste: Number(c.toFixed(2)), en: `${Math.round(f * 100)}%` };
+    /* Texto semitransparente: se compone sobre el fondo medido. La media de
+       luminancia vuelve a canal aproximado para mezclar en sRGB. */
+    const [r, g, bl, al] = b.rgba;
+    const fondoCanal = 255 * (fondo <= 0.0031308 ? fondo * 12.92 : 1.055 * fondo ** (1 / 2.4) - 0.055);
+    const mezcla = (c) => al * c + (1 - al) * fondoCanal;
+    const c = ratio(lum(mezcla(r), mezcla(g), mezcla(bl)), fondo);
+    const dato = { ...b, contraste: Number(c.toFixed(2)), en: `${VW}px ${Math.round(f * 100)}%` };
     if (!peor || c < peor.contraste) peor = dato;
     if (c < b.minimo) fallos.push(dato);
   }
+}
+await p.close();
 }
 await nav.close();
 
@@ -134,7 +170,7 @@ if (!unicos.length) {
 }
 console.log(`${unicos.length} bloques por debajo del piso:\n`);
 for (const f of unicos.sort((a, b) => a.contraste - b.contraste).slice(0, 20)) {
-  console.log(`  ${String(f.contraste).padStart(5)}:1  (min ${f.minimo})  ${f.en.padStart(4)}  «${f.texto}»`);
+  console.log(`  ${String(f.contraste).padStart(5)}:1  (min ${f.minimo})  ${f.en.padStart(11)}  «${f.texto}»`);
 }
 console.log("");
 process.exit(1);

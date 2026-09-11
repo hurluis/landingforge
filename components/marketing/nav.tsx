@@ -5,7 +5,6 @@ import Link from "next/link";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { cn } from "@/lib/utils";
-import { Boton } from "@/components/ui/boton";
 import { Wordmark } from "@/components/marketing/wordmark";
 
 /**
@@ -53,9 +52,10 @@ export function Nav() {
       className={cn(
         "fixed inset-x-0 top-0 z-40 border-b",
         "transition-[height,background-color,backdrop-filter,border-color] duration-[260ms] ease-[var(--ease-out)]",
+        "border-[color-mix(in_oklab,var(--ash)_14%,transparent)]",
         compacta
-          ? "h-16 border-scale bg-[color-mix(in_oklab,var(--void)_72%,transparent)] backdrop-blur-[14px]"
-          : "h-20 border-transparent bg-transparent",
+          ? "h-16 bg-[color-mix(in_oklab,var(--void)_45%,transparent)] backdrop-blur-[14px]"
+          : "h-20 bg-transparent",
       )}
     >
       <nav
@@ -95,12 +95,15 @@ export function Nav() {
           >
             Entrar
           </Link>
-          <Boton asChild variante="contorno" tamano="sm">
-            <Link href="/app/nueva">
-              <span className="hidden sm:inline">Crear mi primera landing</span>
-              <span className="sm:hidden">Crear landing</span>
-            </Link>
-          </Boton>
+          {/* CTA en cristal, como en la referencia: sobre la toma a plena luz
+              un contorno de un píxel desaparece; el cristal no. */}
+          <Link
+            href="/app/nueva"
+            className="cristal rounded-md px-4 py-2 text-xs text-ash no-underline transition-[filter] duration-300 hf:brightness-125 sm:px-5 sm:text-sm"
+          >
+            <span className="hidden sm:inline">Crear mi primera landing</span>
+            <span className="sm:hidden">Crear landing</span>
+          </Link>
 
           <button
             type="button"

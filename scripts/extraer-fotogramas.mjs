@@ -27,17 +27,19 @@ try {
 rmSync(destino, { recursive: true, force: true });
 mkdirSync(destino, { recursive: true });
 
-/* Calidad 5 y sin escalar: a 1280x720 salen ~20 KB por fotograma, así que los
-   480 caben en 9 MB —menos de la mitad que el mp4— y se pintan sin decodificar
-   nada. Bajar la calidad no compensa: el degradado del fondo es lo primero que
-   se rompe en bandas. */
+/* Calidad 3 con un unsharp suave. Con la toma como fondo apagado, calidad 5
+   bastaba; con la toma a plena luz como protagonista, el degradado oscuro del
+   fondo se escalonaba en bandas visibles —comparado a 2x sobre el fotograma
+   150—. Calidad 3 lo deja continuo, y el unsharp devuelve la nitidez que el
+   vídeo pierde al escalarse a pantallas de 2x. Son 12 MB en vez de 9: la
+   película es lo primero que se ve, y es donde se nota. */
 execFileSync(
   "ffmpeg",
-  ["-v", "error", "-i", origen, "-an", "-q:v", "5", "-fps_mode", "passthrough",
-   `${destino}/%04d.jpg`],
+  ["-v", "error", "-i", origen, "-an", "-vf", "unsharp=5:5:0.5:5:5:0.0",
+   "-q:v", "3", "-fps_mode", "passthrough", `${destino}/%04d.jpg`],
   { stdio: "inherit" },
 );
 
 const total = readdirSync(destino).length;
 console.log(`\n  ${total} fotogramas en public/secuencia\n`);
-console.log(`  Actualiza TOTAL en components/motion/secuencia-scroll.tsx si cambió.\n`);
+console.log(`  Actualiza TOTAL_FOTOGRAMAS en lib/pelicula-reloj.ts si cambió.\n`);

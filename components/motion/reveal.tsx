@@ -22,14 +22,24 @@ import { EASE, UNA_VEZ } from "@/lib/motion";
  * revelado no afecta al lector de pantalla ni al SEO.
  */
 
+/* Entra desde abajo Y girada seis grados, pivotando sobre su esquina superior
+   izquierda. Es el gesto de la referencia (dala): al enderezarse, la línea se
+   lee como algo que llega, no como algo que se enciende. */
 const LINEA = {
-  oculto: { transform: "translateY(105%)" },
-  visible: { transform: "translateY(0%)" },
+  oculto: { transform: "translateY(120%) rotate(6deg)" },
+  visible: { transform: "translateY(0%) rotate(0deg)" },
 };
 
+/* La versión suave TAMBIÉN fija el transform, y no es redundante. El primer
+   render —servidor e hidratación— aún no conoce la preferencia de movimiento,
+   así que aplica LINEA y deja la línea en translateY(120%), escondida bajo su
+   máscara. Cuando la preferencia llega y se cambia a esta variante, si solo
+   animara la opacidad nadie devolvería el transform a cero: el titular se
+   quedaba para siempre debajo de la máscara, invisible, justo para quien pidió
+   la página quieta. Con movimiento reducido el salto es instantáneo. */
 const LINEA_SUAVE = {
-  oculto: { opacity: 0 },
-  visible: { opacity: 1 },
+  oculto: { opacity: 0, transform: "translateY(0%) rotate(0deg)" },
+  visible: { opacity: 1, transform: "translateY(0%) rotate(0deg)" },
 };
 
 export const RevealLineas = memo(function RevealLineas({
@@ -66,7 +76,7 @@ export const RevealLineas = memo(function RevealLineas({
         <span key={i} className="linea-mascara">
           <motion.span
             data-reveal
-            className="block"
+            className="block origin-top-left"
             variants={variantes}
             transition={{ duration: reduce ? 0.25 : 0.75, ease: EASE.out }}
           >
