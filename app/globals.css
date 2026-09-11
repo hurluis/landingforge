@@ -138,27 +138,27 @@
    a `var(--token)` en el sitio de uso, poner `.papel` en una sección invierte
    el subárbol entero sin tocar un solo componente.
 
-   El papel es caliza fría, no crema: crema con serif de alto contraste y
-   terracota es la paleta de la que el brief manda huir, y esto no es eso. El
-   naranja se oscurece a --heat-lo sobre papel para no bajar del piso de
-   contraste; sobre el estudio vuelve a ser incandescente.
+   El papel es un gris frío de la MISMA familia que el estudio, no una caliza
+   cálida. Es la corrección del primer intento: con el papel en beige y el
+   estudio en grafito azulado, encender el modo claro no se leía como el mismo
+   sitio con otra luz, sino como otra marca. Mismo sesgo azul, misma tinta casi
+   negra, mismos filetes: cambia la luz, no la identidad. El naranja se oscurece
+   a --heat-lo sobre papel para no bajar del piso de contraste; sobre el estudio
+   vuelve a ser incandescente.
    ------------------------------------------------------------ */
 .papel {
   position: relative;
   isolation: isolate;
-  --void:      #E4E2DC;
-  --anvil:     #EDEBE5;
-  --anvil-hi:  #F6F4EF;
-  --sunk:      #D5D2CA;
-  --scale:     #C7C3B9;
-  --scale-hi:  #A8A398;
+  --void:      #EEF0F3;
+  --anvil:     #E4E7EC;
+  --anvil-hi:  #F7F8FA;
+  --sunk:      #DCE0E6;
+  --scale:     #C6CBD3;
+  --scale-hi:  #A3ABB6;
 
-  --ash:       #14161A;
-  --smoke:     #494E57;
-  /* #54585F y no #5C616A: sobre --sunk, la franja de la metodología, el
-     valor viejo se quedaba en 4,1:1. Medido con verificar-contraste-pelicula
-     sobre papel. */
-  --slag:      #54585F;
+  --ash:       #0F1216;
+  --smoke:     #454C57;
+  --slag:      #525A66;
 
   --heat:      #B93A11;
   --heat-lo:   #8E2B0A;
@@ -170,8 +170,8 @@
   --warn:      #8A6100;
   --danger:    #B02A1C;
 
-  --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
-  --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+  --elev-1: 0 10px 30px -12px rgb(14 17 22 / 0.22), 0 2px 8px -3px rgb(14 17 22 / 0.14);
+  --elev-2: 0 28px 70px -22px rgb(14 17 22 / 0.3);
 
   background: var(--void);
   color: var(--ash);
@@ -506,16 +506,16 @@ table, .cifras { font-variant-numeric: tabular-nums; }
 html[data-tema="claro"] {
   color-scheme: light;
 
-  --void:      #E4E2DC;
-  --anvil:     #EDEBE5;
-  --anvil-hi:  #F6F4EF;
-  --sunk:      #D5D2CA;
-  --scale:     #C7C3B9;
-  --scale-hi:  #A8A398;
+  --void:      #EEF0F3;
+  --anvil:     #E4E7EC;
+  --anvil-hi:  #F7F8FA;
+  --sunk:      #DCE0E6;
+  --scale:     #C6CBD3;
+  --scale-hi:  #A3ABB6;
 
-  --ash:       #14161A;
-  --smoke:     #494E57;
-  --slag:      #54585F;
+  --ash:       #0F1216;
+  --smoke:     #454C57;
+  --slag:      #525A66;
 
   --heat:      #B93A11;
   --heat-lo:   #8E2B0A;
@@ -527,22 +527,24 @@ html[data-tema="claro"] {
   --warn:      #8A6100;
   --danger:    #B02A1C;
 
-  --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
-  --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+  --elev-1: 0 10px 30px -12px rgb(14 17 22 / 0.22), 0 2px 8px -3px rgb(14 17 22 / 0.14);
+  --elev-2: 0 28px 70px -22px rgb(14 17 22 / 0.3);
 
-  --pelicula-sombra: 236 234 228;
+  --pelicula-sombra: 238 240 243;
   --pelicula-filtro: var(--pelicula-clave-alta);
 }
 
 /* LA PELÍCULA SOBRE PAPEL. Antes el tema claro la apagaba entera, y con ella
    se iba la página: quedaba texto suelto sobre un color plano. Ahora se
    conserva y se revela en clave alta. `contrast` y `brightness` juntos son
-   una recta: cada tono v pasa a 0,3·v + 0,7. El negro del estudio queda en
-   un gris claro, el frasco blanco sigue blanco, y el volumen del frasco —sus
-   grises— se conserva, más suave. Es la misma toma, con la luz de un estudio
-   de fondo blanco. */
+   una recta: cada tono v pasa a 0,4·v + 0,6. El negro del estudio queda en un
+   gris medio claro, el frasco blanco sigue blanco, y el volumen del frasco se
+   conserva. La primera versión aplanaba a 0,3·v + 0,7 y la toma salía lavada:
+   se veía «apagada», no «con otra luz». Más pendiente que esta empieza a
+   comerse el contraste de la tinta en el centro del encuadre, donde no hay
+   paño que ayude. */
 :root {
-  --pelicula-clave-alta: contrast(0.18) brightness(1.7) saturate(0.85);
+  --pelicula-clave-alta: contrast(0.25) brightness(1.6) saturate(0.9);
 }
 
 /* «Del sistema» es una opción, nunca el valor por defecto: la identidad del
@@ -552,16 +554,16 @@ html[data-tema="claro"] {
   html[data-tema="sistema"] {
     color-scheme: light;
 
-    --void:      #E4E2DC;
-    --anvil:     #EDEBE5;
-    --anvil-hi:  #F6F4EF;
-    --sunk:      #D5D2CA;
-    --scale:     #C7C3B9;
-    --scale-hi:  #A8A398;
+    --void:      #EEF0F3;
+    --anvil:     #E4E7EC;
+    --anvil-hi:  #F7F8FA;
+    --sunk:      #DCE0E6;
+    --scale:     #C6CBD3;
+    --scale-hi:  #A3ABB6;
 
-    --ash:       #14161A;
-    --smoke:     #494E57;
-    --slag:      #54585F;
+    --ash:       #0F1216;
+    --smoke:     #454C57;
+    --slag:      #525A66;
 
     --heat:      #B93A11;
     --heat-lo:   #8E2B0A;
@@ -573,10 +575,10 @@ html[data-tema="claro"] {
     --warn:      #8A6100;
     --danger:    #B02A1C;
 
-    --elev-1: 0 10px 30px -12px rgb(30 26 20 / 0.22), 0 2px 8px -3px rgb(30 26 20 / 0.14);
-    --elev-2: 0 28px 70px -22px rgb(30 26 20 / 0.3);
+    --elev-1: 0 10px 30px -12px rgb(14 17 22 / 0.22), 0 2px 8px -3px rgb(14 17 22 / 0.14);
+    --elev-2: 0 28px 70px -22px rgb(14 17 22 / 0.3);
 
-      --pelicula-sombra: 236 234 228;
+      --pelicula-sombra: 238 240 243;
     --pelicula-filtro: var(--pelicula-clave-alta);
   }
 }

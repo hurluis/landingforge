@@ -6,7 +6,7 @@ import { Check } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { MovimientoCredito, Usuario } from "@/lib/datos/tipos";
 import { PLANES, plan as definicionPlan } from "@/lib/planes";
-import { fechaCorta, fechaLarga, formatoCOP } from "@/lib/formato";
+import { fechaCorta, fechaLarga, formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import {
   ANCHO,
@@ -115,8 +115,8 @@ export function Cuenta({
               />
             </div>
             <p className="mt-5 cuerpo text-smoke medida">
-              Un crédito es una sección. Los del plan no se acumulan entre meses; los que compras
-              aparte, sí.
+              Un crédito es una generación: una sección construida y renderizada. Los del plan
+              no se acumulan entre meses; los que compras aparte, sí.
             </p>
           </div>
 
@@ -155,10 +155,10 @@ export function Cuenta({
                     )}
                   </div>
                   <p className="mt-5 font-[family-name:var(--font-round)] text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">
-                    {formatoCOP(p.precioMensualCOP)}
+                    {formatoUSD(p.precioMensualUSD)}
                     <span className="ml-1.5 mono-sm font-normal tracking-normal text-slag">/ mes</span>
                   </p>
-                  <p className="mt-3 mono-sm text-smoke">{p.creditosMes} créditos al mes</p>
+                  <p className="mt-3 mono-sm text-smoke">{p.creditosMes} generaciones al mes</p>
                   <div className="mt-auto pt-8">
                     {actual ? (
                       <p className="cuerpo text-slag">Es tu plan.</p>

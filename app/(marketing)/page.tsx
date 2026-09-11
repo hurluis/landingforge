@@ -21,9 +21,11 @@ import { Preguntas } from "@/components/marketing/preguntas";
  * las preguntas son contenido que se explora, no que se contempla. Al terminar
  * la zona la toma se queda en su último fotograma y un velo baja sobre ella.
  *
- * Y EL CIERRE ES OTRA TOMA. Un tarro de crema girando en la mano, bajo la
- * última frase. La página abre con un frasco y cierra con otro producto: lo
- * que vende no es una plantilla, es una landing para el tuyo.
+ * Y LA SEGUNDA MITAD ES OTRA TOMA. Un tarro de crema girando en la mano,
+ * desde «Pruébalo con tu producto ahora» hasta la última frase. La página
+ * abre con un frasco y cierra con otro producto: lo que vende no es una
+ * plantilla, es una landing para el tuyo. Entre las dos tomas, la tira de las
+ * nueve secciones, que es la única parte que va sobre fondo quieto.
  *
  * Sobre la película no hay cajas: la letra va impresa sobre la toma, y es su
  * sitio en el encuadre —el lado oscuro, nunca el frasco— lo que la deja leer.
@@ -42,31 +44,37 @@ export default function Home() {
       {/* 3 · Las nueve secciones, pan horizontal pinned (M6) */}
       <TiraPinned />
 
-      {/* 4 · El estudio en vivo, herramienta embebida con parallax (M8) */}
-      <EstudioVivo />
+      {/* 4 a 7 · LA SEGUNDA TOMA. El tarro de crema empieza a girar justo
+             donde termina la tira de las nueve secciones, con «Pruébalo con tu
+             producto ahora», y sigue girando bajo los precios, las preguntas y
+             el cierre. Antes vivía solo bajo el cierre, donde apenas hay texto
+             que mover con el scroll: la animación pasaba casi sin verse y la
+             página se quedaba sin película justo en su mitad. */}
+      <div id="zona-final">
+        {/* 4 · El estudio en vivo, herramienta embebida con parallax (M8) */}
+        <EstudioVivo />
 
-      {/* 5 · Precios, tres columnas comparables con spotlight (M9) */}
-      <TablaPrecios compacta />
+        {/* 5 · Precios, tres columnas comparables con spotlight (M9) */}
+        <TablaPrecios compacta />
 
-      {/* 6 · Preguntas, acordeón */}
-      <Preguntas />
+        {/* 6 · Preguntas, acordeón */}
+        <Preguntas />
 
       {/* 7 · Cierre sobre la segunda toma. SIN animación de entrada (M14):
               la frase se queda quieta, fija en pantalla, mientras el tarro gira
               debajo durante un par de pantallas. Después de una página entera
               en movimiento, que la letra esté quieta es lo que le da peso. */}
-      <section
-        id="cierre-zona"
-        aria-labelledby="cierre-titulo"
-        className="relative h-[220vh] supports-[height:100svh]:h-[220svh]"
-      >
-        <div className="sticky top-0 flex h-screen items-center overflow-x-clip px-5 sm:px-8 md:px-12 supports-[height:100svh]:h-[100svh]">
-          <div className="mx-auto w-full max-w-[1600px]">
+        <section
+          aria-labelledby="cierre-titulo"
+          className="relative h-[220vh] supports-[height:100svh]:h-[220svh]"
+        >
+          <div className="sticky top-0 flex h-screen items-center overflow-x-clip px-5 sm:px-8 md:px-12 supports-[height:100svh]:h-[100svh]">
+            <div className="mx-auto w-full max-w-[1600px]">
             {/* El tarro gira en el centro y la mano entra por la derecha: la
                 frase ocupa el tercio izquierdo, que es el que queda oscuro. */}
             <div className="md:max-w-[28vw]">
               <h2 id="cierre-titulo" className="display-lg cierre-titular sobre-pelicula">
-                La primera campaña te toma once minutos.
+                Tu próxima landing, en menos de diez minutos.
               </h2>
               <div className="mt-12">
                 <Boton asChild variante="heat" tamano="lg">
@@ -76,7 +84,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+        </section>
+      </div>
     </>
   );
 }

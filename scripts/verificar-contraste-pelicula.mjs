@@ -67,7 +67,7 @@ const reposos = await p.evaluate(() => {
     const fin = z.getBoundingClientRect().bottom + scrollY - vh;
     ys.push(fin + vh * 0.15, fin + vh * 0.3, fin + vh * 0.45);
   }
-  const c = document.getElementById("cierre-zona");
+  const c = document.getElementById("zona-final");
   if (c) {
     const top = c.getBoundingClientRect().top + scrollY;
     ys.push(top - vh * 0.45, top - vh * 0.3, top - vh * 0.15, top + (c.offsetHeight - vh) / 2);

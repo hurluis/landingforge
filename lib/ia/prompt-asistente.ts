@@ -39,12 +39,16 @@ Confianza y garantía · Precios · Estilo de vida.
 Formato por defecto: vertical 9:16, calidad máxima.
 
 === PLANES ===
-Semilla $49.900/mes, 30 créditos, 5 campañas guardadas.
-Estudio $129.900/mes, 120 créditos, campañas ilimitadas, 3 marcas.
-Agencia $349.900/mes, 400 créditos, marcas ilimitadas.
-Un crédito equivale a una imagen 9:16 en calidad máxima. Los créditos del plan no
-se acumulan entre meses; los comprados aparte, sí. Prueba gratuita de 5 créditos
-sin tarjeta.
+Precios en dólares.
+Semilla US$12/mes, 40 generaciones, 5 campañas guardadas.
+Estudio US$29/mes, 150 generaciones, campañas ilimitadas, 3 marcas.
+Agencia US$79/mes, 450 generaciones, marcas ilimitadas.
+Paquete suelto de 50 generaciones por US$12.
+Un crédito equivale a una generación: una sección con su prompt validado y su
+imagen 9:16. Repetir una sección consume otra generación. Una campaña de nueve
+secciones sale por unas trece generaciones contando repeticiones. Los créditos
+del plan no se acumulan entre meses; los comprados aparte, sí. Prueba gratuita
+de 5 generaciones sin tarjeta.
 
 === PARA QUIÉN ES ===
 Operadores de e-commerce y dropshippers de cualquier país, marcas pequeñas de

@@ -20,8 +20,8 @@
  *   4. Ningún bloque queda bajo un botón flotante, y cada grupo del titular
  *      es una sola línea visual (si envuelve, la máscara ya no corta por línea
  *      y el revelado pierde el escalonado).
- *   5. Entre la apertura y el cierre el velo está bajado; en el cierre la toma
- *      es la del tarro y el velo está arriba.
+ *   5. Entre las dos tomas el velo está bajado; bajo el estudio y los precios
+ *      la segunda corre a media luz, y en el cierre se levanta del todo.
  *   6. Sobre papel la película se conserva; en móvil no hay scroll horizontal.
  */
 import { chromium } from "playwright";
@@ -156,20 +156,34 @@ for (const [ancho, alto] of [[1440, 900], [1280, 720]]) {
   });
   ok(envuelven.length === 0, "cada grupo del titular es una sola línea", envuelven.join(" · "));
 
-  const [medio, cierre] = await p.evaluate(() => {
+  /* La tira de las nueve secciones va entre las dos tomas: ahí la película
+     está quieta y tapada. Dentro de la segunda zona, el velo se queda a media
+     asta mientras hay texto —estudio, precios, preguntas— y se levanta en el
+     último tramo, el del cierre. */
+  const [medio, mitadFinal, cierre] = await p.evaluate(() => {
     const z = document.getElementById("pelicula-zona").getBoundingClientRect();
-    const c = document.getElementById("cierre-zona");
+    const c = document.getElementById("zona-final");
     const cr = c.getBoundingClientRect();
     const finZona = z.bottom + scrollY;
-    const inicioCierre = cr.top + scrollY;
-    return [(finZona + inicioCierre) / 2, inicioCierre + (c.offsetHeight - innerHeight) / 2];
+    const inicioFinal = cr.top + scrollY;
+    const recorrido = c.offsetHeight - innerHeight;
+    return [
+      (finZona + inicioFinal) / 2,
+      inicioFinal + recorrido * 0.35,
+      inicioFinal + recorrido * 0.97,
+    ];
   });
   await ir(p, medio);
   const entre = await pelicula(p);
-  ok(entre.velo >= 0.8, "entre la apertura y el cierre, el velo está bajado", `velo ${entre.velo}`);
+  ok(entre.velo >= 0.8, "entre las dos tomas, el velo está bajado", `velo ${entre.velo}`);
+  await ir(p, mitadFinal);
+  const trabajando = await pelicula(p);
+  ok(trabajando.toma === "1" && trabajando.velo > 0.5 && trabajando.velo < 0.72,
+    "bajo el estudio y los precios, la segunda toma corre a media luz",
+    `toma ${trabajando.toma}, velo ${trabajando.velo}`);
   await ir(p, cierre);
   const fin = await pelicula(p);
-  ok(fin.toma === "1" && fin.velo < 0.05, "en el cierre, la toma del tarro a plena luz",
+  ok(fin.toma === "1" && fin.velo <= 0.2, "en el cierre, la toma del tarro a plena luz",
     `toma ${fin.toma}, velo ${fin.velo}`);
   await p.close();
 }

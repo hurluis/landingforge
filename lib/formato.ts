@@ -7,15 +7,20 @@ import type { Mercado } from "@/lib/metodologia/mercados";
  * pieza no es de allí.
  */
 
-const FORMATO_COP = new Intl.NumberFormat("es-CO", {
+/**
+ * Los planes se cobran en dólares, que es la moneda de las APIs que hay
+ * debajo y la que entiende un comprador de cualquier país. `centavos` evita
+ * arrastrar decimales flotantes: 2900 → «US$29».
+ */
+const FORMATO_USD = new Intl.NumberFormat("en-US", {
   style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
+  currency: "USD",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
 });
 
-/** 99900 → "$99.900". Los planes de LandingForge se cobran en pesos colombianos. */
-export function formatoCOP(valor: number): string {
-  return FORMATO_COP.format(Math.round(valor)).replace(/\s/g, "");
+export function formatoUSD(centavos: number): string {
+  return `US${FORMATO_USD.format(Math.round(centavos) / 100)}`;
 }
 
 const formatos = new Map<string, Intl.NumberFormat>();

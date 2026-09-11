@@ -128,7 +128,10 @@ await p.getByRole("radio", { name: /Papel/ }).check();
 await p.waitForTimeout(300);
 let e = await leer();
 ok(e.tema === "claro", "el tema claro se escribe en el <html>");
-ok(e.tinta === "rgb(20, 22, 26)", "los tokens invierten a papel", e.tinta);
+/* rgb(15, 18, 22) es --ash del papel (#0F1216): la misma tinta casi negra
+   del estudio, para que el modo claro se lea como el mismo sitio con otra
+   luz y no como otra marca. Si cambia la paleta clara, esto avisa. */
+ok(e.tinta === "rgb(15, 18, 22)", "los tokens invierten a papel", e.tinta);
 await p.screenshot({ path: `${OUT}/a11y-tema-claro.png` });
 
 /* Sobre papel la película no se apaga —se apagaba, y con ella la página

@@ -37,7 +37,7 @@ export default async function PaginaBiblioteca() {
         titulo="Biblioteca"
         descripcion={
           campanas.length === 0
-            ? "Aquí vivirán tus campañas. La primera te toma once minutos."
+            ? "Aquí vivirán tus campañas. La primera te toma menos de diez minutos."
             : `${campanas.length} ${campanas.length === 1 ? "campaña guardada" : "campañas guardadas"}, con sus prompts listos para copiar, editar y volver a correr.`
         }
       >

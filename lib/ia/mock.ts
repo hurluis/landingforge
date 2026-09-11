@@ -65,7 +65,7 @@ function respuestaLocal(pregunta: string): string {
   const q = pregunta.toLowerCase();
 
   if (/(precio|cuesta|plan|cu[aá]nto|vale)/.test(q)) {
-    return "Tres planes: Semilla $49.900 con 30 créditos, Estudio $129.900 con 120 y Agencia $349.900 con 400. Un crédito es una imagen 9:16 en calidad máxima. Empieza con los 5 créditos gratis, sin tarjeta.";
+    return "Tres planes en dólares: Semilla US$12 con 40 generaciones, Estudio US$29 con 150 y Agencia US$79 con 450. Un crédito es una generación: una sección con su prompt y su imagen. Empieza con las 5 gratis, sin tarjeta.";
   }
   if (/(secci|nueve|tipolog)/.test(q)) {
     return "Nueve: hero, beneficios, antes y después, paso a paso, testimonios, autoridad, confianza y garantía, precios y estilo de vida. Cada una tiene su estructura y su regla crítica documentadas. ¿Quieres que te cuente la de antes y después?";

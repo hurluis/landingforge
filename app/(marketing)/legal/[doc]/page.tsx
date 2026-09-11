@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PAQUETE_EXTRA, PLANES, CREDITOS_BIENVENIDA } from "@/lib/planes";
-import { formatoCOP } from "@/lib/formato";
+import { formatoUSD } from "@/lib/formato";
 
 /**
  * Páginas legales. Están escritas en el mismo registro que el resto del
@@ -86,7 +86,7 @@ const DOCS: Record<string, Doc> = {
       {
         h: "Qué es un crédito",
         p: [
-          "Un crédito equivale a una sección generada: una imagen 9:16 en calidad máxima, con su prompt construido y validado.",
+          "Un crédito equivale a una generación: una sección con su prompt construido y validado, y su imagen 9:16 en calidad máxima. Si repites una sección, cada intento consume un crédito.",
         ],
       },
       {
@@ -153,11 +153,11 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
           <ul className="mt-4 flex flex-col gap-2">
             {PLANES.map((p) => (
               <li key={p.id} className="mono-sm text-smoke">
-                {p.nombre} · {formatoCOP(p.precioMensualCOP)} / mes · {p.creditosMes} créditos
+                {p.nombre} · {formatoUSD(p.precioMensualUSD)} / mes · {p.creditosMes} generaciones
               </li>
             ))}
             <li className="mono-sm text-smoke">
-              Paquete extra · {formatoCOP(PAQUETE_EXTRA.precioCOP)} · {PAQUETE_EXTRA.creditos}{" "}
+              Paquete extra · {formatoUSD(PAQUETE_EXTRA.precioUSD)} · {PAQUETE_EXTRA.creditos}{" "}
               créditos
             </li>
             <li className="mono-sm text-smoke">

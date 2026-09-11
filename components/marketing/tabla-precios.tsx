@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Check } from "@phosphor-icons/react/dist/ssr";
-import { PLANES, PAQUETE_EXTRA } from "@/lib/planes";
-import { formatoCOP } from "@/lib/formato";
+import { PLANES, PAQUETE_EXTRA, campanasPorMes } from "@/lib/planes";
+import { formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import { RevealLineas, RevealBloque } from "@/components/motion/reveal";
 import { Spotlight } from "@/components/motion/interacciones";
@@ -28,19 +28,22 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
           as="h2"
           id="precios-titulo"
           className="display-lg max-w-[16ch]"
-          lineas={["Planes que se miden", "en créditos."]}
+          lineas={["Pagas por", "generación,", "no por landing."]}
         />
         <RevealBloque retraso={0.18}>
           <p className="mt-8 medida cuerpo-lg text-smoke">
-            Los planes se miden en créditos porque generar imágenes cuesta. Cada crédito es
-            una imagen 9:16 en calidad máxima.
+            Un crédito es una generación: una sección construida con la metodología y
+            renderizada en 9:16. Si repites una sección hasta que quede como la quieres,
+            gastas lo que repitas —y nada más—. Una campaña de nueve secciones sale, con sus
+            repeticiones, por unas trece.
           </p>
         </RevealBloque>
 
         <div className="mt-16 grid gap-5 md:grid-cols-3">
           {PLANES.map((p, i) => {
             const filas = [
-              fila("Créditos al mes", String(p.creditosMes)),
+              fila("Generaciones al mes", String(p.creditosMes)),
+              fila("Campañas completas", `≈ ${campanasPorMes(p.id)} al mes`),
               fila(
                 "Campañas guardadas",
                 p.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(p.campanasGuardadas),
@@ -67,7 +70,7 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                 <h3 className="display-md">{p.nombre}</h3>
                 <p className="mt-4 flex items-baseline gap-2">
                   <span className="font-[family-name:var(--font-round)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
-                    {formatoCOP(p.precioMensualCOP)}
+                    {formatoUSD(p.precioMensualUSD)}
                   </span>
                   <span className="mono-sm text-smoke">/ mes</span>
                 </p>
@@ -109,13 +112,13 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
         {!compacta && (
           <div className="mt-8 grid gap-4 border-t border-[var(--scale)] pt-8 sm:grid-cols-2">
             <p className="medida cuerpo text-smoke">
-              Créditos adicionales: paquete de {PAQUETE_EXTRA.creditos} por{" "}
-              <span className="mono-sm text-ash">{formatoCOP(PAQUETE_EXTRA.precioCOP)}</span>. Los
-              créditos del plan no se acumulan entre meses; los que compras aparte, sí.
+              Generaciones adicionales: paquete de {PAQUETE_EXTRA.creditos} por{" "}
+              <span className="mono-sm text-ash">{formatoUSD(PAQUETE_EXTRA.precioUSD)}</span>. Las
+              del plan no se acumulan entre meses; las que compras aparte, sí.
             </p>
             <p className="medida cuerpo text-slag">
-              Prueba con 5 créditos gratis al registrarte, sin tarjeta. Suficiente para una
-              campaña corta y para que veas la calidad antes de pagar.
+              Prueba con 5 generaciones gratis al registrarte, sin tarjeta. Suficientes para
+              ver la calidad antes de pagar.
             </p>
           </div>
         )}

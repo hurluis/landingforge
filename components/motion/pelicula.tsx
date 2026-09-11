@@ -13,10 +13,10 @@ import { useMovimientoReducido } from "@/lib/a11y/preferencias";
  *   #pelicula-zona  La toma principal, 415 fotogramas: el frasco en su
  *                   pedestal, el despegue, el vuelo, la marca y la mano. Los
  *                   seis tramos de la apertura caen cada uno en su acto.
- *   #cierre-zona    Un tarro de crema girando en la mano, 240 fotogramas,
- *                   bajo el cierre. Otro producto: la página termina
- *                   enseñando que lo que vende no es una plantilla para un
- *                   frasco, sino una landing para el tuyo.
+ *   #zona-final     Un tarro de crema girando en la mano, 240 fotogramas,
+ *                   desde el estudio en vivo hasta el cierre. Otro producto:
+ *                   la página termina enseñando que lo que vende no es una
+ *                   plantilla para un frasco, sino una landing para el tuyo.
  *
  * Entre zonas la toma se queda en su último fotograma y un velo baja sobre
  * ella: lo de en medio son precios y preguntas, que se leen, no se miran, y
@@ -44,8 +44,17 @@ import { useMovimientoReducido } from "@/lib/a11y/preferencias";
  */
 
 const TOMAS = [
-  { zona: "pelicula-zona", carpeta: "secuencia", total: 415 },
-  { zona: "cierre-zona", carpeta: "secuencia-crema", total: 240 },
+  { zona: "pelicula-zona", carpeta: "secuencia", total: 415, velo: () => 0 },
+  {
+    zona: "zona-final",
+    carpeta: "secuencia-crema",
+    total: 240,
+    /* La segunda toma corre por debajo del estudio en vivo, los precios y las
+       preguntas, que son texto denso: ahí el velo se queda a media asta y la
+       toma se intuye moviéndose detrás. Solo se levanta en el último tramo,
+       el del cierre, donde no hay nada que leer y el tarro es el argumento. */
+    velo: (p: number) => (p < 0.72 ? 0.62 : Math.max(0.12, 0.62 - ((p - 0.72) / 0.18) * 0.5)),
+  },
 ];
 
 const LOTE = 24;
@@ -287,7 +296,7 @@ function Lienzo({ raiz, capa, velo }: { raiz: Ref; capa: Ref; velo: Ref }) {
          Dentro de una zona, en vertical, el velo no se levanta del todo: el
          recorte deja el frasco blanco ocupando media pantalla, y el texto, que
          en escritorio vive en su tercio, aquí lo cruza entero. */
-      const suelo = estrecha.matches ? VELO_MOVIL : 0;
+      const suelo = Math.max(estrecha.matches ? VELO_MOVIL : 0, TOMAS[toma].velo(suave));
       if (velo.current) {
         velo.current.style.opacity = ((1 - presencia) * 0.82 + presencia * suelo).toFixed(3);
       }

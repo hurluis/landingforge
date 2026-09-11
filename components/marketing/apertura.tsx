@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
  *   vuelo      lo que ninguna plantilla sabe  sigue girando, fondo azul noche
  *   marca      — pasillo —                    primer plano de la etiqueta
  *   flotacion  te llevas los prompts          la cámara se abre
- *   mano       once minutos, tres pasos       el frasco, en la mano
+ *   mano       menos de diez minutos          el frasco, en la mano
  *
  * El pasillo mide 195svh porque tiene que cubrir, además del acto, lo que
  * tarda el tramo anterior en salir y el siguiente en entrar: si el panel de
@@ -48,7 +48,7 @@ const TERCIO = "w-full md:max-w-[38vw]";
 const SERVICIOS = ["Las nueve secciones", "Adaptada a tu mercado", "Prompts que son tuyos"];
 
 const MUESTRA = [
-  { src: "/secciones/hero.png", alt: "Sección hero de una campaña real de suplemento" },
+  { src: "/secciones/hero-potencia.png", alt: "Sección hero de una campaña real de suplemento" },
   { src: "/secciones/precios.png", alt: "Sección de precios de la misma campaña" },
   { src: "/secciones/testimonios.png", alt: "Sección de testimonios de la misma campaña" },
 ];
@@ -170,7 +170,7 @@ export function Apertura() {
         </Tramo>
 
         <Tramo acto="mano" lado="derecha" alto="min-h-[145svh]">
-          <Rotulo>Once minutos, tres pasos</Rotulo>
+          <Rotulo>Menos de diez minutos, tres pasos</Rotulo>
           <Filas filas={PASOS} ordenada />
           <RevealBloque retraso={0.6} className="mt-8 flex flex-wrap gap-3">
             <BotonLleno href="/app/nueva">Empezar ahora</BotonLleno>
