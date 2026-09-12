@@ -3,6 +3,7 @@ import { Check } from "@phosphor-icons/react/dist/ssr";
 import { PLANES, PAQUETE_EXTRA } from "@/lib/planes";
 import { formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
+import { traductor } from "@/lib/i18n/servidor";
 import { RevealLineas, RevealBloque } from "@/components/motion/reveal";
 import { Spotlight } from "@/components/motion/interacciones";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,8 @@ function fila(etiqueta: string, valor: string) {
   return { etiqueta, valor };
 }
 
-export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
+export async function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
+  const t = await traductor();
   return (
     <section aria-labelledby="precios-titulo" className="relative py-32 lg:py-36">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-10">
@@ -32,13 +34,13 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
           as="h2"
           id="precios-titulo"
           className="display-lg max-w-[16ch]"
-          lineas={["Elige cuántas", "secciones necesitas."]}
+          lineas={t("Elige cuántas|secciones necesitas.").split("|")}
         />
         <RevealBloque retraso={0.18}>
           <p className="mt-8 medida cuerpo-lg text-smoke">
-            Cada crédito es una sección lista para publicar, con su prompt y su imagen 9:16.
-            Empieza por el plan que te quede corto y súbelo cuando el trabajo lo pida. Y si tu
-            volumen no cabe en ninguno, Fundición no tiene techo.
+            {t(
+              "Cada crédito es una sección lista para publicar, con su prompt y su imagen 9:16. Empieza por el plan que te quede corto y súbelo cuando el trabajo lo pida. Y si tu volumen no cabe en ninguno, Fundición no tiene techo.",
+            )}
           </p>
         </RevealBloque>
 
@@ -48,20 +50,22 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
             /* Etiquetas cortas a propósito: en cuatro columnas, las largas se
                partían en dos líneas y la tabla se leía sucia. */
             const filas = [
-              fila("Secciones al mes", String(p.creditosMes)),
+              fila(t("Secciones al mes"), String(p.creditosMes)),
               ...(porUso
-                ? [fila("Secciones extra", `${formatoUSD(p.precioSeccionUSD ?? 0)} c/u`)]
+                ? [fila(t("Secciones extra"), t("{precio} c/u", { precio: formatoUSD(p.precioSeccionUSD ?? 0) }))]
                 : []),
               fila(
-                "Guardadas",
-                p.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(p.campanasGuardadas),
+                t("Guardadas"),
+                p.campanasGuardadas === "ilimitadas"
+                  ? t("Ilimitadas")
+                  : String(p.campanasGuardadas),
               ),
-              fila("Paletas alternativas", String(p.paletasAlternativas)),
+              fila(t("Paletas alternativas"), String(p.paletasAlternativas)),
               fila(
-                "Marcas o clientes",
-                p.marcas === "ilimitadas" ? "Ilimitados" : String(p.marcas),
+                t("Marcas o clientes"),
+                p.marcas === "ilimitadas" ? t("Ilimitados") : String(p.marcas),
               ),
-              fila("Soporte", p.soporte),
+              fila(t("Soporte"), t(p.soporte)),
             ];
             return (
               <RevealBloque key={p.id} retraso={i * 0.06}>
@@ -73,12 +77,12 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                   p.destacado ? "vidrio border-[var(--heat)]" : "vidrio",
                 )}
               >
-                <h3 className="display-md">{p.nombre}</h3>
+                <h3 className="display-md">{t(p.nombre)}</h3>
                 <p className="mt-4 flex items-baseline gap-2">
                   <span className="font-[family-name:var(--font-round)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
                     {formatoUSD(p.precioMensualUSD)}
                   </span>
-                  <span className="mono-sm text-smoke">/ mes</span>
+                  <span className="mono-sm text-smoke">{t("/ mes")}</span>
                 </p>
 
                 <ul className="mt-6 flex flex-col gap-3 border-t border-[var(--scale)] pt-6">
@@ -90,11 +94,11 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                   ))}
                   <li className="flex items-center gap-2 text-smoke">
                     <Check className="size-4 text-[var(--ok)]" />
-                    <span className="cuerpo">Exportación .md y .json</span>
+                    <span className="cuerpo">{t("Exportación .md y .json")}</span>
                   </li>
                   <li className="flex items-center gap-2 text-smoke">
                     <Check className="size-4 text-[var(--ok)]" />
-                    <span className="cuerpo">Edición de prompts</span>
+                    <span className="cuerpo">{t("Edición de prompts")}</span>
                   </li>
                 </ul>
 
@@ -105,7 +109,7 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                     tamano="md"
                     className="w-full"
                   >
-                    <Link href="/entrar?modo=registro">Empezar con {p.nombre}</Link>
+                    <Link href="/entrar?modo=registro">{t("Empezar con {plan}", { plan: t(p.nombre) })}</Link>
                   </Boton>
                 </div>
               </div>
@@ -118,13 +122,16 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
         {!compacta && (
           <div className="mt-8 grid gap-4 border-t border-[var(--scale)] pt-8 sm:grid-cols-2">
             <p className="medida cuerpo text-smoke">
-              ¿Un mes con más trabajo del previsto? Paquete de {PAQUETE_EXTRA.creditos} secciones
-              por <span className="mono-sm text-ash">{formatoUSD(PAQUETE_EXTRA.precioUSD)}</span>.
-              Las del plan no se acumulan entre meses; las que compras aparte, sí.
+              {t("¿Un mes con más trabajo del previsto? Paquete de {n} secciones por", {
+                n: PAQUETE_EXTRA.creditos,
+              })}{" "}
+              <span className="mono-sm text-ash">{formatoUSD(PAQUETE_EXTRA.precioUSD)}</span>.{" "}
+              {t("Las del plan no se acumulan entre meses; las que compras aparte, sí.")}
             </p>
             <p className="medida cuerpo text-slag">
-              Prueba con 5 secciones gratis al registrarte, sin tarjeta. Suficientes para ver la
-              calidad antes de pagar.
+              {t(
+                "Prueba con 5 secciones gratis al registrarte, sin tarjeta. Suficientes para ver la calidad antes de pagar.",
+              )}
             </p>
           </div>
         )}

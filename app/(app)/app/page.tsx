@@ -10,6 +10,7 @@ import { Biblioteca } from "@/components/app/biblioteca";
 import { Boton } from "@/components/ui/boton";
 import { ANCHO, Banda, Cifra, Cifras } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Biblioteca" };
 export const dynamic = "force-dynamic";
@@ -23,6 +24,7 @@ export const dynamic = "force-dynamic";
  * quedan y cuándo vuelven— y la biblioteca en sí.
  */
 export default async function PaginaBiblioteca() {
+  const t = await traductor();
   const usuario = await usuarioActual();
   if (!usuario) return null; // el layout ya redirige
   const campanas = await repositorio().campanasDe(usuario.id);
@@ -34,8 +36,8 @@ export default async function PaginaBiblioteca() {
       <Banda
         fotograma="/secuencia/0001.jpg"
         encuadre="50% 58%"
-        rotulo="Tu estudio"
-        titulo="Biblioteca"
+        rotulo={t("Tu estudio")}
+        titulo={t("Biblioteca")}
         descripcion={
           campanas.length === 0
             ? "Aquí vivirán tus campañas. La primera te toma menos de diez minutos."
@@ -45,15 +47,15 @@ export default async function PaginaBiblioteca() {
         <Boton asChild variante="tinta" tamano="md" className="rounded-full">
           <Link href="/app/nueva">
             <Plus className="size-4" weight="bold" />
-            Nueva campaña
+            {t("Nueva campaña")}
           </Link>
         </Boton>
       </Banda>
 
       <div className={cn(ANCHO, "mt-10 flex flex-col gap-16 pb-24")}>
         <Cifras>
-          <Cifra
-            etiqueta="Campañas"
+          <Cifra t={t}
+            etiqueta={t("Campañas")}
             valor={campanas.length}
             nota={
               def.campanasGuardadas === "ilimitadas"
@@ -61,24 +63,24 @@ export default async function PaginaBiblioteca() {
                 : `de ${def.campanasGuardadas} en tu plan`
             }
           />
-          <Cifra etiqueta="Prompts" valor={prompts} nota="listos para copiar" />
+          <Cifra t={t} etiqueta={t("Prompts")} valor={prompts} nota={t("listos para copiar")} />
           {esPorUso(usuario.plan) ? (
-            <Cifra
-              etiqueta="Secciones este ciclo"
+            <Cifra t={t}
+              etiqueta={t("Secciones este ciclo")}
               valor={consumoPorUso(usuario.plan, usuario.creditosDisponibles)}
-              nota={`${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} · se factura el ${fechaCorta(usuario.renuevaEn)}`}
+              nota={`${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} · se factura el ${fechaCorta(usuario.renuevaEn, t.idioma)}`}
               tono="calor"
             />
           ) : (
-            <Cifra
-              etiqueta="Créditos"
+            <Cifra t={t}
+              etiqueta={t("Créditos")}
               valor={usuario.creditosDisponibles}
-              nota={`de ${def.creditosMes} · vuelven el ${fechaCorta(usuario.renuevaEn)}`}
+              nota={`de ${def.creditosMes} · vuelven el ${fechaCorta(usuario.renuevaEn, t.idioma)}`}
               tono="calor"
             />
           )}
-          <Cifra
-            etiqueta="Plan"
+          <Cifra t={t}
+            etiqueta={t("Plan")}
             valor={def.nombre}
             nota={`${def.paletasAlternativas} ${def.paletasAlternativas === 1 ? "paleta alternativa" : "paletas alternativas"}`}
           />

@@ -87,6 +87,9 @@ export const esquemaChat = z.object({
     )
     .min(1)
     .max(20, "Esta conversación llegó a su límite de 20 mensajes"),
+  /* El idioma de la interfaz. El asistente responde en él aunque la pregunta
+     llegue mezclada, que es lo que hace cualquiera al escribir rápido. */
+  idioma: z.enum(["es", "en"]).default("es"),
 });
 
 export const esquemaCredenciales = z.object({

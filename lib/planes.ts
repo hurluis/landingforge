@@ -8,8 +8,18 @@ import type { Plan } from "@/lib/datos/tipos";
  * contarle que una sección puede necesitar varios intentos es regalarle una
  * objeción antes de que la tenga.
  *
- * QUÉ SE COBRA. Secciones. Cada sección que la plataforma produce consume un
- * crédito.
+ * QUÉ SE COBRA. Secciones, no landings. El flujo es: el usuario llena el
+ * formulario del estudio, elige QUÉ secciones quiere de las nueve, y por cada
+ * una la plataforma pide un prompt al modelo de texto y una imagen 9:16 al
+ * modelo de imagen. Como el trabajo se hace pieza a pieza y el usuario decide
+ * cuántas piezas quiere, la unidad de cobro es la sección: cobrar por landing
+ * obligaría a cobrar nueve a quien solo quiere tres.
+ *
+ * Cada intento consume un crédito, salga como salga, y no hay devolución
+ * automática —ver `app/api/prompts/route.ts` para el porqué—. Eso significa
+ * que el coste de un reintento del usuario lo cubre su propio crédito; lo
+ * único que absorbemos son los reintentos internos por fallos transitorios de
+ * la API, que es el +15 % de la tabla de abajo.
  *
  * ── EL COSTO, EN EL PEOR CASO ──────────────────────────────────────────
  *
@@ -41,6 +51,13 @@ import type { Plan } from "@/lib/datos/tipos";
  *
  * Todo antes de pasarela, impuestos e infraestructura. Incluso en el peor
  * caso ningún plan baja del 39 %, que es la holgura que se buscaba.
+ *
+ * El número de secciones incluidas no es generosidad: es la otra mitad de la
+ * decisión de no devolver créditos. Una campaña son nueve secciones, así que
+ * 30 en el plan de entrada dan para tres campañas completas o para insistir
+ * en las que no salgan a la primera, y 120 en el siguiente para trece. Si esa
+ * holgura se recorta, la falta de devolución empieza a doler y hay que
+ * replantear las dos cosas a la vez.
  *
  * ── POR QUÉ ESTA ESCALERA ──────────────────────────────────────────────
  *

@@ -20,14 +20,10 @@ export interface Repositorio {
   usuarioPorId(id: string): Promise<Usuario | null>;
   cambiarPlan(usuarioId: string, plan: Plan): Promise<Usuario>;
 
-  /* --- Créditos. Transaccional: si la generación falla, se devuelve. --- */
+  /* --- Créditos. El descuento es transaccional y no se revierte: ver la
+         nota de `app/api/prompts/route.ts`. Para compensar a un usuario está
+         el ajuste del panel, que queda registrado en la auditoría. --- */
   descontarCreditos(
-    usuarioId: string,
-    cantidad: number,
-    campanaId: string | null,
-    campanaNombre: string,
-  ): Promise<Usuario>;
-  devolverCreditos(
     usuarioId: string,
     cantidad: number,
     campanaId: string | null,

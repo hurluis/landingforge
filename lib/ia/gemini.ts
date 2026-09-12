@@ -60,7 +60,7 @@ export class ClienteGemini implements ClienteIA {
     }
   }
 
-  async *chat(mensajes: Mensaje[]): AsyncIterable<string> {
+  async *chat(mensajes: Mensaje[], idioma: "es" | "en" = "es"): AsyncIterable<string> {
     const flujo = await this.ai.models.generateContentStream({
       model: MODELO,
       contents: mensajes.map((m) => ({
@@ -69,7 +69,12 @@ export class ClienteGemini implements ClienteIA {
       })),
       config: {
         ...CONFIG_ASISTENTE,
-        systemInstruction: PROMPT_ASISTENTE,
+        /* El idioma de la interfaz se añade al final para que pese sobre la
+           regla general del prompt: si el visitante puso la página en inglés,
+           espera la respuesta en inglés aunque escriba la pregunta a medias. */
+        systemInstruction: `${PROMPT_ASISTENTE}\n\n################  IDIOMA DE ESTA SESIÓN  ################\n\nEl visitante tiene la página en ${
+          idioma === "en" ? "INGLÉS. Responde siempre en inglés." : "ESPAÑOL. Responde siempre en español."
+        }`,
       },
     });
 

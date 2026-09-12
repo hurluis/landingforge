@@ -24,6 +24,7 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Ficha de usuario" };
 export const dynamic = "force-dynamic";
@@ -43,6 +44,7 @@ export default async function PaginaFichaUsuario({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await traductor();
   const [{ id }, admin] = await Promise.all([params, exigirAdminEnPagina()]);
   const ficha = await repositorioAdmin().fichaUsuario(id);
   if (!ficha) notFound();
@@ -58,23 +60,23 @@ export default async function PaginaFichaUsuario({
         alto="media"
         compacto
         volver={{ href: "/admin/usuarios", texto: "Volver a usuarios" }}
-        rotulo="Ficha de usuario"
+        rotulo={t("Ficha de usuario")}
         titulo={usuario.email}
         descripcion={
           <span className="mono-sm">
-            alta el {fechaLarga(usuario.creadoEn)} · renueva el {fechaLarga(usuario.renuevaEn)} ·{" "}
+            alta el {fechaLarga(usuario.creadoEn, t.idioma)} · renueva el {fechaLarga(usuario.renuevaEn, t.idioma)} ·{" "}
             {usuario.id}
           </span>
         }
       >
         <Badge tono="metal">plan {def.nombre}</Badge>
         {usuario.rol === "admin" && <Badge tono="maquina">administrador</Badge>}
-        {usuario.id === admin.id && <Badge tono="neutro">eres tú</Badge>}
+        {usuario.id === admin.id && <Badge tono="neutro">{t("eres tú")}</Badge>}
       </Banda>
 
       <div className={cn(ANCHO, "mt-10 flex flex-col gap-16")}>
         <Cifras>
-          <Cifra
+          <Cifra t={t}
             etiqueta={esPorUso(usuario.plan) ? "Secciones del ciclo" : "Créditos"}
             valor={
               esPorUso(usuario.plan)
@@ -88,14 +90,14 @@ export default async function PaginaFichaUsuario({
             }
             tono="calor"
           />
-          <Cifra etiqueta="Campañas" valor={usuario.campanas} />
-          <Cifra etiqueta="Prompts" valor={usuario.prompts} />
-          <Cifra
-            etiqueta="Créditos consumidos"
+          <Cifra t={t} etiqueta={t("Campañas")} valor={usuario.campanas} />
+          <Cifra t={t} etiqueta={t("Prompts")} valor={usuario.prompts} />
+          <Cifra t={t}
+            etiqueta={t("Créditos consumidos")}
             valor={usuario.creditosConsumidos}
             nota={
               usuario.ultimaActividad
-                ? `última actividad ${fechaRelativa(usuario.ultimaActividad)}`
+                ? `última actividad ${fechaRelativa(usuario.ultimaActividad, t.idioma)}`
                 : "sin actividad todavía"
             }
           />
@@ -103,12 +105,12 @@ export default async function PaginaFichaUsuario({
 
         <AccionesUsuario usuario={usuario} esYoMismo={usuario.id === admin.id} />
 
-        <Seccion titulo="Campañas de esta cuenta">
+        <Seccion titulo={t("Campañas de esta cuenta")}>
           {campanas.length === 0 ? (
-            <EstadoVacio titulo="Esta cuenta todavía no ha creado ninguna campaña." />
+            <EstadoVacio titulo={t("Esta cuenta todavía no ha creado ninguna campaña.")} />
           ) : (
             <Tabla
-              descripcion="Campañas de esta cuenta con estado y número de prompts."
+              descripcion={t("Campañas de esta cuenta con estado y número de prompts.")}
               cabeceras={["Nombre", "Producto", "Estado", "Prompts", "Actualizada", null]}
             >
               {campanas.map((c) => (
@@ -119,7 +121,7 @@ export default async function PaginaFichaUsuario({
                   <Celda mono className="tabular-nums">
                     {c.prompts.length}
                   </Celda>
-                  <Celda mono>{fechaCorta(c.actualizadaEn)}</Celda>
+                  <Celda mono>{fechaCorta(c.actualizadaEn, t.idioma)}</Celda>
                   <Celda className="pr-0 text-right">
                     <EnlaceFila href={`/admin/campanas/${c.id}`}>Inspeccionar</EnlaceFila>
                   </Celda>
@@ -129,17 +131,17 @@ export default async function PaginaFichaUsuario({
           )}
         </Seccion>
 
-        <Seccion titulo="Movimientos de crédito">
+        <Seccion titulo={t("Movimientos de crédito")}>
           {movimientos.length === 0 ? (
-            <EstadoVacio titulo="Sin movimientos registrados en esta cuenta." />
+            <EstadoVacio titulo={t("Sin movimientos registrados en esta cuenta.")} />
           ) : (
             <Tabla
-              descripcion="Historial de consumo y recarga de créditos."
+              descripcion={t("Historial de consumo y recarga de créditos.")}
               cabeceras={["Fecha", "Concepto", "Referencia", "Créditos"]}
             >
               {movimientos.map((m) => (
                 <Fila key={m.id}>
-                  <Celda mono>{fechaCorta(m.fecha)}</Celda>
+                  <Celda mono>{fechaCorta(m.fecha, t.idioma)}</Celda>
                   <Celda>{ETIQUETA_MOTIVO[m.motivo]}</Celda>
                   <Celda>{m.campanaNombre}</Celda>
                   <Celda
@@ -158,19 +160,19 @@ export default async function PaginaFichaUsuario({
         </Seccion>
 
         <Seccion
-          titulo="Auditoría relacionada"
-          descripcion="Lo que el equipo ha hecho sobre esta cuenta, y lo que esta cuenta ha hecho sobre otras si tiene rol de administrador."
+          titulo={t("Auditoría relacionada")}
+          descripcion={t("Lo que el equipo ha hecho sobre esta cuenta, y lo que esta cuenta ha hecho sobre otras si tiene rol de administrador.")}
         >
           {auditoria.length === 0 ? (
-            <EstadoVacio titulo="Nadie ha tocado esta cuenta desde el panel." />
+            <EstadoVacio titulo={t("Nadie ha tocado esta cuenta desde el panel.")} />
           ) : (
             <Tabla
-              descripcion="Acciones administrativas relacionadas con esta cuenta."
+              descripcion={t("Acciones administrativas relacionadas con esta cuenta.")}
               cabeceras={["Fecha", "Actor", "Acción", "Detalle"]}
             >
               {auditoria.map((e) => (
                 <Fila key={e.id}>
-                  <Celda mono>{fechaCorta(e.fecha)}</Celda>
+                  <Celda mono>{fechaCorta(e.fecha, t.idioma)}</Celda>
                   <Celda>{e.actorEmail}</Celda>
                   <Celda className="text-ash">{ETIQUETA_ACCION[e.accion]}</Celda>
                   <Celda mono>{describirDetalle(e.accion, e.detalle)}</Celda>

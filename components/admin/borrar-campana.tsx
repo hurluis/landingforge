@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Trash } from "@phosphor-icons/react/dist/ssr";
 import { Boton } from "@/components/ui/boton";
 import { Dialogo, DialogoCierre, DialogoContenido } from "@/components/ui/dialogo";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * La única acción destructiva del inspector de campañas.
@@ -23,6 +24,7 @@ export function BorrarCampana({
   nombre: string;
   dueno: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const [abierto, setAbierto] = React.useState(false);
   const [borrando, setBorrando] = React.useState(false);
@@ -48,21 +50,21 @@ export function BorrarCampana({
     <Dialogo open={abierto} onOpenChange={setAbierto}>
       <Boton variante="peligro" tamano="sm" onClick={() => setAbierto(true)}>
         <Trash className="size-4" />
-        Borrar campaña
+        {t("Borrar campaña")}
       </Boton>
 
       <DialogoContenido
-        titulo="Borrar esta campaña"
-        descripcion="Se borra el trabajo de un cliente y no se puede deshacer. Hazlo solo por abuso."
+        titulo={t("Borrar esta campaña")}
+        descripcion={t("Se borra el trabajo de un cliente y no se puede deshacer. Hazlo solo por abuso.")}
       >
         <div className="flex flex-col gap-5">
           <dl className="rounded-[10px] bg-[var(--sunk)] px-4 py-3">
             <div className="flex gap-2">
-              <dt className="mono-sm text-slag">campaña</dt>
+              <dt className="mono-sm text-slag">{t("campaña")}</dt>
               <dd className="mono-sm text-ash">{nombre}</dd>
             </div>
             <div className="mt-1 flex gap-2">
-              <dt className="mono-sm text-slag">dueño</dt>
+              <dt className="mono-sm text-slag">{t("dueño")}</dt>
               <dd className="mono-sm text-ash">{dueno}</dd>
             </div>
           </dl>
@@ -73,10 +75,10 @@ export function BorrarCampana({
             <Boton
               variante="peligro"
               cargando={borrando}
-              textoCargando="Borrando…"
+              textoCargando={t("Borrando…")}
               onClick={borrar}
             >
-              Borrar definitivamente
+              {t("Borrar definitivamente")}
             </Boton>
           </div>
         </div>

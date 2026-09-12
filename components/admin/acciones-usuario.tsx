@@ -9,6 +9,7 @@ import { Boton } from "@/components/ui/boton";
 import { Campo } from "@/components/ui/campo";
 import { Dialogo, DialogoContenido, DialogoCierre } from "@/components/ui/dialogo";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Las acciones destructivas o sensibles sobre una cuenta.
@@ -32,6 +33,7 @@ export function AccionesUsuario({
   /** El administrador está mirando su propia ficha. */
   esYoMismo: boolean;
 }) {
+  const t = useT();
   const router = useRouter();
   const [ocupado, setOcupado] = React.useState<string | null>(null);
 
@@ -50,12 +52,12 @@ export function AccionesUsuario({
         body: JSON.stringify(cuerpo),
       });
       const datos = (await r.json()) as Respuesta;
-      if (!r.ok) throw new Error(datos.error ?? "No se pudo completar la acción.");
+      if (!r.ok) throw new Error(datos.error ?? t("No se pudo completar la acción."));
       toast.success(exito);
       router.refresh();
       return true;
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo completar la acción.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo completar la acción."));
       return false;
     } finally {
       setOcupado(null);
@@ -66,7 +68,7 @@ export function AccionesUsuario({
     evento.preventDefault();
     const n = Number(delta);
     if (!Number.isInteger(n) || n === 0) {
-      toast.error("El ajuste tiene que ser un número entero distinto de cero.");
+      toast.error(t("El ajuste tiene que ser un número entero distinto de cero."));
       return;
     }
     const hecho = await pedir(
@@ -89,13 +91,13 @@ export function AccionesUsuario({
         body: JSON.stringify({ confirmacion }),
       });
       const datos = (await r.json()) as Respuesta;
-      if (!r.ok) throw new Error(datos.error ?? "No se pudo borrar la cuenta.");
-      toast.success("Cuenta borrada.", { description: "Queda registrada en la auditoría." });
+      if (!r.ok) throw new Error(datos.error ?? t("No se pudo borrar la cuenta."));
+      toast.success(t("Cuenta borrada."), { description: t("Queda registrada en la auditoría.") });
       setAbierto(false);
       router.replace("/admin/usuarios");
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo borrar la cuenta.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo borrar la cuenta."));
     } finally {
       setOcupado(null);
     }
@@ -113,11 +115,11 @@ export function AccionesUsuario({
           Plan
         </h2>
         <p className="mt-2 cuerpo text-smoke">
-          Cambiar el plan recarga los créditos del mes y reinicia la fecha de renovación.
+          {t("Cambiar el plan recarga los créditos del mes y reinicia la fecha de renovación.")}
         </p>
         <div className="mt-5 flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
-            <span className="etiqueta text-slag">Nuevo plan</span>
+            <span className="etiqueta text-slag">{t("Nuevo plan")}</span>
             <select
               value={plan}
               onChange={(e) => setPlan(e.target.value as Usuario["plan"])}
@@ -133,11 +135,11 @@ export function AccionesUsuario({
           <Boton
             variante="contorno"
             cargando={ocupado === "plan"}
-            textoCargando="Cambiando…"
+            textoCargando={t("Cambiando…")}
             disabled={plan === usuario.plan}
-            onClick={() => pedir({ accion: "plan", plan }, "plan", "Plan actualizado.")}
+            onClick={() => pedir({ accion: "plan", plan }, "plan", t("Plan actualizado."))}
           >
-            Aplicar plan
+            {t("Aplicar plan")}
           </Boton>
         </div>
       </section>
@@ -145,28 +147,27 @@ export function AccionesUsuario({
       {/* -------------- Créditos -------------- */}
       <section aria-labelledby="accion-creditos" className={marco}>
         <h2 id="accion-creditos" className="titulo">
-          Ajustar créditos
+          {t("Ajustar créditos")}
         </h2>
         <p className="mt-2 cuerpo text-smoke">
-          Positivo suma, negativo resta. El motivo aparece en el historial que ve el propio
-          usuario, así que escríbelo pensando en que él lo va a leer.
+          {t("Positivo suma, negativo resta. El motivo aparece en el historial que ve el propio usuario, así que escríbelo pensando en que él lo va a leer.")}
         </p>
         <form onSubmit={ajustarCreditos} className="mt-5 flex flex-col gap-4">
           <Campo
             id="delta-creditos"
-            etiqueta="Créditos"
+            etiqueta={t("Créditos")}
             type="number"
             inputMode="numeric"
             step={1}
-            placeholder="-10 o 25"
+            placeholder={t("-10 o 25")}
             value={delta}
             onChange={(e) => setDelta(e.target.value)}
             required
           />
           <Campo
             id="motivo-ajuste"
-            etiqueta="Motivo"
-            placeholder="Compensación por generación fallida"
+            etiqueta={t("Motivo")}
+            placeholder={t("Compensación por generación fallida")}
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             minLength={4}
@@ -177,10 +178,10 @@ export function AccionesUsuario({
             type="submit"
             variante="contorno"
             cargando={ocupado === "creditos"}
-            textoCargando="Ajustando…"
+            textoCargando={t("Ajustando…")}
             className="self-start"
           >
-            Aplicar ajuste
+            {t("Aplicar ajuste")}
           </Boton>
         </form>
       </section>
@@ -201,7 +202,7 @@ export function AccionesUsuario({
           <Boton
             variante={usuario.rol === "admin" ? "peligro" : "contorno"}
             cargando={ocupado === "rol"}
-            textoCargando="Cambiando…"
+            textoCargando={t("Cambiando…")}
             disabled={esYoMismo}
             onClick={() =>
               pedir(
@@ -222,28 +223,27 @@ export function AccionesUsuario({
         className={cn(marco, "border-[color-mix(in_oklab,var(--danger)_55%,var(--scale))]")}
       >
         <h2 id="accion-borrar" className="titulo">
-          Borrar la cuenta
+          {t("Borrar la cuenta")}
         </h2>
         <p className="mt-2 cuerpo text-smoke">
-          Se borran también sus campañas y su historial de créditos. La línea de auditoría
-          sobrevive al borrado: queda constancia de quién lo hizo y cuándo.
+          {t("Se borran también sus campañas y su historial de créditos. La línea de auditoría sobrevive al borrado: queda constancia de quién lo hizo y cuándo.")}
         </p>
 
         <Dialogo open={abierto} onOpenChange={setAbierto}>
           <div className="mt-5">
             <Boton variante="peligro" disabled={esYoMismo} onClick={() => setAbierto(true)}>
-              Borrar cuenta
+              {t("Borrar cuenta")}
             </Boton>
             {esYoMismo && (
               <p className="mt-3 mono-sm text-slag">
-                No puedes borrar tu propia cuenta desde el panel.
+                {t("No puedes borrar tu propia cuenta desde el panel.")}
               </p>
             )}
           </div>
 
           <DialogoContenido
-            titulo="Borrar esta cuenta"
-            descripcion="Esta acción no se puede deshacer. Escribe el correo exacto para confirmar."
+            titulo={t("Borrar esta cuenta")}
+            descripcion={t("Esta acción no se puede deshacer. Escribe el correo exacto para confirmar.")}
           >
             <div className="flex flex-col gap-5">
               <p className="mono-sm rounded-[10px] bg-[var(--sunk)] px-3 py-2 text-smoke">
@@ -251,7 +251,7 @@ export function AccionesUsuario({
               </p>
               <Campo
                 id="confirmar-borrado"
-                etiqueta="Escribe el correo"
+                etiqueta={t("Escribe el correo")}
                 autoComplete="off"
                 value={confirmacion}
                 onChange={(e) => setConfirmacion(e.target.value)}
@@ -263,11 +263,11 @@ export function AccionesUsuario({
                 <Boton
                   variante="peligro"
                   cargando={ocupado === "borrar"}
-                  textoCargando="Borrando…"
+                  textoCargando={t("Borrando…")}
                   disabled={confirmacion.trim().toLowerCase() !== usuario.email.toLowerCase()}
                   onClick={borrar}
                 >
-                  Borrar definitivamente
+                  {t("Borrar definitivamente")}
                 </Boton>
               </div>
             </div>

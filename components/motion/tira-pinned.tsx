@@ -15,6 +15,8 @@ import { SeccionReal } from "@/components/marketing/seccion-real";
 import { SPRING } from "@/lib/motion";
 import { useEsEscritorio } from "@/components/motion/medios";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * M6 · Las nueve secciones, pan horizontal pinned.
@@ -45,6 +47,7 @@ export function TiraPinned() {
 /* ---------------------------------------------------------------- */
 
 function TiraPan() {
+  const t = useT();
   const pista = useRef<HTMLDivElement>(null);
   const [activo, setActivo] = useState(0);
 
@@ -101,7 +104,7 @@ function TiraPan() {
         <div className="sticky top-0 flex h-[100dvh] flex-col justify-center overflow-hidden pt-24 pb-10">
           <div className="mx-auto w-full max-w-[1400px] px-10">
             <h2 id="tira-titulo" className="display-md max-w-[24ch]">
-              Nueve secciones. Cada una con su regla.
+              {t("Nueve secciones. Cada una con su regla.")}
             </h2>
           </div>
 
@@ -117,8 +120,8 @@ function TiraPan() {
                 if (e.key === "End") { e.preventDefault(); irA(N - 1); }
               }}
             >
-              {TIPOLOGIAS.map((t, i) => (
-                <li key={t.id} className="w-[clamp(140px,13vw,205px)] shrink-0">
+              {TIPOLOGIAS.map((tipo, i) => (
+                <li key={tipo.id} className="w-[clamp(140px,13vw,205px)] shrink-0">
                   <button
                     type="button"
                     tabIndex={i === activo ? 0 : -1}
@@ -137,18 +140,18 @@ function TiraPan() {
                         i === activo ? "opacity-100" : "opacity-45",
                       )}
                     >
-                      <SeccionReal tipologia={t.id} />
+                      <SeccionReal tipologia={tipo.id} />
                       {i === activo && <span aria-hidden className="anillo-templado" />}
                     </span>
                     <span className="mt-3 flex items-baseline gap-2">
-                      <span className="mono-sm text-slag">{String(t.numero).padStart(2, "0")}</span>
+                      <span className="mono-sm text-slag">{String(tipo.numero).padStart(2, "0")}</span>
                       <span
                         className={cn(
                           "etiqueta transition-colors duration-[320ms]",
                           i === activo ? "text-ash" : "text-slag",
                         )}
                       >
-                        {t.nombre}
+                        {t(tipo.nombre)}
                       </span>
                     </span>
                   </button>
@@ -161,7 +164,12 @@ function TiraPan() {
             <div aria-hidden className="h-px w-full bg-scale">
               <motion.span style={{ width: anchoBarra }} className="block h-px bg-heat" />
             </div>
-            <Ficha nombre={ficha.nombre} proposito={ficha.proposito} regla={ficha.reglaCritica} />
+            <Ficha
+              nombre={t(ficha.nombre)}
+              proposito={t(ficha.proposito)}
+              regla={t(ficha.reglaCritica)}
+              t={t}
+            />
           </div>
         </div>
       </div>
@@ -172,6 +180,7 @@ function TiraPan() {
 /* ---------------------------------------------------------------- */
 
 function TiraNativa() {
+  const t = useT();
   const [activo, setActivo] = useState(0);
   const scroller = useRef<HTMLUListElement>(null);
 
@@ -195,31 +204,31 @@ function TiraNativa() {
     <section aria-labelledby="tira-titulo-movil" className="py-32">
       <div className="mx-auto w-full max-w-[1400px] px-6">
         <h2 id="tira-titulo-movil" className="display-lg max-w-[16ch]">
-          Nueve secciones. Cada una con su regla.
+          {t("Nueve secciones. Cada una con su regla.")}
         </h2>
       </div>
 
       <ul
         ref={scroller}
         onScroll={medir}
-        aria-label="Las nueve tipologías de sección"
+        aria-label={t("Las nueve tipologías de sección")}
         className="tira-nativa mt-10 flex gap-5 overflow-x-auto px-6 pb-4"
       >
-        {TIPOLOGIAS.map((t, i) => (
-          <li key={t.id} className="w-[62vw] max-w-[260px] shrink-0">
+        {TIPOLOGIAS.map((tipo, i) => (
+          <li key={tipo.id} className="w-[62vw] max-w-[260px] shrink-0">
             <span
               className={cn(
                 "relative block aspect-[9/16] overflow-hidden rounded-[14px] bg-sunk transition-opacity",
                 i === activo ? "opacity-100" : "opacity-50",
               )}
             >
-              <SeccionReal tipologia={t.id} />
+              <SeccionReal tipologia={tipo.id} />
               {i === activo && <span aria-hidden className="anillo-templado" />}
             </span>
             <span className="mt-3 flex items-baseline gap-2">
-              <span className="mono-sm text-slag">{String(t.numero).padStart(2, "0")}</span>
+              <span className="mono-sm text-slag">{String(tipo.numero).padStart(2, "0")}</span>
               <span className={cn("etiqueta", i === activo ? "text-ash" : "text-slag")}>
-                {t.nombre}
+                {t(tipo.nombre)}
               </span>
             </span>
           </li>
@@ -227,7 +236,12 @@ function TiraNativa() {
       </ul>
 
       <div className="mx-auto mt-6 w-full max-w-[1400px] px-6">
-        <Ficha nombre={ficha.nombre} proposito={ficha.proposito} regla={ficha.reglaCritica} />
+        <Ficha
+          nombre={t(ficha.nombre)}
+          proposito={t(ficha.proposito)}
+          regla={t(ficha.reglaCritica)}
+          t={t}
+        />
       </div>
     </section>
   );
@@ -239,10 +253,12 @@ function Ficha({
   nombre,
   proposito,
   regla,
+  t,
 }: {
   nombre: string;
   proposito: string;
   regla: string;
+  t: Traductor;
 }) {
   return (
     <div
@@ -254,7 +270,7 @@ function Ficha({
         <p className="mt-1 cuerpo text-smoke">{proposito}</p>
       </div>
       <div>
-        <p className="etiqueta text-slag">La regla que casi nadie aplica</p>
+        <p className="etiqueta text-slag">{t("La regla que casi nadie aplica")}</p>
         <p className="mt-1 cuerpo-lg text-ash medida">{regla}</p>
       </div>
     </div>

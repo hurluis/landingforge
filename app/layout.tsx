@@ -4,6 +4,8 @@ import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
 import { Movimiento } from "@/components/motion/movimiento";
 import { PanelAccesibilidad } from "@/components/a11y/panel-accesibilidad";
+import { ProveedorIdioma } from "@/lib/i18n/cliente";
+import { idiomaActual, traductor } from "@/lib/i18n/servidor";
 import "./globals.css";
 
 /**
@@ -28,32 +30,39 @@ const outfit = Outfit({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: {
-    default: "LandingForge · el paquete visual de tu landing, sin plantillas",
-    template: "%s · LandingForge",
-  },
-  description:
-    "Sube la foto. LandingForge arma las nueve secciones que venden, adaptadas al país donde vendes. Sin plantillas.",
-  openGraph: {
-    title: "LandingForge",
-    description:
-      "El paquete visual completo de tu landing de e-commerce, construido con metodología.",
-    locale: "es_LA",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const idioma = await idiomaActual();
+  const t = await traductor();
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+    title: {
+      default: t("LandingForge · el paquete visual de tu landing, sin plantillas"),
+      template: "%s · LandingForge",
+    },
+    description: t(
+      "Sube la foto. LandingForge arma las nueve secciones que venden, adaptadas al país donde vendes. Sin plantillas.",
+    ),
+    openGraph: {
+      title: "LandingForge",
+      description: t(
+        "El paquete visual completo de tu landing de e-commerce, construido con metodología.",
+      ),
+      locale: idioma === "en" ? "en_US" : "es_LA",
+      type: "website",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0A0B0D",
   colorScheme: "dark",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const idioma = await idiomaActual();
   return (
     <html
-      lang="es"
+      lang={idioma}
       className={`${outfit.variable} ${GeistMono.variable} h-full`}
       suppressHydrationWarning
     >
@@ -72,8 +81,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-full flex flex-col bg-void text-ash">
-        <Movimiento>{children}</Movimiento>
-        <PanelAccesibilidad />
+        <ProveedorIdioma idioma={idioma}>
+          <Movimiento>{children}</Movimiento>
+          <PanelAccesibilidad />
+        </ProveedorIdioma>
         <Toaster
           position="bottom-right"
           toastOptions={{

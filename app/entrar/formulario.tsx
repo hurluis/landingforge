@@ -6,6 +6,7 @@ import { Boton } from "@/components/ui/boton";
 import { Campo } from "@/components/ui/campo";
 import { CREDITOS_BIENVENIDA } from "@/lib/planes";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Entrada y registro — §7.2. Un solo formulario con dos modos: comparten
@@ -15,6 +16,7 @@ import { cn } from "@/lib/utils";
  * el middleware lo interceptó.
  */
 export function FormularioEntrada() {
+  const t = useT();
   const router = useRouter();
   const parametros = useSearchParams();
   const volver = parametros.get("volver") ?? "/app";
@@ -38,11 +40,11 @@ export function FormularioEntrada() {
         body: JSON.stringify({ modo, email, contrasena }),
       });
       const datos = await respuesta.json();
-      if (!respuesta.ok) throw new Error(datos.error ?? "No se pudo completar la operación.");
+      if (!respuesta.ok) throw new Error(datos.error ?? t("No se pudo completar la operación."));
       router.replace(volver);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo completar la operación.");
+      setError(e instanceof Error ? e.message : t("No se pudo completar la operación."));
       setEnviando(false);
     }
   }
@@ -51,38 +53,40 @@ export function FormularioEntrada() {
     <div className="w-full max-w-[420px]">
       <p className="flex items-center gap-3 etiqueta text-smoke">
         <span aria-hidden className="h-px w-8 bg-current" />
-        {modo === "entrar" ? "Tu estudio" : "Cuenta nueva"}
+        {modo === "entrar" ? t("Tu estudio") : t("Cuenta nueva")}
       </p>
       <h1 className="mt-5 display-lg">
-        {modo === "entrar" ? "Entra a tu cuenta" : "Crea tu cuenta"}
+        {modo === "entrar" ? t("Entra a tu cuenta") : t("Crea tu cuenta")}
       </h1>
       <p className="mt-4 cuerpo-lg text-smoke">
         {modo === "entrar"
-          ? "Tus campañas te esperan donde las dejaste."
-          : `Empiezas con ${CREDITOS_BIENVENIDA} créditos gratis. No pedimos tarjeta.`}
+          ? t("Tus campañas te esperan donde las dejaste.")
+          : t("Empiezas con {n} créditos gratis. No pedimos tarjeta.", {
+              n: CREDITOS_BIENVENIDA,
+            })}
       </p>
 
       <form onSubmit={enviar} className="mt-8 flex flex-col gap-5">
         <Campo
           id="email"
-          etiqueta="Correo"
+          etiqueta={t("Correo")}
           type="email"
           autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="tu@correo.com"
+          placeholder={t("tu@correo.com")}
         />
         <Campo
           id="contrasena"
-          etiqueta="Contraseña"
+          etiqueta={t("Contraseña")}
           type="password"
           autoComplete={modo === "entrar" ? "current-password" : "new-password"}
           required
           minLength={8}
           value={contrasena}
           onChange={(e) => setContrasena(e.target.value)}
-          ayuda={modo === "registro" ? "Mínimo 8 caracteres." : undefined}
+          ayuda={modo === "registro" ? t("Mínimo 8 caracteres.") : undefined}
         />
 
         {error && (
@@ -96,14 +100,14 @@ export function FormularioEntrada() {
           variante="heat"
           tamano="lg"
           cargando={enviando}
-          textoCargando={modo === "entrar" ? "Entrando…" : "Creando la cuenta…"}
+          textoCargando={modo === "entrar" ? t("Entrando…") : t("Creando la cuenta…")}
         >
-          {modo === "entrar" ? "Entrar" : "Crear cuenta"}
+          {modo === "entrar" ? t("Entrar") : t("Crear cuenta")}
         </Boton>
       </form>
 
       <p className="mt-6 cuerpo text-smoke">
-        {modo === "entrar" ? "¿Todavía no tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+        {modo === "entrar" ? t("¿Todavía no tienes cuenta?") : t("¿Ya tienes cuenta?")}{" "}
         <button
           type="button"
           onClick={() => {
@@ -115,7 +119,7 @@ export function FormularioEntrada() {
             "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-[var(--heat)]",
           )}
         >
-          {modo === "entrar" ? "Créala aquí" : "Entra aquí"}
+          {modo === "entrar" ? t("Créala aquí") : t("Entra aquí")}
         </button>
       </p>
     </div>

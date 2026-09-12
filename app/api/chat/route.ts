@@ -38,7 +38,7 @@ export async function POST(peticion: Request) {
   const flujo = new ReadableStream<Uint8Array>({
     async start(controlador) {
       try {
-        for await (const trozo of ia.chat(analisis.data.mensajes)) {
+        for await (const trozo of ia.chat(analisis.data.mensajes, analisis.data.idioma)) {
           controlador.enqueue(codificador.encode(trozo));
         }
       } catch {

@@ -25,14 +25,16 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
-const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
-  generacion: "Generación",
-  devolucion: "Devolución",
-  "recarga-plan": "Recarga del plan",
-  bienvenida: "Créditos de bienvenida",
-  "ajuste-admin": "Ajuste del equipo",
-};
+const motivo = (t: Traductor): Record<MovimientoCredito["motivo"], string> => ({
+  generacion: t("Generación"),
+  devolucion: t("Devolución"),
+  "recarga-plan": t("Recarga del plan"),
+  bienvenida: t("Créditos de bienvenida"),
+  "ajuste-admin": t("Ajuste del equipo"),
+});
 
 /**
  * Cuenta — §6.3 y §7.2.
@@ -57,6 +59,7 @@ export function Cuenta({
   movimientos: MovimientoCredito[];
   modeloReal: boolean;
 }) {
+  const t = useT();
   const router = useRouter();
   const [cambiando, setCambiando] = React.useState<string | null>(null);
   const def = definicionPlan(usuario.plan);
@@ -74,26 +77,26 @@ export function Cuenta({
         body: JSON.stringify({ plan: id }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
-      toast.success("Plan actualizado", {
-        description: "Cambio simulado: no se cobró nada.",
+      toast.success(t("Plan actualizado"), {
+        description: t("Cambio simulado: no se cobró nada."),
       });
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo cambiar el plan.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo cambiar el plan."));
     } finally {
       setCambiando(null);
     }
   }
 
   const detalles: [string, string][] = [
-    [porUso ? "Se factura el" : "Renueva el", fechaLarga(usuario.renuevaEn)],
+    [porUso ? t("Se factura el") : t("Renueva el"), fechaLarga(usuario.renuevaEn, t.idioma)],
     [
-      "Campañas guardadas",
-      def.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(def.campanasGuardadas),
+      t("Campañas guardadas"),
+      def.campanasGuardadas === "ilimitadas" ? t("Ilimitadas") : String(def.campanasGuardadas),
     ],
-    ["Paletas alternativas", String(def.paletasAlternativas)],
-    ["Marcas o clientes", def.marcas === "ilimitadas" ? "Ilimitadas" : String(def.marcas)],
-    ["Soporte", def.soporte],
+    [t("Paletas alternativas"), String(def.paletasAlternativas)],
+    [t("Marcas o clientes"), def.marcas === "ilimitadas" ? t("Ilimitadas") : String(def.marcas)],
+    [t("Soporte"), t(def.soporte)],
   ];
 
   return (
@@ -101,8 +104,8 @@ export function Cuenta({
       <Banda
         fotograma="/secuencia/0400.jpg"
         encuadre="50% 38%"
-        rotulo="Cuenta"
-        titulo={`Plan ${def.nombre}`}
+        rotulo={t("Cuenta")}
+        titulo={t("Plan {nombre}", { nombre: t(def.nombre) })}
         descripcion={usuario.email}
       />
 
@@ -114,7 +117,7 @@ export function Cuenta({
         >
           <div>
             <h2 id="creditos-titulo" className="etiqueta text-slag">
-              {porUso ? "Secciones de este ciclo" : "Créditos este mes"}
+              {porUso ? t("Secciones de este ciclo") : t("Créditos este mes")}
             </h2>
             <p className="mt-4 flex items-baseline gap-3">
               <span className="font-[family-name:var(--font-round)] text-[5rem] font-semibold leading-none tracking-[-0.04em] tabular-nums">
@@ -123,7 +126,7 @@ export function Cuenta({
               <span className="mono-sm text-slag">
                 {porUso
                   ? `de ${def.creditosMes} incluidas · ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} acumulados`
-                  : `de ${def.creditosMes} créditos`}
+                  : t("de {n} créditos", { n: def.creditosMes })}
               </span>
             </p>
             {!porUso && (
@@ -140,7 +143,7 @@ export function Cuenta({
             <p className={cn("cuerpo text-smoke medida", porUso ? "mt-6" : "mt-5")}>
               {porUso
                 ? `${formatoUSD(def.precioMensualUSD)} de cuota con ${def.creditosMes} secciones incluidas, y a partir de ahí ${formatoUSD(def.precioSeccionUSD ?? 0)} por sección, sin tope.${excedente > 0 ? ` Llevas ${excedente} de excedente.` : ""}`
-                : "Un crédito es una sección lista para publicar. Los del plan no se acumulan entre meses; los que compras aparte, sí."}
+                : t("Un crédito es una sección lista para publicar. Los del plan no se acumulan entre meses; los que compras aparte, sí.")}
             </p>
           </div>
 
@@ -159,8 +162,8 @@ export function Cuenta({
 
         {/* ---------------- Planes ---------------- */}
         <Seccion
-          titulo="Cambiar de plan"
-          descripcion="En esta versión el cambio es una simulación: ajusta tu plan y recarga las secciones sin cobrar nada. Todavía no hay pasarela de pago conectada."
+          titulo={t("Cambiar de plan")}
+          descripcion={t("En esta versión el cambio es una simulación: ajusta tu plan y recarga las secciones sin cobrar nada. Todavía no hay pasarela de pago conectada.")}
         >
           <ul className="grid gap-px overflow-hidden bg-[var(--scale)] sm:grid-cols-2 xl:grid-cols-4">
             {PLANES.map((p) => {
@@ -192,13 +195,13 @@ export function Cuenta({
                   </p>
                   <div className="mt-auto pt-8">
                     {actual ? (
-                      <p className="cuerpo text-slag">Es tu plan.</p>
+                      <p className="cuerpo text-slag">{t("Es tu plan.")}</p>
                     ) : (
                       <Boton
                         variante="contorno"
                         tamano="sm"
                         cargando={cambiando === p.id}
-                        textoCargando="Cambiando…"
+                        textoCargando={t("Cambiando…")}
                         onClick={() => cambiarPlan(p.id)}
                         className="w-full rounded-full"
                       >
@@ -213,19 +216,19 @@ export function Cuenta({
         </Seccion>
 
         {/* ---------------- Historial ---------------- */}
-        <Seccion titulo="Consumo" descripcion="Cada crédito que entra o sale, con la campaña a la que fue.">
+        <Seccion titulo={t("Consumo")} descripcion={t("Cada crédito que entra o sale, con la campaña a la que fue.")}>
           {movimientos.length === 0 ? (
-            <EstadoVacio titulo="Todavía no has consumido créditos." />
+            <EstadoVacio titulo={t("Todavía no has consumido créditos.")} />
           ) : (
             <Tabla
-              descripcion="Historial de consumo y recarga de créditos."
-              cabeceras={["Fecha", "Concepto", "Campaña", "Créditos"]}
+              descripcion={t("Historial de consumo y recarga de créditos.")}
+              cabeceras={["Fecha", "Concepto", t("Campaña"), t("Créditos")]}
               ancho="min-w-[560px]"
             >
               {movimientos.map((m) => (
                 <Fila key={m.id}>
-                  <Celda mono>{fechaCorta(m.fecha)}</Celda>
-                  <Celda>{MOTIVO[m.motivo]}</Celda>
+                  <Celda mono>{fechaCorta(m.fecha, t.idioma)}</Celda>
+                  <Celda>{motivo(t)[m.motivo]}</Celda>
                   <Celda>{m.campanaNombre}</Celda>
                   <Celda
                     mono
@@ -243,11 +246,11 @@ export function Cuenta({
         </Seccion>
 
         {/* Honestidad sobre qué está corriendo debajo. */}
-        <Seccion titulo="Motor de esta instancia">
+        <Seccion titulo={t("Motor de esta instancia")}>
           <p className="-mt-2 cuerpo text-smoke medida">
             {modeloReal
-              ? "Los prompts los redacta Gemini sobre el esqueleto de la metodología. La clave vive solo en el servidor."
-              : "No hay clave de Gemini configurada, así que los prompts los construye el motor local con la misma metodología, sin modelo generativo. El resultado es válido; lo que falta es la redacción del modelo."}
+              ? t("Los prompts los redacta Gemini sobre el esqueleto de la metodología. La clave vive solo en el servidor.")
+              : t("No hay clave de Gemini configurada, así que los prompts los construye el motor local con la misma metodología, sin modelo generativo. El resultado es válido; lo que falta es la redacción del modelo.")}
           </p>
         </Seccion>
       </div>

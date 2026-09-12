@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, CaretLeft, CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { numero } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * Piezas del panel — las del usuario y las de administración.
@@ -198,11 +199,14 @@ export function Cifra({
   valor,
   nota,
   tono = "neutro",
+  t,
 }: {
   etiqueta: string;
   valor: number | string;
   nota?: React.ReactNode;
   tono?: "neutro" | "calor" | "temple";
+  /** Por prop, como en Paginador: esta pieza no puede pedir el traductor. */
+  t: Traductor;
 }) {
   const color =
     tono === "calor" ? "text-[var(--heat)]" : tono === "temple" ? "text-[var(--quench)]" : "text-ash";
@@ -216,7 +220,7 @@ export function Cifra({
             color,
           )}
         >
-          {typeof valor === "number" ? numero(valor) : valor}
+          {typeof valor === "number" ? numero(valor, t.idioma) : valor}
         </span>
         {nota && <span className="mt-2.5 block mono-sm text-slag">{nota}</span>}
       </dd>
@@ -337,6 +341,7 @@ export function Paginador({
   porPagina,
   parametros,
   nombre,
+  t,
 }: {
   total: number;
   pagina: number;
@@ -345,6 +350,8 @@ export function Paginador({
   parametros: Record<string, string | undefined>;
   /** Plural de lo que se está contando: «usuarios», «campañas». */
   nombre: string;
+  /** Por prop: esta pieza la usan también componentes de cliente. */
+  t: Traductor;
 }) {
   const paginas = Math.max(1, Math.ceil(total / porPagina));
   if (total === 0) return null;
@@ -363,11 +370,11 @@ export function Paginador({
       className="mt-6 flex flex-wrap items-center justify-between gap-4"
     >
       <p className="mono-sm text-slag">
-        {numero(desde)}–{numero(hasta)} de {numero(total)} {nombre}
+        {numero(desde, t.idioma)}–{numero(hasta, t.idioma)} de {numero(total, t.idioma)} {nombre}
       </p>
       <div className="flex items-center gap-2">
         {pagina > 1 ? (
-          <Link href={conPagina(parametros, pagina - 1)} aria-label="Página anterior" className={enlace}>
+          <Link href={conPagina(parametros, pagina - 1)} aria-label={t("Página anterior")} className={enlace}>
             <CaretLeft className="size-4" />
           </Link>
         ) : (
@@ -379,7 +386,7 @@ export function Paginador({
           {pagina} / {paginas}
         </span>
         {pagina < paginas ? (
-          <Link href={conPagina(parametros, pagina + 1)} aria-label="Página siguiente" className={enlace}>
+          <Link href={conPagina(parametros, pagina + 1)} aria-label={t("Página siguiente")} className={enlace}>
             <CaretRight className="size-4" />
           </Link>
         ) : (

@@ -5,6 +5,7 @@ import { Check, Shuffle } from "@phosphor-icons/react/dist/ssr";
 import { asignarPaleta, swatches } from "@/lib/metodologia/paletas";
 import { Boton } from "@/components/ui/boton";
 import type { EstadoEstudio } from "./estado";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Paso 3 — La identidad (§7.1).
@@ -27,6 +28,7 @@ export function PasoIdentidad({
   estado: EstadoEstudio;
   cambiar: (parcial: Partial<EstadoEstudio>) => void;
 }) {
+  const t = useT();
   const propuesta = React.useMemo(
     () => asignarPaleta(estado.tipo, estado.audiencia, estado.alternativa),
     [estado.tipo, estado.audiencia, estado.alternativa],
@@ -79,10 +81,10 @@ export function PasoIdentidad({
         >
           {aceptada ? (
             <>
-              <Check className="text-[var(--ok)]" /> Paleta aceptada
+              <Check className="text-[var(--ok)]" /> {t("Paleta aceptada")}
             </>
           ) : (
-            "Usar esta paleta"
+            t("Usar esta paleta")
           )}
         </Boton>
 
@@ -95,12 +97,11 @@ export function PasoIdentidad({
           <Shuffle />
           {quedan > 0
             ? `Ver otra (${quedan} ${quedan === 1 ? "restante" : "restantes"})`
-            : "Sin alternativas restantes"}
+            : t("Sin alternativas restantes")}
         </Boton>
 
         <p className="basis-full cuerpo text-slag medida">
-          La matriz cruza tipo de producto, audiencia y registro emocional. Si cambias el tipo o
-          la audiencia en el paso anterior, la propuesta cambia con ellos.
+          {t("La matriz cruza tipo de producto, audiencia y registro emocional. Si cambias el tipo o la audiencia en el paso anterior, la propuesta cambia con ellos.")}
         </p>
       </div>
     </div>

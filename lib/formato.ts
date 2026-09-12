@@ -63,29 +63,47 @@ export function contarPalabras(texto: string): number {
   return limpio.split(/\s+/).length;
 }
 
-const FORMATO_FECHA = new Intl.DateTimeFormat("es-CO", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+/**
+ * Las fechas y los números de la interfaz siguen al idioma elegido, no al
+ * mercado del producto: «12 de octubre de 2026» junto a un texto en inglés se
+ * lee como un descuido. El precio del producto es otra cosa y sigue mandando
+ * su mercado —eso es `formatoPrecio`, más abajo—.
+ *
+ * Se cachean por locale: construir un `Intl.DateTimeFormat` no es gratis y
+ * estas funciones se llaman una vez por fila de tabla.
+ */
+const LOCALES: Record<string, string> = { es: "es-CO", en: "en-US" };
+const cacheFechas = new Map<string, Intl.DateTimeFormat>();
 
-export function fechaLarga(iso: string): string {
-  return FORMATO_FECHA.format(new Date(iso));
+function formateador(locale: string, opciones: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const clave = locale + JSON.stringify(opciones);
+  let f = cacheFechas.get(clave);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, opciones);
+    cacheFechas.set(clave, f);
+  }
+  return f;
 }
 
-const FORMATO_FECHA_CORTA = new Intl.DateTimeFormat("es-CO", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-export function fechaCorta(iso: string): string {
-  return FORMATO_FECHA_CORTA.format(new Date(iso));
+export function fechaLarga(iso: string, idioma = "es"): string {
+  return formateador(LOCALES[idioma] ?? LOCALES.es, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(iso));
 }
 
-/** "3.412 campañas", con punto de miles. Números creíbles, no redondeados (§3.3). */
-export function numero(valor: number): string {
-  return new Intl.NumberFormat("es-CO").format(valor);
+export function fechaCorta(iso: string, idioma = "es"): string {
+  return formateador(LOCALES[idioma] ?? LOCALES.es, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(iso));
+}
+
+/** "3.412 campañas", con separador de miles. Números creíbles, no redondeados (§3.3). */
+export function numero(valor: number, idioma = "es"): string {
+  return new Intl.NumberFormat(LOCALES[idioma] ?? LOCALES.es).format(valor);
 }
 
 export function plural(n: number, singular: string, pluralForma: string): string {
@@ -106,14 +124,19 @@ export function pesoArchivo(bytes: number): string {
 }
 
 /** "hace 3 días" — para la última actividad, donde la fecha exacta estorba. */
-export function fechaRelativa(iso: string): string {
+export function fechaRelativa(iso: string, idioma = "es"): string {
   const ms = Date.now() - new Date(iso).getTime();
   const minutos = Math.round(ms / 60000);
-  if (minutos < 1) return "hace un momento";
-  if (minutos < 60) return `hace ${minutos} min`;
+  const en = idioma === "en";
+  if (minutos < 1) return en ? "just now" : "hace un momento";
+  if (minutos < 60) return en ? `${minutos} min ago` : `hace ${minutos} min`;
   const horas = Math.round(minutos / 60);
-  if (horas < 24) return `hace ${horas} h`;
+  if (horas < 24) return en ? `${horas} h ago` : `hace ${horas} h`;
   const dias = Math.round(horas / 24);
-  if (dias < 30) return `hace ${dias} ${plural(dias, "día", "días")}`;
-  return fechaCorta(iso);
+  if (dias < 30) {
+    return en
+      ? `${dias} ${plural(dias, "day", "days")} ago`
+      : `hace ${dias} ${plural(dias, "día", "días")}`;
+  }
+  return fechaCorta(iso, idioma);
 }

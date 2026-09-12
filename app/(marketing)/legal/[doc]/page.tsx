@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { PAQUETE_EXTRA, PLANES, CREDITOS_BIENVENIDA } from "@/lib/planes";
 
 import { formatoUSD } from "@/lib/formato";
+import { traductor } from "@/lib/i18n/servidor";
 
 /**
  * Páginas legales. Están escritas en el mismo registro que el resto del
@@ -82,12 +83,13 @@ const DOCS: Record<string, Doc> = {
   },
   creditos: {
     titulo: "Política de créditos",
-    entrada: "Cómo se consumen, cuándo se devuelven y qué caduca.",
+    entrada: "Cómo se consumen, qué caduca y por qué los planes traen holgura.",
     secciones: [
       {
         h: "Qué es un crédito",
         p: [
-          "Un crédito equivale a una generación: una sección con su prompt construido y validado, y su imagen 9:16 en calidad máxima. Si repites una sección, cada intento consume un crédito.",
+          "Un crédito equivale a una generación: una sección con su prompt construido y validado, y su imagen 9:16 en calidad máxima.",
+          "Cada intento consume un crédito, salga como salga. Repetir una sección para probar otra idea también.",
         ],
       },
       {
@@ -97,10 +99,11 @@ const DOCS: Record<string, Doc> = {
         ],
       },
       {
-        h: "Cuándo se devuelven",
+        h: "Por qué no hay devolución automática",
         p: [
-          "Si una sección falla al generarse, su crédito vuelve a tu cuenta automáticamente y queda registrado en tu historial de consumo. No hay que reclamarlo.",
-          "Si seis de nueve secciones salen bien y tres fallan, se te cobran seis y se te devuelven tres.",
+          "Una sección que falla ya se produjo, y una devolución automática se puede reclamar después de haberla visto. Ese agujero encarecería el producto para todos, así que la compensación no es un botón: es el diseño del plan.",
+          "Por eso el formulario pregunta lo que pregunta —producto, audiencia, mercado, beneficio y precio—: cuanta mejor sea la entrada, menos intentos hacen falta. Y por eso los planes traen holgura: 30 secciones en el de entrada y 120 en el siguiente, muchas más de las nueve de una campaña.",
+          "Si el fallo es nuestro y no tuyo, escribe a hola@landingforge.co con el nombre de la campaña. El equipo puede ajustar tus créditos a mano, y ese ajuste queda registrado en tu historial con su motivo.",
         ],
       },
       {
@@ -124,25 +127,27 @@ export async function generateMetadata({
   params: Promise<{ doc: string }>;
 }): Promise<Metadata> {
   const { doc } = await params;
-  return { title: DOCS[doc]?.titulo ?? "Legal" };
+  const t = await traductor();
+  return { title: t(DOCS[doc]?.titulo ?? "Legal") };
 }
 
 export default async function Legal({ params }: { params: Promise<{ doc: string }> }) {
   const { doc } = await params;
   const contenido = DOCS[doc];
   if (!contenido) notFound();
+  const t = await traductor();
 
   return (
     <article className="mx-auto max-w-[760px] px-4 py-16 sm:px-8">
-      <h1 className="display-lg">{contenido.titulo}</h1>
-      <p className="mt-6 cuerpo-lg text-smoke medida">{contenido.entrada}</p>
+      <h1 className="display-lg">{t(contenido.titulo)}</h1>
+      <p className="mt-6 cuerpo-lg text-smoke medida">{t(contenido.entrada)}</p>
 
       {contenido.secciones.map((s) => (
         <section key={s.h} className="mt-12 border-t border-[var(--scale)] pt-8">
-          <h2 className="titulo">{s.h}</h2>
+          <h2 className="titulo">{t(s.h)}</h2>
           {s.p.map((parrafo, i) => (
             <p key={i} className="mt-3 cuerpo text-smoke medida">
-              {parrafo}
+              {t(parrafo)}
             </p>
           ))}
         </section>
@@ -150,21 +155,29 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
 
       {doc === "creditos" && (
         <section className="mt-12 border-t border-[var(--scale)] pt-8">
-          <h2 className="titulo">Los números, hoy</h2>
+          <h2 className="titulo">{t("Los números, hoy")}</h2>
           <ul className="mt-4 flex flex-col gap-2">
             {PLANES.map((p) => (
               <li key={p.id} className="mono-sm text-smoke">
-                {`${p.nombre} · ${formatoUSD(p.precioMensualUSD)} / mes · ${p.creditosMes} secciones`}
+                {t("{plan} · {precio} / mes · {n} secciones", {
+                  plan: t(p.nombre),
+                  precio: formatoUSD(p.precioMensualUSD),
+                  n: p.creditosMes,
+                })}
                 {p.medida === "por-uso" &&
-                  ` · extra a ${formatoUSD(p.precioSeccionUSD ?? 0)}, sin tope`}
+                  t(" · extra a {precio}, sin tope", {
+                    precio: formatoUSD(p.precioSeccionUSD ?? 0),
+                  })}
               </li>
             ))}
             <li className="mono-sm text-smoke">
-              Paquete extra · {formatoUSD(PAQUETE_EXTRA.precioUSD)} · {PAQUETE_EXTRA.creditos}{" "}
-              secciones
+              {t("Paquete extra · {precio} · {n} secciones", {
+                precio: formatoUSD(PAQUETE_EXTRA.precioUSD),
+                n: PAQUETE_EXTRA.creditos,
+              })}
             </li>
             <li className="mono-sm text-smoke">
-              Registro · {CREDITOS_BIENVENIDA} créditos gratis, sin tarjeta
+              {t("Registro · {n} créditos gratis, sin tarjeta", { n: CREDITOS_BIENVENIDA })}
             </li>
           </ul>
         </section>

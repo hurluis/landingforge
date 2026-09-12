@@ -6,6 +6,7 @@ import { TiraPinned } from "@/components/motion/tira-pinned";
 import { EstudioVivo } from "@/components/marketing/estudio-vivo";
 import { TablaPrecios } from "@/components/marketing/tabla-precios";
 import { Preguntas } from "@/components/marketing/preguntas";
+import { traductor } from "@/lib/i18n/servidor";
 
 /**
  * Home. El copy es definitivo y se usa palabra por palabra.
@@ -31,7 +32,8 @@ import { Preguntas } from "@/components/marketing/preguntas";
  * sitio en el encuadre —el lado oscuro, nunca el frasco— lo que la deja leer.
  */
 
-export default function Home() {
+export default async function Home() {
+  const t = await traductor();
   return (
     <>
       {/* 1 · La apertura: tres capítulos sobre los actos de la toma. */}
@@ -74,11 +76,11 @@ export default function Home() {
                 frase ocupa el tercio izquierdo, que es el que queda oscuro. */}
             <div className="md:max-w-[28vw]">
               <h2 id="cierre-titulo" className="display-lg cierre-titular sobre-pelicula">
-                Tu próxima landing, en menos de diez minutos.
+                {t("Tu próxima landing, en menos de diez minutos.")}
               </h2>
               <div className="mt-12">
                 <Boton asChild variante="heat" tamano="lg">
-                  <Link href="/app/nueva">Crear mi primera landing</Link>
+                  <Link href="/app/nueva">{t("Crear mi primera landing")}</Link>
                 </Boton>
               </div>
             </div>

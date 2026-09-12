@@ -4,6 +4,7 @@ import { Check } from "@phosphor-icons/react/dist/ssr";
 import type { TipologiaSeccion } from "@/lib/datos/tipos";
 import { TIPOLOGIAS } from "@/lib/metodologia/tipologias";
 import { Lamina } from "@/components/marketing/lamina";
+import { useT } from "@/lib/i18n/cliente";
 import { cn } from "@/lib/utils";
 import type { EstadoEstudio } from "./estado";
 
@@ -21,6 +22,7 @@ export function PasoSecciones({
   estado: EstadoEstudio;
   cambiar: (parcial: Partial<EstadoEstudio>) => void;
 }) {
+  const t = useT();
   const paleta = estado.paleta;
   if (!paleta) return null;
 
@@ -34,17 +36,17 @@ export function PasoSecciones({
   return (
     <div className="flex flex-col gap-6">
       <p className="cuerpo text-smoke medida">
-        Vienen marcadas las cuatro de mayor impacto. Cada sección consume un crédito.
+        {t("Vienen marcadas las cuatro de mayor impacto. Cada sección consume un crédito.")}
       </p>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {TIPOLOGIAS.map((t) => {
-          const elegida = estado.secciones.includes(t.id);
+        {TIPOLOGIAS.map((tipo) => {
+          const elegida = estado.secciones.includes(tipo.id);
           return (
-            <li key={t.id}>
+            <li key={tipo.id}>
               <button
                 type="button"
-                onClick={() => alternar(t.id)}
+                onClick={() => alternar(tipo.id)}
                 aria-pressed={elegida}
                 className={cn(
                   "group block w-full text-left",
@@ -60,7 +62,7 @@ export function PasoSecciones({
                       : "border border-[var(--scale)] opacity-55 hf:opacity-80",
                   )}
                 >
-                  <Lamina tipologia={t.id} paleta={paleta} />
+                  <Lamina tipologia={tipo.id} paleta={paleta} t={t} />
                   {elegida && (
                     <span className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-[var(--heat)] text-[#17120A]">
                       <Check weight="bold" className="size-3" />
@@ -68,14 +70,14 @@ export function PasoSecciones({
                   )}
                 </span>
                 <span className="mt-2 flex items-baseline gap-1.5">
-                  <span className="mono-sm text-slag">{String(t.numero).padStart(2, "0")}</span>
+                  <span className="mono-sm text-slag">{String(tipo.numero).padStart(2, "0")}</span>
                   <span
                     className={cn(
                       "etiqueta transition-colors duration-[140ms] ease-[var(--ease-out)]",
                       elegida ? "text-ash" : "text-slag",
                     )}
                   >
-                    {t.nombre}
+                    {t(tipo.nombre)}
                   </span>
                 </span>
               </button>

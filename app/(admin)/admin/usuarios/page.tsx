@@ -21,6 +21,7 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Usuarios" };
 export const dynamic = "force-dynamic";
@@ -61,6 +62,7 @@ export default async function PaginaUsuarios({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await traductor();
   const crudos = await searchParams;
   const planos = Object.fromEntries(
     Object.entries(crudos).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
@@ -77,28 +79,28 @@ export default async function PaginaUsuarios({
         fotograma="/secuencia-crema/0120.jpg"
         encuadre="62% 50%"
         alto="media"
-        rotulo="Administración"
-        titulo="Usuarios"
-        descripcion={`${numero(total)} ${total === 1 ? "cuenta" : "cuentas"}, con lo que cada una ha producido y consumido.`}
+        rotulo={t("Administración")}
+        titulo={t("Usuarios")}
+        descripcion={`${numero(total, t.idioma)} ${total === 1 ? "cuenta" : "cuentas"}, con lo que cada una ha producido y consumido.`}
       />
 
       <div className={cn(ANCHO, "mt-10")}>
         <BarraFiltros>
-          <CampoFiltro etiqueta="Buscar por correo">
+          <CampoFiltro etiqueta={t("Buscar por correo")}>
             <EntradaFiltro
               type="search"
               name="busqueda"
               defaultValue={filtro.busqueda ?? ""}
-              placeholder="ana@ejemplo.com"
+              placeholder={t("ana@ejemplo.com")}
             />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Plan">
+          <CampoFiltro etiqueta={t("Plan")}>
             <SelectFiltro name="plan" defaultValue={filtro.plan ?? ""} opciones={OPCIONES_PLAN} />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Rol">
+          <CampoFiltro etiqueta={t("Rol")}>
             <SelectFiltro name="rol" defaultValue={filtro.rol ?? ""} opciones={OPCIONES_ROL} />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Orden">
+          <CampoFiltro etiqueta={t("Orden")}>
             <SelectFiltro
               name="orden"
               defaultValue={filtro.orden ?? "reciente"}
@@ -114,13 +116,13 @@ export default async function PaginaUsuarios({
         <div className="mt-10">
           {filas.length === 0 ? (
             <EstadoVacio
-              titulo="Ninguna cuenta coincide con estos filtros."
+              titulo={t("Ninguna cuenta coincide con estos filtros.")}
               detalle="Prueba a limpiar la búsqueda o a quitar el filtro de plan."
             />
           ) : (
             <>
               <Tabla
-                descripcion="Cuentas de la plataforma con plan, rol, saldo y actividad."
+                descripcion={t("Cuentas de la plataforma con plan, rol, saldo y actividad.")}
                 cabeceras={["Correo", "Plan", "Rol", "Créditos", "Campañas", "Prompts", "Actividad", null]}
               >
                 {filas.map((u) => (
@@ -144,11 +146,11 @@ export default async function PaginaUsuarios({
                       {u.prompts}
                     </Celda>
                     <Celda mono>
-                      {u.ultimaActividad ? fechaRelativa(u.ultimaActividad) : "—"}
+                      {u.ultimaActividad ? fechaRelativa(u.ultimaActividad, t.idioma) : "—"}
                     </Celda>
                     <Celda className="pr-0 text-right">
                       <EnlaceFila href={`/admin/usuarios/${u.id}`}>
-                        Ver ficha<span className="sr-only"> de {u.email}</span>
+                        {t("Ver ficha")}<span className="sr-only"> de {u.email}</span>
                       </EnlaceFila>
                     </Celda>
                   </Fila>
@@ -156,6 +158,7 @@ export default async function PaginaUsuarios({
               </Tabla>
 
               <Paginador
+                t={t}
                 total={total}
                 pagina={pagina}
                 porPagina={porPagina}

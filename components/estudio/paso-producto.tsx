@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Campo, AreaTexto } from "@/components/ui/campo";
 import { cn } from "@/lib/utils";
 import type { EstadoEstudio } from "./estado";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Paso 1 — El producto (§7.1).
@@ -41,6 +42,7 @@ export function PasoProducto({
   estado: EstadoEstudio;
   cambiar: (parcial: Partial<EstadoEstudio>) => void;
 }) {
+  const t = useT();
   const [arrastrando, setArrastrando] = React.useState(false);
   const [procesando, setProcesando] = React.useState(false);
   const entrada = React.useRef<HTMLInputElement>(null);
@@ -49,11 +51,11 @@ export function PasoProducto({
     async (archivo: File | undefined) => {
       if (!archivo) return;
       if (!TIPOS.includes(archivo.type)) {
-        toast.error("Formato no admitido", { description: "Acepta JPG, PNG o WebP." });
+        toast.error(t("Formato no admitido"), { description: t("Acepta JPG, PNG o WebP.") });
         return;
       }
       if (archivo.size > MAX_BYTES) {
-        toast.error("La imagen pesa demasiado", {
+        toast.error(t("La imagen pesa demasiado"), {
           description: `El límite es 8MB y esta pesa ${(archivo.size / 1024 / 1024).toFixed(1)}MB.`,
         });
         return;
@@ -62,12 +64,12 @@ export function PasoProducto({
       try {
         cambiar({ imagenUrl: await reescalar(archivo) });
       } catch {
-        toast.error("No se pudo leer la imagen", { description: "Prueba con otro archivo." });
+        toast.error(t("No se pudo leer la imagen"), { description: t("Prueba con otro archivo.") });
       } finally {
         setProcesando(false);
       }
     },
-    [cambiar],
+    [cambiar, t],
   );
 
   return (
@@ -75,12 +77,12 @@ export function PasoProducto({
       <div className="grid gap-8 md:grid-cols-[280px_1fr]">
         {/* Zona de carga */}
         <div className="flex flex-col gap-2">
-          <span className="etiqueta text-smoke">Foto del producto</span>
+          <span className="etiqueta text-smoke">{t("Foto del producto")}</span>
           {estado.imagenUrl ? (
             <div className="relative aspect-[9/16] overflow-hidden rounded-[12px] border border-[var(--scale)] bg-[var(--sunk)]">
               <Image
                 src={estado.imagenUrl}
-                alt="Vista previa de la foto de tu producto"
+                alt={t("Vista previa de la foto de tu producto")}
                 fill
                 unoptimized
                 sizes="280px"
@@ -89,7 +91,7 @@ export function PasoProducto({
               <button
                 type="button"
                 onClick={() => cambiar({ imagenUrl: undefined })}
-                aria-label="Quitar la foto"
+                aria-label={t("Quitar la foto")}
                 className={cn(
                   "absolute right-2 top-2 grid size-8 place-items-center rounded-[8px]",
                   "bg-[var(--anvil-hi)] text-smoke border border-[var(--scale)]",
@@ -125,9 +127,9 @@ export function PasoProducto({
             >
               <ImageSquare  className="size-6 text-slag" />
               <span className="cuerpo text-smoke">
-                {procesando ? "Procesando la imagen…" : "Arrastra la foto o haz clic"}
+                {procesando ? t("Procesando la imagen…") : t("Arrastra la foto o haz clic")}
               </span>
-              <span className="mono-sm text-slag">JPG · PNG · WebP · hasta 8MB</span>
+              <span className="mono-sm text-slag">{t("JPG · PNG · WebP · hasta 8MB")}</span>
             </button>
           )}
           <input
@@ -142,25 +144,25 @@ export function PasoProducto({
         <div className="flex flex-col gap-5">
           <Campo
             id="nombre"
-            etiqueta="Nombre del producto"
+            etiqueta={t("Nombre del producto")}
             value={estado.nombre}
             onChange={(e) => cambiar({ nombre: e.target.value })}
-            placeholder="Colágeno Verisol 60 cápsulas"
+            placeholder={t("Colágeno Verisol 60 cápsulas")}
             maxLength={80}
             required
           />
           <AreaTexto
             id="descripcion"
-            etiqueta="Descripción"
+            etiqueta={t("Descripción")}
             value={estado.descripcion}
             onChange={(e) => cambiar({ descripcion: e.target.value })}
-            placeholder="Colágeno hidrolizado tipo I con vitamina C, en cápsulas, para firmeza de la piel."
+            placeholder={t("Colágeno hidrolizado tipo I con vitamina C, en cápsulas, para firmeza de la piel.")}
             limite={400}
-            ayuda="Una o dos líneas. Se usa para describir el sujeto en cada prompt."
+            ayuda={t("Una o dos líneas. Se usa para describir el sujeto en cada prompt.")}
             opcional={Boolean(estado.imagenUrl)}
           />
           <p className="mono-sm text-slag">
-            Se requiere la foto o la descripción. Con las dos, las piezas salen más fieles.
+            {t("Se requiere la foto o la descripción. Con las dos, las piezas salen más fieles.")}
           </p>
         </div>
       </div>

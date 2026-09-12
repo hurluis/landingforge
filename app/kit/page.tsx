@@ -5,6 +5,7 @@ import { Badge, Chip, Dato, Fotograma, Hairline, Sello } from "@/components/ui/p
 import { Acordeon } from "@/components/ui/acordeon";
 import { Validador } from "@/components/campana/validador";
 import { Lamina } from "@/components/marketing/lamina";
+import { traductor } from "@/lib/i18n/servidor";
 import { asignarPaleta, swatches } from "@/lib/metodologia/paletas";
 import { validarPrompt } from "@/lib/metodologia/reglas-prompt";
 import { contarPalabras } from "@/lib/formato";
@@ -42,7 +43,8 @@ function Bloque({
   );
 }
 
-export default function Kit() {
+export default async function Kit() {
+  const t = await traductor();
   const advertencias = validarPrompt(PROMPT_ROTO);
 
   return (
@@ -173,16 +175,16 @@ export default function Kit() {
       >
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Fotograma>
-            <Lamina tipologia="hero" paleta={PALETA} />
+            <Lamina tipologia="hero" paleta={PALETA} t={t} />
           </Fotograma>
           <Fotograma activo>
-            <Lamina tipologia="antes-despues" paleta={PALETA} />
+            <Lamina tipologia="antes-despues" paleta={PALETA} t={t} />
           </Fotograma>
           <Fotograma>
-            <Lamina tipologia="testimonios" paleta={PALETA} />
+            <Lamina tipologia="testimonios" paleta={PALETA} t={t} />
           </Fotograma>
           <Fotograma className="barrido-calor">
-            <Lamina tipologia="confianza" paleta={PALETA} />
+            <Lamina tipologia="confianza" paleta={PALETA} t={t} />
           </Fotograma>
         </div>
         <p className="mt-3 mono-sm text-slag">

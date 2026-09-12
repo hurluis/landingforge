@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Wordmark — §7.1. `Landing` en Bricolage 300 y `Forge` en 700, sin espacio
@@ -15,6 +18,7 @@ export function Wordmark({
   como?: "enlace" | "texto";
   tamano?: string;
 }) {
+  const t = useT();
   const contenido = (
     <span
       style={{ fontSize: tamano }}
@@ -33,7 +37,7 @@ export function Wordmark({
   return (
     <Link
       href="/"
-      aria-label="LandingForge, ir al inicio"
+      aria-label={t("LandingForge, ir al inicio")}
       className="inline-flex no-underline transition-opacity duration-[var(--dur-hover)] ease-[var(--ease-out)] hf:opacity-70"
     >
       {contenido}

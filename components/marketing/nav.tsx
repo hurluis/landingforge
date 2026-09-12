@@ -6,6 +6,8 @@ import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Wordmark } from "@/components/marketing/wordmark";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * M3 · Nav.
@@ -24,12 +26,13 @@ import { Wordmark } from "@/components/marketing/wordmark";
  * sería un mecanismo copiado sin su causa. Queda fuera a propósito.
  */
 
-const ENLACES = [
-  { href: "/metodologia", texto: "Método" },
-  { href: "/precios", texto: "Precios" },
-] as const;
+const enlaces = (t: Traductor) => [
+  { href: "/metodologia", texto: t("Método") },
+  { href: "/precios", texto: t("Precios") },
+];
 
 export function Nav() {
+  const t = useT();
   const [compacta, setCompacta] = React.useState(false);
   const [menu, setMenu] = React.useState(false);
   const { scrollY } = useScroll();
@@ -59,7 +62,7 @@ export function Nav() {
       )}
     >
       <nav
-        aria-label="Principal"
+        aria-label={t("Principal")}
         className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6 px-6 lg:px-10"
       >
         <motion.div
@@ -70,7 +73,7 @@ export function Nav() {
         >
           <Wordmark />
           <ul className="hidden md:flex items-center gap-7">
-            {ENLACES.map((e) => (
+            {enlaces(t).map((e) => (
               <li key={e.href}>
                 <Link
                   href={e.href}
@@ -93,7 +96,7 @@ export function Nav() {
             href="/entrar"
             className="hidden sm:inline-flex etiqueta text-smoke no-underline px-1 transition-colors duration-[var(--dur-hover)] ease-[var(--ease-out)] hf:text-ash"
           >
-            Entrar
+            {t("Entrar")}
           </Link>
           {/* CTA en cristal, como en la referencia: sobre la toma a plena luz
               un contorno de un píxel desaparece; el cristal no. */}
@@ -101,8 +104,8 @@ export function Nav() {
             href="/app/nueva"
             className="cristal rounded-md px-4 py-2 text-xs text-ash no-underline transition-[filter] duration-300 hf:brightness-125 sm:px-5 sm:text-sm"
           >
-            <span className="hidden sm:inline">Crear mi primera landing</span>
-            <span className="sm:hidden">Crear landing</span>
+            <span className="hidden sm:inline">{t("Crear mi primera landing")}</span>
+            <span className="sm:hidden">{t("Crear landing")}</span>
           </Link>
 
           <button
@@ -110,7 +113,7 @@ export function Nav() {
             onClick={() => setMenu((v) => !v)}
             aria-expanded={menu}
             aria-controls="menu-movil"
-            aria-label={menu ? "Cerrar menú" : "Abrir menú"}
+            aria-label={menu ? t("Cerrar menú") : t("Abrir menú")}
             className="md:hidden grid size-10 place-items-center rounded-[10px] text-smoke transition-colors duration-[var(--dur-hover)] hf:text-ash active:scale-[0.97]"
           >
             {menu ? <X className="size-5" /> : <List className="size-5" />}
@@ -124,7 +127,7 @@ export function Nav() {
           className="md:hidden fixed inset-x-0 bottom-0 top-16 z-40 bg-void px-6 pt-4 animate-[hoja-entra_var(--dur-overlay)_var(--ease-drawer)]"
         >
           <ul className="flex flex-col">
-            {[...ENLACES, { href: "/entrar", texto: "Entrar" }].map((e) => (
+            {[...enlaces(t), { href: "/entrar", texto: t("Entrar") }].map((e) => (
               <li key={e.href} className="border-b border-scale">
                 <Link
                   href={e.href}

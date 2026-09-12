@@ -22,6 +22,7 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Calidad" };
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export const dynamic = "force-dynamic";
  * usuarios. Sin esta vista, esa degradación solo se descubre por queja.
  */
 export default async function PaginaCalidad() {
+  const t = await traductor();
   const calidad = await repositorioAdmin().calidad();
 
   const porcentaje = (n: number) =>
@@ -51,9 +53,9 @@ export default async function PaginaCalidad() {
       fotograma="/secuencia/0330.jpg"
       encuadre="56% 50%"
       alto="media"
-      rotulo="Administración"
-      titulo="Calidad de la metodología"
-      descripcion="El validador corre sobre cada prompt que se genera. Esto es lo que ha encontrado en toda la plataforma: qué reglas se incumplen, en qué secciones y con qué tendencia."
+      rotulo={t("Administración")}
+      titulo={t("Calidad de la metodología")}
+      descripcion={t("El validador corre sobre cada prompt que se genera. Esto es lo que ha encontrado en toda la plataforma: qué reglas se incumplen, en qué secciones y con qué tendencia.")}
     />
   );
 
@@ -63,7 +65,7 @@ export default async function PaginaCalidad() {
         {banda}
         <div className={cn(ANCHO, "mt-10")}>
           <EstadoVacio
-            titulo="Todavía no hay ningún prompt generado en la plataforma."
+            titulo={t("Todavía no hay ningún prompt generado en la plataforma.")}
             detalle="Esta pantalla se llena sola en cuanto la primera campaña produzca prompts."
           />
         </div>
@@ -77,14 +79,14 @@ export default async function PaginaCalidad() {
 
       <div className={cn(ANCHO, "mt-10 flex flex-col gap-16")}>
         <Cifras className="lg:grid-cols-3">
-          <Cifra etiqueta="Prompts analizados" valor={calidad.promptsTotales} />
-          <Cifra
-            etiqueta="Sin ninguna advertencia"
+          <Cifra t={t} etiqueta={t("Prompts analizados")} valor={calidad.promptsTotales} />
+          <Cifra t={t}
+            etiqueta={t("Sin ninguna advertencia")}
             valor={calidad.promptsLimpios}
             nota={`${porcentaje(calidad.promptsLimpios)}% del total`}
           />
-          <Cifra
-            etiqueta="Con bloqueo"
+          <Cifra t={t}
+            etiqueta={t("Con bloqueo")}
             valor={calidad.promptsConBloqueo}
             nota={`${porcentaje(calidad.promptsConBloqueo)}% no puede generar imagen`}
             tono="calor"
@@ -92,11 +94,11 @@ export default async function PaginaCalidad() {
         </Cifras>
 
         <Seccion
-          titulo="Incumplimientos por regla"
-          descripcion="«Prompts afectados» cuenta cada prompt una sola vez por regla, aunque la incumpla en varios sitios. «Ocurrencias» las cuenta todas: la distancia entre las dos columnas dice si el problema está repartido o concentrado."
+          titulo={t("Incumplimientos por regla")}
+          descripcion={t("«Prompts afectados» cuenta cada prompt una sola vez por regla, aunque la incumpla en varios sitios. «Ocurrencias» las cuenta todas: la distancia entre las dos columnas dice si el problema está repartido o concentrado.")}
         >
           <Tabla
-            descripcion="Reglas del validador ordenadas por número de prompts afectados."
+            descripcion={t("Reglas del validador ordenadas por número de prompts afectados.")}
             cabeceras={["Regla", "Severidad", "Prompts afectados", "% del total", "Ocurrencias"]}
           >
             {calidad.porRegla.map((r) => (
@@ -108,13 +110,13 @@ export default async function PaginaCalidad() {
                   </Badge>
                 </Celda>
                 <Celda mono className="tabular-nums">
-                  {numero(r.promptsAfectados)}
+                  {numero(r.promptsAfectados, t.idioma)}
                 </Celda>
                 <Celda mono className="tabular-nums">
                   {porcentaje(r.promptsAfectados)}%
                 </Celda>
                 <Celda mono className="tabular-nums">
-                  {numero(r.ocurrencias)}
+                  {numero(r.ocurrencias, t.idioma)}
                 </Celda>
               </Fila>
             ))}
@@ -122,11 +124,11 @@ export default async function PaginaCalidad() {
         </Seccion>
 
         <Seccion
-          titulo="Dónde falla cada regla"
-          descripcion="La cifra es el número de prompts afectados; la intensidad del color es la proporción sobre los prompts de esa misma tipología, para que una sección con pocas campañas no parezca sana solo por tener menos casos. Una columna encendida entera señala a la regla; una fila encendida entera, al constructor de esa tipología."
+          titulo={t("Dónde falla cada regla")}
+          descripcion={t("La cifra es el número de prompts afectados; la intensidad del color es la proporción sobre los prompts de esa misma tipología, para que una sección con pocas campañas no parezca sana solo por tener menos casos. Una columna encendida entera señala a la regla; una fila encendida entera, al constructor de esa tipología.")}
         >
           {filas.length === 0 ? (
-            <EstadoVacio titulo="Todavía no hay suficientes secciones distintas para cruzar." />
+            <EstadoVacio titulo={t("Todavía no hay suficientes secciones distintas para cruzar.")} />
           ) : (
             <MapaDeCalor
               filas={filas}
@@ -141,11 +143,12 @@ export default async function PaginaCalidad() {
 
         <div className="grid gap-x-14 gap-y-16 lg:grid-cols-2">
           <Seccion
-            titulo="Tendencia del bloqueo"
-            descripcion="Porcentaje de los prompts de cada día que salieron con al menos un bloqueo. Subir aquí significa que la metodología está produciendo peor, no que los usuarios escriban peor."
+            titulo={t("Tendencia del bloqueo")}
+            descripcion={t("Porcentaje de los prompts de cada día que salieron con al menos un bloqueo. Subir aquí significa que la metodología está produciendo peor, no que los usuarios escriban peor.")}
           >
             <SerieTemporal
-              titulo="Prompts con bloqueo por día"
+              t={t}
+              titulo={t("Prompts con bloqueo por día")}
               puntos={calidad.bloqueoPorDia}
               color="var(--heat)"
               sufijo="%"
@@ -153,11 +156,11 @@ export default async function PaginaCalidad() {
           </Seccion>
 
           <Seccion
-            titulo="Palabras de la lista negra"
-            descripcion="Las que más se cuelan en los prompts. Si una encabeza la lista mes tras mes, el sitio donde arreglarla es el constructor, no el aviso."
+            titulo={t("Palabras de la lista negra")}
+            descripcion={t("Las que más se cuelan en los prompts. Si una encabeza la lista mes tras mes, el sitio donde arreglarla es el constructor, no el aviso.")}
           >
             {calidad.palabrasProhibidas.length === 0 ? (
-              <EstadoVacio titulo="Ninguna palabra de la lista negra ha aparecido todavía." />
+              <EstadoVacio titulo={t("Ninguna palabra de la lista negra ha aparecido todavía.")} />
             ) : (
               <ul className="flex flex-col gap-3">
                 {calidad.palabrasProhibidas.map((p) => {

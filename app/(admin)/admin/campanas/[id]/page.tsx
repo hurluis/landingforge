@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/piezas";
 import { BorrarCampana } from "@/components/admin/borrar-campana";
 import { ANCHO, Banda, Cifra, Cifras, Seccion } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Campaña" };
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function PaginaCampanaAdmin({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await traductor();
   const { id } = await params;
   const ficha = await repositorioAdmin().campanaCompleta(id);
   if (!ficha) notFound();
@@ -62,7 +64,7 @@ export default async function PaginaCampanaAdmin({
         encuadre="56% 50%"
         alto="media"
         volver={{ href: "/admin/campanas", texto: "Volver a campañas" }}
-        rotulo="Campaña"
+        rotulo={t("Campaña")}
         titulo={campana.nombre}
         descripcion={
           <>
@@ -90,22 +92,22 @@ export default async function PaginaCampanaAdmin({
         </div>
 
         <Cifras className="-mt-8">
-          <Cifra etiqueta="Prompts" valor={campana.prompts.length} />
-          <Cifra
-            etiqueta="Bloqueos"
+          <Cifra t={t} etiqueta={t("Prompts")} valor={campana.prompts.length} />
+          <Cifra t={t}
+            etiqueta={t("Bloqueos")}
             valor={bloqueos}
             tono={bloqueos > 0 ? "calor" : "neutro"}
             nota={bloqueos === 0 ? "ninguno" : "impiden generar imagen"}
           />
-          <Cifra etiqueta="Avisos" valor={avisos} />
-          <Cifra
-            etiqueta="Precio del producto"
+          <Cifra t={t} etiqueta={t("Avisos")} valor={avisos} />
+          <Cifra t={t}
+            etiqueta={t("Precio del producto")}
             valor={formatoPrecio(campana.producto.precio, mercado)}
-            nota={`creada el ${fechaLarga(campana.creadaEn)}`}
+            nota={`creada el ${fechaLarga(campana.creadaEn, t.idioma)}`}
           />
         </Cifras>
 
-        <Seccion titulo="Paleta asignada" descripcion={campana.paleta.razon}>
+        <Seccion titulo={t("Paleta asignada")} descripcion={campana.paleta.razon}>
           {/* La paleta como tira continua: así se ve cómo conviven los cinco
               colores, que es lo que decide la matriz, no cada uno suelto. */}
           <div className="flex h-24 overflow-hidden rounded-2xl">
@@ -124,11 +126,11 @@ export default async function PaginaCampanaAdmin({
         </Seccion>
 
         <Seccion
-          titulo="Prompts generados"
-          descripcion="En solo lectura. Esta pantalla sirve para entender qué produjo la metodología, no para corregirlo por encima del usuario."
+          titulo={t("Prompts generados")}
+          descripcion={t("En solo lectura. Esta pantalla sirve para entender qué produjo la metodología, no para corregirlo por encima del usuario.")}
         >
           {campana.prompts.length === 0 && (
-            <p className="cuerpo text-smoke">Esta campaña no llegó a generar ningún prompt.</p>
+            <p className="cuerpo text-smoke">{t("Esta campaña no llegó a generar ningún prompt.")}</p>
           )}
 
           <div className="flex flex-col">
@@ -142,7 +144,7 @@ export default async function PaginaCampanaAdmin({
                     <span className="mono-sm text-slag">{String(i + 1).padStart(2, "0")}</span>
                     {ETIQUETA_TIPOLOGIA[p.tipologia]}
                   </h3>
-                  <span className="mono-sm text-slag">{numero(p.palabras)} palabras</span>
+                  <span className="mono-sm text-slag">{numero(p.palabras, t.idioma)} palabras</span>
                 </header>
 
                 {p.advertencias.length > 0 && (

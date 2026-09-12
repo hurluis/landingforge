@@ -10,6 +10,7 @@ import {
 import { useMovimientoReducido } from "@/lib/a11y/preferencias";
 import { SeccionReal } from "@/components/marketing/seccion-real";
 import { SPRING } from "@/lib/motion";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * M4 · El muestrario: la marquesina que sabe que estás scrolleando.
@@ -29,6 +30,7 @@ import { SPRING } from "@/lib/motion";
 const ORDEN = ["hero", "antes-despues", "testimonios", "estilo-de-vida", "confianza", "precios"] as const;
 
 export function Marquesina() {
+  const t = useT();
   const reduce = useMovimientoReducido();
   const pista = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
@@ -54,7 +56,7 @@ export function Marquesina() {
   const piezas = [...ORDEN, ...ORDEN];
 
   return (
-    <section aria-label="Muestrario de secciones generadas" className="marquesina overflow-hidden py-6">
+    <section aria-label={t("Muestrario de secciones generadas")} className="marquesina overflow-hidden py-6">
       <div ref={pista} className="marquesina-pista gap-5">
         {piezas.map((id, i) => (
           <div key={`${id}-${i}`} className="w-[180px] shrink-0 sm:w-[220px]">

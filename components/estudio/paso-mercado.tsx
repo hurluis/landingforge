@@ -16,6 +16,7 @@ import { contarCaracteres, formatoPrecio, mascaraPrecio } from "@/lib/formato";
 import type { EstadoEstudio } from "./estado";
 import { OPCIONES_TIPO } from "./estado";
 import type { IdMercado, TipoProducto } from "@/lib/datos/tipos";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Paso 2 — El mercado (§7.1).
@@ -78,6 +79,7 @@ export function PasoMercado({
   estado: EstadoEstudio;
   cambiar: (parcial: Partial<EstadoEstudio>) => void;
 }) {
+  const t = useT();
   const largo = contarCaracteres(estado.beneficioPrincipal);
   const excede = largo > LIMITE_CARACTERES_TEXTO;
   const mercado = MERCADOS[estado.mercado] ?? MERCADOS.CO;
@@ -86,7 +88,7 @@ export function PasoMercado({
     <div className="grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-2">
         <label htmlFor="mercado" className="etiqueta text-smoke">
-          País donde vendes
+          {t("País donde vendes")}
         </label>
         <Select
           value={estado.mercado}
@@ -102,7 +104,7 @@ export function PasoMercado({
           <SelectContent>
             {LISTA_MERCADOS.map((m) => (
               <SelectItem key={m.id} value={m.id}>
-                {m.id === "INT" ? "Otro país" : m.nombre}
+                {m.id === "INT" ? t("Otro país") : m.nombre}
               </SelectItem>
             ))}
           </SelectContent>
@@ -116,7 +118,7 @@ export function PasoMercado({
 
       <div className="flex flex-col gap-2">
         <label htmlFor="tipo" className="etiqueta text-smoke">
-          Tipo de producto
+          {t("Tipo de producto")}
         </label>
         <Select
           value={estado.tipo}
@@ -134,7 +136,7 @@ export function PasoMercado({
           </SelectContent>
         </Select>
         <p className="text-[0.8125rem] text-slag">
-          Es la primera dimensión de la matriz que asigna tu paleta.
+          {t("Es la primera dimensión de la matriz que asigna tu paleta.")}
         </p>
       </div>
 
@@ -162,7 +164,7 @@ export function PasoMercado({
           <div className="grid w-full max-w-sm grid-cols-2 gap-3">
             <Campo
               id="edad-min"
-              etiqueta="Edad desde"
+              etiqueta={t("Edad desde")}
               type="number"
               min={13}
               max={90}
@@ -177,7 +179,7 @@ export function PasoMercado({
             />
             <Campo
               id="edad-max"
-              etiqueta="Edad hasta"
+              etiqueta={t("Edad hasta")}
               type="number"
               min={13}
               max={90}
@@ -191,7 +193,7 @@ export function PasoMercado({
               }
               error={
                 estado.audiencia.edadMax < estado.audiencia.edadMin
-                  ? "La edad máxima no puede ser menor que la mínima."
+                  ? t("La edad máxima no puede ser menor que la mínima.")
                   : undefined
               }
             />
@@ -202,16 +204,16 @@ export function PasoMercado({
       <div className="md:col-span-2">
         <Campo
           id="beneficio"
-          etiqueta="Beneficio principal"
+          etiqueta={t("Beneficio principal")}
           value={estado.beneficioPrincipal}
           onChange={(e) => cambiar({ beneficioPrincipal: e.target.value })}
-          placeholder="Piel firme en 8 semanas"
+          placeholder={t("Piel firme en 8 semanas")}
           maxLength={80}
           contador={`${largo} / ${LIMITE_CARACTERES_TEXTO}`}
           ayuda={
             excede
               ? undefined
-              : "Se usa como titular renderizado. Por encima de 25 caracteres el render deforma las letras."
+              : t("Se usa como titular renderizado. Por encima de 25 caracteres el render deforma las letras.")
           }
           error={
             excede
@@ -226,7 +228,7 @@ export function PasoMercado({
       <CampoPrecio
         key={`precio-${mercado.id}`}
         id="precio"
-        etiqueta="Precio actual"
+        etiqueta={t("Precio actual")}
         valor={estado.precio}
         mercado={mercado}
         alCambiar={(n) => cambiar({ precio: n })}
@@ -235,12 +237,12 @@ export function PasoMercado({
       <CampoPrecio
         key={`tachado-${mercado.id}`}
         id="precio-tachado"
-        etiqueta="Precio tachado"
+        etiqueta={t("Precio tachado")}
         valor={estado.precioTachado ?? 0}
         mercado={mercado}
         alCambiar={(n) => cambiar({ precioTachado: n > 0 ? n : undefined })}
         opcional
-        ayuda="El precio anterior, si hay descuento."
+        ayuda={t("El precio anterior, si hay descuento.")}
       />
     </div>
   );

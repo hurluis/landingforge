@@ -3,6 +3,8 @@ import Link from "next/link";
 import { CaretRight } from "@phosphor-icons/react/dist/ssr";
 import { RevealBloque, RevealLineas } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * LA APERTURA · seis tramos sobre la toma de producto, alternando lado.
@@ -45,49 +47,54 @@ const X = "px-5 sm:px-8 md:px-12";
    termina antes. */
 const TERCIO = "w-full md:max-w-[38vw]";
 
-const SERVICIOS = ["Las nueve secciones", "Adaptada a tu mercado", "Prompts que son tuyos"];
-
-const MUESTRA = [
-  { src: "/secciones/potencia.png", alt: "Sección hero de una campaña real de suplemento" },
-  { src: "/secciones/precios.png", alt: "Sección de precios de la misma campaña" },
-  { src: "/secciones/testimonios.png", alt: "Sección de testimonios de la misma campaña" },
+const servicios = (t: Traductor) => [
+  t("Las nueve secciones"),
+  t("Adaptada a tu mercado"),
+  t("Prompts que son tuyos"),
 ];
 
-const METODO = [
-  {
-    titulo: "Contraentrega",
-    texto: "Donde se paga al recibir, es la señal de confianza que más pesa. Tu landing la dice sin que la pidas.",
-  },
-  {
-    titulo: "Registro sanitario",
-    texto: "INVIMA, COFEPRIS, DIGESA, FDA. En suplementos y cosmética, el registro separa parecer un negocio de parecer un riesgo.",
-  },
-  {
-    titulo: "Caras de tu mercado",
-    texto: "Personas y ciudades del país donde vendes. A su suerte, el modelo devuelve un latino genérico.",
-  },
-  {
-    titulo: "Formato y lenguaje",
-    texto: "$99.900 en Bogotá, $99,900 en Ciudad de México. 3.412 clientes, no +3.000. Reseñas de alguien real.",
-  },
+const muestra = (t: Traductor) => [
+  { src: "/secciones/potencia.png", alt: t("Sección hero de una campaña real de suplemento") },
+  { src: "/secciones/precios.png", alt: t("Sección de precios de la misma campaña") },
+  { src: "/secciones/testimonios.png", alt: t("Sección de testimonios de la misma campaña") },
 ];
 
-const PASOS = [
+const metodo = (t: Traductor) => [
   {
-    titulo: "Cuéntale sobre tu producto",
-    texto: "Subes la foto y respondes cuatro preguntas: qué es, para quién, dónde lo vendes y cuánto cuesta.",
+    titulo: t("Contraentrega"),
+    texto: t("Donde se paga al recibir, es la señal de confianza que más pesa. Tu landing la dice sin que la pidas."),
   },
   {
-    titulo: "Recibe paleta y secciones",
-    texto: "La matriz cruza producto, audiencia y registro emocional. Ves los hex antes de generar nada.",
+    titulo: t("Registro sanitario"),
+    texto: t("INVIMA, COFEPRIS, DIGESA, FDA. En suplementos y cosmética, el registro separa parecer un negocio de parecer un riesgo."),
   },
   {
-    titulo: "Llévate la campaña completa",
-    texto: "Nueve prompts en prosa narrativa, validados. Los editas, los versionas, los vuelves a correr.",
+    titulo: t("Caras de tu mercado"),
+    texto: t("Personas y ciudades del país donde vendes. A su suerte, el modelo devuelve un latino genérico."),
+  },
+  {
+    titulo: t("Formato y lenguaje"),
+    texto: t("$99.900 en Bogotá, $99,900 en Ciudad de México. 3.412 clientes, no +3.000. Reseñas de alguien real."),
   },
 ];
 
-export function Apertura() {
+const pasos = (t: Traductor) => [
+  {
+    titulo: t("Cuéntale sobre tu producto"),
+    texto: t("Subes la foto y respondes cuatro preguntas: qué es, para quién, dónde lo vendes y cuánto cuesta."),
+  },
+  {
+    titulo: t("Recibe paleta y secciones"),
+    texto: t("La matriz cruza producto, audiencia y registro emocional. Ves los hex antes de generar nada."),
+  },
+  {
+    titulo: t("Llévate la campaña completa"),
+    texto: t("Nueve prompts en prosa narrativa, validados. Los editas, los versionas, los vuelves a correr."),
+  },
+];
+
+export async function Apertura() {
+  const t = await traductor();
   return (
     <div id="pelicula-zona">
       {/* ── El hero y su prueba ─────────────────────────────────────── */}
@@ -98,40 +105,42 @@ export function Apertura() {
             id="hero-titulo"
             retraso={0.2}
             className="display-xl apertura-titular text-ash sobre-pelicula"
-            lineas={["Tu producto", "no se parece", "a ningún otro.", "Tu landing", "tampoco debería."]}
+            lineas={t("Tu producto|no se parece|a ningún otro.|Tu landing|tampoco debería.").split("|")}
           />
           <RevealBloque retraso={0.6}>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula">
-              Sube la foto. LandingForge arma las nueve secciones que venden, adaptadas al país
-              donde vendes. Sin plantillas.
+              {t(
+                "Sube la foto. LandingForge arma las nueve secciones que venden, adaptadas al país donde vendes. Sin plantillas.",
+              )}
             </p>
           </RevealBloque>
           <RevealBloque retraso={0.72} className="mt-8 flex flex-wrap gap-3">
-            <BotonLleno href="/app/nueva">Crear mi primera landing</BotonLleno>
-            <BotonContorno href="#tira-titulo">Ver las nueve secciones</BotonContorno>
+            <BotonLleno href="/app/nueva">{t("Crear mi primera landing")}</BotonLleno>
+            <BotonContorno href="#tira-titulo">{t("Ver las nueve secciones")}</BotonContorno>
           </RevealBloque>
         </Tramo>
 
         <Tramo acto="despegue" lado="derecha" alto="min-h-[120svh]">
-          <CampanaReal />
+          <CampanaReal t={t} />
         </Tramo>
       </section>
 
       {/* ── La metodología ──────────────────────────────────────────── */}
       <section id="metodo" aria-labelledby="metodo-titulo">
         <Tramo acto="vuelo" lado="izquierda">
-          <Rotulo>La metodología</Rotulo>
+          <Rotulo>{t("La metodología")}</Rotulo>
           <RevealLineas
             as="h2"
             id="metodo-titulo"
             retraso={0.18}
             className="mt-5 display-xl apertura-subtitular text-ash sobre-pelicula"
-            lineas={["Las plantillas", "venden lo mismo", "diez mil veces."]}
+            lineas={t("Las plantillas|venden lo mismo|diez mil veces.").split("|")}
           />
           <RevealBloque retraso={0.42}>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula">
-              Un constructor de plantillas te da la misma estructura que a tus competidores, con
-              imágenes de stock o caras generadas que se notan a un kilómetro.
+              {t(
+                "Un constructor de plantillas te da la misma estructura que a tus competidores, con imágenes de stock o caras generadas que se notan a un kilómetro.",
+              )}
             </p>
           </RevealBloque>
         </Tramo>
@@ -141,10 +150,11 @@ export function Apertura() {
               en una pantalla de 720 px sin meterse bajo el botón del
               asistente. */}
           <p className="max-w-md text-base leading-relaxed text-ash sobre-pelicula lg:text-[1.0625rem]">
-            Ninguna plantilla sabe que en tu mercado la venta se cierra con contraentrega, ni que
-            un precio con el separador equivocado le dice a tu comprador que no eres de allí.
+            {t(
+              "Ninguna plantilla sabe que en tu mercado la venta se cierra con contraentrega, ni que un precio con el separador equivocado le dice a tu comprador que no eres de allí.",
+            )}
           </p>
-          <Filas filas={METODO} enlace="/metodologia" />
+          <Filas filas={metodo(t)} enlace="/metodologia" />
         </Tramo>
       </section>
 
@@ -159,22 +169,23 @@ export function Apertura() {
             id="llevas-titulo"
             retraso={0.12}
             className="display-xl apertura-subtitular text-ash sobre-pelicula"
-            lineas={["Te llevas los", "prompts, no solo", "las imágenes."]}
+            lineas={t("Te llevas los|prompts, no solo|las imágenes.").split("|")}
           />
           <RevealBloque retraso={0.35}>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-ash sobre-pelicula">
-              Cada prompt se puede reescribir, versionar y volver a correr. Si mañana dejas de
-              usar LandingForge, tu trabajo sigue siendo tuyo.
+              {t(
+                "Cada prompt se puede reescribir, versionar y volver a correr. Si mañana dejas de usar LandingForge, tu trabajo sigue siendo tuyo.",
+              )}
             </p>
           </RevealBloque>
         </Tramo>
 
         <Tramo acto="mano" lado="derecha" alto="min-h-[145svh]">
-          <Rotulo>Menos de diez minutos, tres pasos</Rotulo>
-          <Filas filas={PASOS} ordenada />
+          <Rotulo>{t("Menos de diez minutos, tres pasos")}</Rotulo>
+          <Filas filas={pasos(t)} ordenada />
           <RevealBloque retraso={0.6} className="mt-8 flex flex-wrap gap-3">
-            <BotonLleno href="/app/nueva">Empezar ahora</BotonLleno>
-            <BotonContorno href="/precios">Ver precios</BotonContorno>
+            <BotonLleno href="/app/nueva">{t("Empezar ahora")}</BotonLleno>
+            <BotonContorno href="/precios">{t("Ver precios")}</BotonContorno>
           </RevealBloque>
         </Tramo>
       </section>
@@ -270,11 +281,11 @@ function BotonContorno({ href, children }: { href: string; children: React.React
  * una campaña real, generadas con LandingForge. Sin tarjeta alrededor: las
  * piezas flotan sobre la toma como flota el frasco.
  */
-function CampanaReal() {
+function CampanaReal({ t }: { t: Traductor }) {
   return (
     <div>
       <ul className="flex flex-col gap-2 md:items-end">
-        {SERVICIOS.map((s, i) => (
+        {servicios(t).map((s, i) => (
           <li key={s}>
             <RevealBloque retraso={0.2 + i * 0.1} direccion="derecha">
               <span className="etiqueta text-ash sobre-pelicula">/ {s}</span>
@@ -283,7 +294,7 @@ function CampanaReal() {
         ))}
       </ul>
       <div className="mt-7 grid grid-cols-3 gap-3">
-        {MUESTRA.map((m, i) => (
+        {muestra(t).map((m, i) => (
           <RevealBloque key={m.src} retraso={0.3 + i * 0.12}>
             <div
               className={cn(
@@ -306,9 +317,10 @@ function CampanaReal() {
       </div>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 md:justify-end">
         <p className="text-sm text-ash sobre-pelicula">
-          <span className="font-semibold">Una campaña real.</span> 3 de sus 9 secciones.
+          <span className="font-semibold">{t("Una campaña real.")}</span>{" "}
+          {t("3 de sus 9 secciones.")}
         </p>
-        <BotonLleno href="/app/nueva">Crear la mía</BotonLleno>
+        <BotonLleno href="/app/nueva">{t("Crear la mía")}</BotonLleno>
       </div>
     </div>
   );

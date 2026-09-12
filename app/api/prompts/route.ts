@@ -13,9 +13,20 @@ export const runtime = "nodejs";
  * F1 — generación de prompts. §9.5.
  *
  * Streaming NDJSON: cada prompt se emite en cuanto está listo, no se espera a
- * los nueve. Créditos transaccionales: se descuentan los N de golpe con la
- * comprobación dentro del propio UPDATE, y se devuelve uno por cada sección
- * que falle. Eso hace posible el estado parcial de §11.
+ * los nueve. Los créditos se descuentan de golpe, con la comprobación de saldo
+ * dentro del propio UPDATE. Eso hace posible el estado parcial de §11.
+ *
+ * NO HAY DEVOLUCIÓN AUTOMÁTICA POR SECCIÓN FALLIDA, y es deliberado. Devolver
+ * el crédito al declararse un fallo es un agujero: la pieza ya se produjo y ya
+ * se puede descargar, así que quien quisiera abusar solo tendría que reportar
+ * cada sección como fallida y quedarse con todo gratis. Verificar eso de
+ * verdad costaría más que el crédito que protege.
+ *
+ * Lo que amortigua el riesgo del usuario es el diseño del producto, no un
+ * reembolso: el formulario pregunta lo suficiente para que la sección salga
+ * bien a la primera, los planes traen holgura de secciones —30 en el de
+ * entrada, 120 en el siguiente— y el equipo puede compensar a mano desde el
+ * panel cuando el fallo es nuestro. Ese ajuste queda en la auditoría.
  */
 
 type Evento =
@@ -109,8 +120,6 @@ export async function POST(peticion: Request) {
           emitir({ tipo: "seccion", prompt });
         } catch (e) {
           fallidas.push(t);
-          /* 3 · Devolución inmediata del crédito de la sección que falló. */
-          await repo.devolverCreditos(usuario.id, 1, campana.id, nombreCampana);
           emitir({
             tipo: "fallo",
             tipologia: t,

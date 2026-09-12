@@ -10,6 +10,7 @@ import {
   SerieTemporal,
 } from "@/components/admin/graficas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Tablero" };
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export const dynamic = "force-dynamic";
  * que es la manera más habitual de hacer que una gráfica mienta.
  */
 export default async function PaginaTablero() {
+  const t = await traductor();
   const gestor = repositorioAdmin();
   const [resumen, salud] = await Promise.all([gestor.resumen(), gestor.salud()]);
 
@@ -37,43 +39,48 @@ export default async function PaginaTablero() {
       <Banda
         fotograma="/secuencia/0180.jpg"
         encuadre="58% 50%"
-        rotulo="Administración"
-        titulo="Tablero"
-        descripcion="El estado de la plataforma en una pantalla: quién la usa, qué produce y qué está corriendo por debajo."
+        rotulo={t("Administración")}
+        titulo={t("Tablero")}
+        descripcion={t("El estado de la plataforma en una pantalla: quién la usa, qué produce y qué está corriendo por debajo.")}
       />
 
       <div className={cn(ANCHO, "mt-10 flex flex-col gap-16")}>
         <Cifras>
-          <Cifra
-            etiqueta="Cuentas"
+          <Cifra t={t}
+            etiqueta={t("Cuentas")}
             valor={resumen.usuarios}
             nota={`+${resumen.usuariosNuevos30d} en 30 días · ${resumen.admins} admin`}
           />
-          <Cifra etiqueta="Campañas" valor={resumen.campanas} nota="de todos los usuarios" />
-          <Cifra etiqueta="Prompts generados" valor={resumen.prompts} nota="acumulado histórico" />
-          <Cifra
-            etiqueta="Créditos consumidos"
+          <Cifra t={t} etiqueta={t("Campañas")} valor={resumen.campanas} nota={t("de todos los usuarios")} />
+          <Cifra t={t} etiqueta={t("Prompts generados")} valor={resumen.prompts} nota={t("acumulado histórico")} />
+          <Cifra t={t}
+            etiqueta={t("Créditos consumidos")}
             valor={resumen.creditosConsumidos}
-            nota={`${numero(resumen.creditosDevueltos)} devueltos · ${tasaDevolucion}%`}
+            nota={`${numero(resumen.creditosDevueltos, t.idioma)} devueltos · ${tasaDevolucion}%`}
             tono="calor"
           />
         </Cifras>
 
         <div className="grid gap-x-14 gap-y-16 lg:grid-cols-2">
-          <Seccion titulo="Altas de cuentas">
-            <SerieTemporal titulo="Cuentas nuevas por día" puntos={resumen.altasPorDia} />
-          </Seccion>
-          <Seccion titulo="Campañas creadas">
+          <Seccion titulo={t("Altas de cuentas")}>
             <SerieTemporal
-              titulo="Campañas nuevas por día"
+              t={t}
+              titulo={t("Cuentas nuevas por día")}
+              puntos={resumen.altasPorDia}
+            />
+          </Seccion>
+          <Seccion titulo={t("Campañas creadas")}>
+            <SerieTemporal
+              t={t}
+              titulo={t("Campañas nuevas por día")}
               puntos={resumen.campanasPorDia}
               color="var(--forged)"
             />
           </Seccion>
-          <Seccion titulo="Reparto por plan">
+          <Seccion titulo={t("Reparto por plan")}>
             <RepartoPorPlan reparto={resumen.usuariosPorPlan} />
           </Seccion>
-          <Seccion titulo="Estado de las campañas">
+          <Seccion titulo={t("Estado de las campañas")}>
             <EstadosDeCampana porEstado={resumen.campanasPorEstado} />
           </Seccion>
         </div>
@@ -81,26 +88,26 @@ export default async function PaginaTablero() {
         {/* Salud del sistema. Va aquí y no en pantalla propia porque es lo que
             de verdad se mira: de pasada, mientras se revisa lo demás. */}
         <Seccion
-          titulo="Salud del sistema"
-          descripcion="Se lee, no se configura: cada valor sale del proceso que está sirviendo esta página."
+          titulo={t("Salud del sistema")}
+          descripcion={t("Se lee, no se configura: cada valor sale del proceso que está sirviendo esta página.")}
         >
           <dl className="grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <dt className="etiqueta text-slag">Motor de prompts</dt>
+              <dt className="etiqueta text-slag">{t("Motor de prompts")}</dt>
               <dd className="mt-2.5 flex items-center gap-2">
                 {salud.modeloReal ? (
                   <Badge tono="ok">
-                    <CheckCircle className="size-3.5" /> Gemini conectado
+                    <CheckCircle className="size-3.5" /> {t("Gemini conectado")}
                   </Badge>
                 ) : (
                   <Badge tono="maquina">
-                    <Sparkle className="size-3.5" /> Motor local
+                    <Sparkle className="size-3.5" /> {t("Motor local")}
                   </Badge>
                 )}
               </dd>
             </div>
             <div>
-              <dt className="etiqueta text-slag">Generación de imágenes</dt>
+              <dt className="etiqueta text-slag">{t("Generación de imágenes")}</dt>
               <dd className="mt-2.5">
                 <Badge tono={salud.imagenesHabilitadas ? "ok" : "neutro"}>
                   {salud.imagenesHabilitadas ? "habilitada" : "tras bandera, apagada"}
@@ -108,7 +115,7 @@ export default async function PaginaTablero() {
               </dd>
             </div>
             <div>
-              <dt className="etiqueta text-slag">Rate limiting</dt>
+              <dt className="etiqueta text-slag">{t("Rate limiting")}</dt>
               <dd className="mt-2.5">
                 <Badge tono={salud.rateLimitDistribuido ? "ok" : "aviso"}>
                   <Warning className="size-3.5" />
@@ -117,7 +124,7 @@ export default async function PaginaTablero() {
               </dd>
             </div>
             <div>
-              <dt className="etiqueta text-slag">Base de datos</dt>
+              <dt className="etiqueta text-slag">{t("Base de datos")}</dt>
               <dd className="mt-2.5 flex items-center gap-2 mono-sm text-smoke">
                 <Database className="size-4 text-slag" />
                 {pesoArchivo(salud.bytesBaseDatos)}

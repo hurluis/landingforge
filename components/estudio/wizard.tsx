@@ -19,6 +19,8 @@ import {
   pasoCompleto,
   type EstadoEstudio,
 } from "./estado";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * F1 — Estudio de prompts (§7.1).
@@ -31,11 +33,11 @@ import {
  * se espera a los nueve.
  */
 
-const TITULOS = [
-  { titulo: "El producto", sub: "Qué vas a vender y cómo se ve." },
-  { titulo: "El mercado", sub: "Dónde lo vendes, para quién es, qué promete y cuánto cuesta." },
-  { titulo: "La identidad", sub: "La paleta que la matriz asigna a este producto." },
-  { titulo: "Las secciones", sub: "Qué piezas quieres de esta campaña." },
+const titulos = (t: Traductor) => [
+  { titulo: t("El producto"), sub: t("Qué vas a vender y cómo se ve.") },
+  { titulo: t("El mercado"), sub: t("Dónde lo vendes, para quién es, qué promete y cuánto cuesta.") },
+  { titulo: t("La identidad"), sub: t("La paleta que la matriz asigna a este producto.") },
+  { titulo: t("Las secciones"), sub: t("Qué piezas quieres de esta campaña.") },
 ];
 
 type Progreso = {
@@ -64,6 +66,7 @@ function leerBorrador(): EstadoEstudio {
 }
 
 export function Wizard({ usuario }: { usuario: Usuario }) {
+  const t = useT();
   const router = useRouter();
   const parametros = useSearchParams();
   const paso = Math.min(4, Math.max(1, Number(parametros.get("paso") ?? 1)));
@@ -142,7 +145,7 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
 
       if (!respuesta.ok || !respuesta.body) {
         const datos = await respuesta.json().catch(() => null);
-        throw new Error(datos?.error ?? "No se pudo iniciar la generación.");
+        throw new Error(datos?.error ?? t("No se pudo iniciar la generación."));
       }
 
       const lector = respuesta.body.getReader();
@@ -186,8 +189,8 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
       }
     } catch (e) {
       setGenerando(false);
-      toast.error("No se pudo generar", {
-        description: e instanceof Error ? e.message : "Vuelve a intentarlo.",
+      toast.error(t("No se pudo generar"), {
+        description: e instanceof Error ? e.message : t("Vuelve a intentarlo."),
       });
     }
   }
@@ -211,7 +214,7 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
         {/* Los cuatro pasos como raíl, no como barra de 2px: se ve dónde se
             está, qué queda y a qué paso hecho se puede volver. */}
         <ol className="flex flex-wrap gap-x-8 gap-y-2 border-b border-[var(--scale)]">
-          {TITULOS.map((t, i) => {
+          {titulos(t).map((t, i) => {
             const n = i + 1;
             const hecho = n < paso;
             const actual = n === paso;
@@ -245,8 +248,8 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
             <span aria-hidden className="h-px w-8 bg-current" />
             Nueva campaña · paso {paso} de 4
           </p>
-          <h1 className="mt-4 display-lg">{TITULOS[paso - 1].titulo}</h1>
-          <p className="mt-3 cuerpo-lg text-smoke">{TITULOS[paso - 1].sub}</p>
+          <h1 className="mt-4 display-lg">{titulos(t)[paso - 1].titulo}</h1>
+          <p className="mt-3 cuerpo-lg text-smoke">{titulos(t)[paso - 1].sub}</p>
         </header>
 
         {paso === 1 && <PasoProducto estado={estado} cambiar={cambiar} />}
@@ -267,7 +270,7 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
         <div className="mx-auto flex w-full max-w-[1100px] items-center justify-between gap-4 py-4 pl-20 pr-5 sm:pr-8 lg:px-8">
           {paso > 1 ? (
             <Boton variante="fantasma" onClick={() => irA(paso - 1)}>
-              <ArrowLeft /> Atrás
+              <ArrowLeft /> {t("Atrás")}
             </Boton>
           ) : (
             <span />
@@ -290,7 +293,7 @@ export function Wizard({ usuario }: { usuario: Usuario }) {
               >
                 {faltan > 0
                   ? `Te ${faltan === 1 ? "falta" : "faltan"} ${faltan} ${faltan === 1 ? "crédito" : "créditos"}`
-                  : "Generar los prompts"}
+                  : t("Generar los prompts")}
               </Boton>
             </div>
           )}
@@ -325,15 +328,16 @@ function PantallaGenerando({
   secciones: TipologiaSeccion[];
   progreso: Progreso;
 }) {
+  const t = useT();
   return (
     <div className="mx-auto w-full max-w-[560px] px-4 py-24 sm:px-8">
       <p className="flex items-center gap-3 etiqueta text-smoke">
         <span aria-hidden className="h-px w-8 bg-current" />
-        Nueva campaña
+        {t("Nueva campaña")}
       </p>
-      <h1 className="mt-4 display-lg">Construyendo la campaña</h1>
+      <h1 className="mt-4 display-lg">{t("Construyendo la campaña")}</h1>
       <p className="mt-2 cuerpo text-smoke">
-        Cada sección se valida contra las siete reglas antes de guardarse.
+        {t("Cada sección se valida contra las siete reglas antes de guardarse.")}
       </p>
 
       <ol className="mt-10 flex flex-col gap-2" aria-live="polite">
@@ -355,8 +359,8 @@ function PantallaGenerando({
               </span>
               <span className="mono-sm">
                 {hecha && <span className="text-[var(--ok)]">lista</span>}
-                {fallida && <span className="text-[var(--danger)]">falló · crédito devuelto</span>}
-                {!hecha && !fallida && !activa && <span className="text-slag">en cola</span>}
+                {fallida && <span className="text-[var(--danger)]">{t("no se generó")}</span>}
+                {!hecha && !fallida && !activa && <span className="text-slag">{t("en cola")}</span>}
               </span>
             </li>
           );

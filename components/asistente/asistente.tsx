@@ -5,6 +5,8 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { ChatCircle, X, ArrowUp } from "@phosphor-icons/react/dist/ssr";
 import type { Mensaje } from "@/lib/datos/tipos";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * F3 — Asistente LandingForge (§7.3).
@@ -23,16 +25,19 @@ import { cn } from "@/lib/utils";
 
 const LIMITE_MENSAJES = 20;
 
-const SALUDO =
-  "Pregúntame lo que quieras sobre LandingForge: cómo funciona, qué genera, cuánto cuesta o por qué no usamos plantillas.";
+const saludo = (t: Traductor) =>
+  t(
+    "Pregúntame lo que quieras sobre LandingForge: cómo funciona, qué genera, cuánto cuesta o por qué no usamos plantillas.",
+  );
 
-const SUGERENCIAS = [
-  "¿Por qué no es una plantilla?",
-  "¿Cuánto cuesta empezar?",
-  "¿Los prompts son míos?",
-] as const;
+const sugerencias = (t: Traductor) => [
+  t("¿Por qué no es una plantilla?"),
+  t("¿Cuánto cuesta empezar?"),
+  t("¿Los prompts son míos?"),
+];
 
 export function Asistente() {
+  const t = useT();
   const [abierto, setAbierto] = React.useState(false);
   const [mensajes, setMensajes] = React.useState<Mensaje[]>([]);
   const [borrador, setBorrador] = React.useState("");
@@ -45,7 +50,7 @@ export function Asistente() {
 
   React.useEffect(() => {
     finRef.current?.scrollIntoView({ block: "end" });
-  }, [mensajes, escribiendo]);
+  }, [mensajes, escribiendo, t]);
 
   const enviar = React.useCallback(
     async (texto: string) => {
@@ -62,12 +67,12 @@ export function Asistente() {
         const respuesta = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mensajes: historial }),
+          body: JSON.stringify({ mensajes: historial, idioma: t.idioma }),
         });
 
         if (!respuesta.ok || !respuesta.body) {
           const datos = await respuesta.json().catch(() => null);
-          throw new Error(datos?.error ?? "No se pudo conectar con el asistente.");
+          throw new Error(datos?.error ?? t("No se pudo conectar con el asistente."));
         }
 
         const lector = respuesta.body.getReader();
@@ -81,12 +86,12 @@ export function Asistente() {
         }
       } catch (e) {
         setMensajes(historial);
-        setError(e instanceof Error ? e.message : "Se cortó la conexión. Vuelve a preguntar.");
+        setError(e instanceof Error ? e.message : t("Se cortó la conexión. Vuelve a preguntar."));
       } finally {
         setEscribiendo(false);
       }
     },
-    [agotado, escribiendo, mensajes],
+    [agotado, escribiendo, mensajes, t],
   );
 
   return (
@@ -94,7 +99,7 @@ export function Asistente() {
       <RadixDialog.Trigger asChild>
         <button
           type="button"
-          aria-label="Abrir el asistente de LandingForge"
+          aria-label={t("Abrir el asistente de LandingForge")}
           className={cn(
             "fixed bottom-6 right-6 z-40 grid size-12 place-items-center rounded-full",
             "bg-[var(--anvil-hi)] text-smoke border border-[var(--scale)] shadow-elev-1",
@@ -129,10 +134,10 @@ export function Asistente() {
         >
           <header className="flex items-center justify-between gap-4 border-b border-[var(--scale)] px-4 py-3">
             <RadixDialog.Title className="etiqueta text-ash">
-              Asistente LandingForge
+              {t("Asistente LandingForge")}
             </RadixDialog.Title>
             <RadixDialog.Close
-              aria-label="Cerrar el asistente"
+              aria-label={t("Cerrar el asistente")}
               className={cn(
                 "grid size-8 place-items-center rounded-[8px] text-smoke",
                 "transition-colors duration-[140ms] ease-[var(--ease-out)] hf:text-ash active:scale-[0.97]",
@@ -147,11 +152,11 @@ export function Asistente() {
             aria-live="polite"
             aria-atomic="false"
           >
-            <p className="cuerpo text-smoke">{SALUDO}</p>
+            <p className="cuerpo text-smoke">{saludo(t)}</p>
 
             {mensajes.length === 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
-                {SUGERENCIAS.map((s) => (
+                {sugerencias(t).map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -182,7 +187,7 @@ export function Asistente() {
                   {m.texto ||
                     (escribiendo && i === mensajes.length - 1 ? (
                       <span
-                        aria-label="Escribiendo"
+                        aria-label={t("Escribiendo")}
                         className="barrido-calor inline-block h-4 w-24 rounded-[4px] bg-[var(--anvil)]"
                       />
                     ) : null)}
@@ -214,7 +219,7 @@ export function Asistente() {
             ) : (
               <div className="flex items-end gap-2">
                 <label htmlFor="asistente-entrada" className="sr-only">
-                  Escribe tu pregunta
+                  {t("Escribe tu pregunta")}
                 </label>
                 <textarea
                   id="asistente-entrada"
@@ -228,7 +233,7 @@ export function Asistente() {
                       enviar(borrador);
                     }
                   }}
-                  placeholder="Escribe tu pregunta"
+                  placeholder={t("Escribe tu pregunta")}
                   maxLength={1000}
                   className={cn(
                     "min-h-10 max-h-32 flex-1 resize-none rounded-[10px] px-3 py-2",
@@ -241,7 +246,7 @@ export function Asistente() {
                 <button
                   type="submit"
                   disabled={escribiendo || borrador.trim() === ""}
-                  aria-label="Enviar pregunta"
+                  aria-label={t("Enviar pregunta")}
                   className={cn(
                     "grid size-10 shrink-0 place-items-center rounded-[10px]",
                     "bg-[var(--anvil)] text-ash border border-[var(--scale)]",

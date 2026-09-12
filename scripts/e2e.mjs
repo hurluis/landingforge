@@ -2,7 +2,7 @@
  * Prueba de extremo a extremo contra el servidor corriendo.
  *
  * Recorre el camino completo de §14: registro, generación en streaming,
- * descuento y devolución de créditos, CRUD de campañas, validador y
+ * descuento de créditos, CRUD de campañas, validador y
  * guardarraíles del asistente. No usa navegador: habla con la API igual que
  * lo haría la interfaz.
  *

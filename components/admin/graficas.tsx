@@ -2,6 +2,8 @@ import * as React from "react";
 import type { EstadoCampana, Plan, PuntoSerie } from "@/lib/datos/tipos";
 import { numero } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * Gráficas del panel — SVG en línea, sin librería.
@@ -54,11 +56,14 @@ function rutaDeSerie(puntos: PuntoSerie[], maximo: number) {
 export function SerieTemporal({
   titulo,
   puntos,
+  t,
   color = "var(--quench)",
   sufijo = "",
 }: {
   titulo: string;
   puntos: PuntoSerie[];
+  /** Por prop y no con `await`: esta gráfica usa `useId`, que prohíbe async. */
+  t: Traductor;
   /** Un único tono por gráfica: no hay varias series que distinguir. */
   color?: string;
   /** Se añade al valor en el tooltip. Para porcentajes, «%». */
@@ -74,7 +79,7 @@ export function SerieTemporal({
       <figcaption className="flex items-baseline justify-between gap-3">
         <span className="etiqueta text-smoke">{titulo}</span>
         <span className="mono-sm text-slag">
-          {sufijo === "%" ? `pico ${maximo}%` : `${numero(total)} en 30 días`}
+          {sufijo === "%" ? `pico ${maximo}%` : `${numero(total, t.idioma)} en 30 días`}
         </span>
       </figcaption>
 
@@ -134,7 +139,7 @@ export function SerieTemporal({
             height={ALTO}
             fill="transparent"
           >
-            <title>{`${puntos[i].fecha}: ${numero(puntos[i].valor)}${sufijo}`}</title>
+            <title>{`${puntos[i].fecha}: ${numero(puntos[i].valor, t.idioma)}${sufijo}`}</title>
           </rect>
         ))}
       </svg>
@@ -144,7 +149,7 @@ export function SerieTemporal({
         <caption>{titulo}</caption>
         <thead>
           <tr>
-            <th scope="col">Día</th>
+            <th scope="col">{t("Día")}</th>
             <th scope="col">Valor</th>
           </tr>
         </thead>
@@ -187,12 +192,13 @@ const NOMBRE_PLAN: Record<Plan, string> = {
   fundicion: "Fundición",
 };
 
-export function RepartoPorPlan({ reparto }: { reparto: Record<Plan, number> }) {
+export async function RepartoPorPlan({ reparto }: { reparto: Record<Plan, number> }) {
+  const t = await traductor();
   const orden: Plan[] = ["semilla", "estudio", "agencia", "fundicion"];
   const total = orden.reduce((s, p) => s + reparto[p], 0);
 
   if (total === 0) {
-    return <p className="cuerpo text-slag">Todavía no hay cuentas que repartir.</p>;
+    return <p className="cuerpo text-slag">{t("Todavía no hay cuentas que repartir.")}</p>;
   }
 
   return (
@@ -287,7 +293,7 @@ export function EstadosDeCampana({
 /* Mapa de calor — magnitud con un solo tono                         */
 /* ---------------------------------------------------------------- */
 
-export function MapaDeCalor({
+export async function MapaDeCalor({
   filas,
   columnas,
   valor,
@@ -303,6 +309,7 @@ export function MapaDeCalor({
   etiquetaFila: (fila: string) => string;
   etiquetaColumna: (columna: string) => string;
 }) {
+  const t = await traductor();
   /* La intensidad se calcula sobre el total de la propia fila, no sobre el
      máximo de la tabla. Dos razones:
 
@@ -318,12 +325,12 @@ export function MapaDeCalor({
     <div className="overflow-x-auto">
       <table className="w-full min-w-[640px] border-separate border-spacing-[2px]">
         <caption className="sr-only">
-          Prompts afectados por cada regla, desglosados por tipología de sección.
+          {t("Prompts afectados por cada regla, desglosados por tipología de sección.")}
         </caption>
         <thead>
           <tr>
             <th scope="col" className="etiqueta w-32 text-left font-medium text-slag">
-              Tipología
+              {t("Tipología")}
             </th>
             {columnas.map((c) => (
               <th

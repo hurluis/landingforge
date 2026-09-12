@@ -209,28 +209,6 @@ export class RepositorioPostgres implements Repositorio {
     return u;
   }
 
-  async devolverCreditos(
-    usuarioId: string,
-    cantidad: number,
-    campanaId: string | null,
-    campanaNombre: string,
-  ): Promise<Usuario> {
-    await enTransaccion(async (c) => {
-      await c.query("UPDATE usuarios SET creditos = creditos + $1 WHERE id = $2", [
-        cantidad,
-        usuarioId,
-      ]);
-      await c.query(
-        `INSERT INTO movimientos (id, usuario_id, campana_id, campana_nombre, delta, motivo, fecha)
-         VALUES ($1, $2, $3, $4, $5, 'devolucion', $6)`,
-        [id("mov"), usuarioId, campanaId, campanaNombre, cantidad, new Date().toISOString()],
-      );
-    });
-    const u = await this.usuarioPorId(usuarioId);
-    if (!u) throw new Error("Usuario no encontrado");
-    return u;
-  }
-
   async movimientos(usuarioId: string, limite = 30): Promise<MovimientoCredito[]> {
     const fs = await filas<{
       id: string;

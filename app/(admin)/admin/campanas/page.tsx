@@ -21,6 +21,7 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Campañas" };
 export const dynamic = "force-dynamic";
@@ -59,6 +60,7 @@ export default async function PaginaCampanas({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await traductor();
   const crudos = await searchParams;
   const planos = Object.fromEntries(
     Object.entries(crudos).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
@@ -75,29 +77,29 @@ export default async function PaginaCampanas({
         fotograma="/secuencia/0072.jpg"
         encuadre="55% 50%"
         alto="media"
-        rotulo="Administración"
-        titulo="Campañas"
-        descripcion={`${numero(total)} en la plataforma. Se inspeccionan y, si hay abuso, se borran. No se editan: el trabajo del cliente es suyo.`}
+        rotulo={t("Administración")}
+        titulo={t("Campañas")}
+        descripcion={`${numero(total, t.idioma)} en la plataforma. Se inspeccionan y, si hay abuso, se borran. No se editan: el trabajo del cliente es suyo.`}
       />
 
       <div className={cn(ANCHO, "mt-10")}>
         <BarraFiltros>
-          <CampoFiltro etiqueta="Buscar">
+          <CampoFiltro etiqueta={t("Buscar")}>
             <EntradaFiltro
               type="search"
               name="busqueda"
               defaultValue={filtro.busqueda ?? ""}
-              placeholder="nombre de campaña o correo"
+              placeholder={t("nombre de campaña o correo")}
             />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Estado">
+          <CampoFiltro etiqueta={t("Estado")}>
             <SelectFiltro
               name="estado"
               defaultValue={filtro.estado ?? ""}
               opciones={OPCIONES_ESTADO}
             />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Sección">
+          <CampoFiltro etiqueta={t("Sección")}>
             <SelectFiltro
               name="tipologia"
               defaultValue={filtro.tipologia ?? ""}
@@ -112,7 +114,7 @@ export default async function PaginaCampanas({
               defaultChecked={filtro.soloConBloqueo ?? false}
               className="size-4 accent-[var(--heat)]"
             />
-            <span className="etiqueta text-smoke">Solo con bloqueo</span>
+            <span className="etiqueta text-smoke">{t("Solo con bloqueo")}</span>
           </label>
           <Boton type="submit" variante="tinta" tamano="md" className="rounded-full">
             <MagnifyingGlass className="size-4" />
@@ -123,13 +125,13 @@ export default async function PaginaCampanas({
         <div className="mt-10">
           {filas.length === 0 ? (
             <EstadoVacio
-              titulo="Ninguna campaña coincide con estos filtros."
+              titulo={t("Ninguna campaña coincide con estos filtros.")}
               detalle="Si acabas de marcar «solo con bloqueo», puede que sencillamente no haya ninguna. Eso es una buena noticia."
             />
           ) : (
             <>
               <Tabla
-                descripcion="Campañas de la plataforma con dueño, estado y advertencias del validador."
+                descripcion={t("Campañas de la plataforma con dueño, estado y advertencias del validador.")}
                 cabeceras={["Campaña", "Dueño", "Estado", "Prompts", "Bloqueos", "Avisos", "Actualizada", null]}
                 ancho="min-w-[920px]"
               >
@@ -155,7 +157,7 @@ export default async function PaginaCampanas({
                     <Celda mono className="tabular-nums">
                       {c.avisos}
                     </Celda>
-                    <Celda mono>{fechaRelativa(c.actualizadaEn)}</Celda>
+                    <Celda mono>{fechaRelativa(c.actualizadaEn, t.idioma)}</Celda>
                     <Celda className="pr-0 text-right">
                       <EnlaceFila href={`/admin/campanas/${c.id}`}>
                         Inspeccionar<span className="sr-only"> la campaña {c.nombre}</span>
@@ -166,6 +168,7 @@ export default async function PaginaCampanas({
               </Tabla>
 
               <Paginador
+                t={t}
                 total={total}
                 pagina={pagina}
                 porPagina={porPagina}

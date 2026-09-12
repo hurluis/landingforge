@@ -12,6 +12,7 @@ import { Boton } from "@/components/ui/boton";
 import { Badge } from "@/components/ui/piezas";
 import { Validador } from "@/components/campana/validador";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Pantalla de campaña — §6.3.
@@ -28,6 +29,7 @@ export function VistaCampana({
   campana: Campana;
   generacionImagenesActiva: boolean;
 }) {
+  const t = useT();
   const router = useRouter();
   const [activa, setActiva] = React.useState<TipologiaSeccion>(
     campana.prompts[0]?.tipologia ?? "hero",
@@ -66,7 +68,7 @@ export function VistaCampana({
         body: JSON.stringify({ prompt: { tipologia: prompt.tipologia, texto } }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
-      toast.success("Prompt guardado");
+      toast.success(t("Prompt guardado"));
       setBorradores((b) => {
         const resto = { ...b };
         delete resto[prompt.id];
@@ -74,8 +76,8 @@ export function VistaCampana({
       });
       router.refresh();
     } catch (e) {
-      toast.error("No se pudo guardar", {
-        description: e instanceof Error ? e.message : "Vuelve a intentarlo.",
+      toast.error(t("No se pudo guardar"), {
+        description: e instanceof Error ? e.message : t("Vuelve a intentarlo."),
       });
     } finally {
       setGuardando(false);
@@ -91,11 +93,11 @@ export function VistaCampana({
         body: JSON.stringify({ nombre: nombre.trim() }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
-      toast.success("Campaña renombrada");
+      toast.success(t("Campaña renombrada"));
       router.refresh();
     } catch (e) {
       setNombre(campana.nombre);
-      toast.error(e instanceof Error ? e.message : "No se pudo renombrar.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo renombrar."));
     }
   }
 
@@ -157,7 +159,7 @@ export function VistaCampana({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <label htmlFor="nombre-campana" className="sr-only">
-              Nombre de la campaña
+              {t("Nombre de la campaña")}
             </label>
             <input
               id="nombre-campana"
@@ -254,25 +256,25 @@ export function VistaCampana({
       <div className="grid flex-1 lg:grid-cols-[300px_1fr]">
         {/* ---- Panel izquierdo: las secciones con su estado ---- */}
         <nav
-          aria-label="Secciones de la campaña"
+          aria-label={t("Secciones de la campaña")}
           className={cn(
             "border-[var(--scale)] p-3 lg:border-r",
             panel === "secciones" ? "block" : "hidden lg:block",
           )}
         >
           <ul className="flex flex-col gap-1">
-            {ordenadas.map((t) => {
-              const p = campana.prompts.find((x) => x.tipologia === t.id);
-              const fallida = campana.seccionesFallidas.includes(t.id);
-              const seleccionada = activa === t.id && !fallida;
+            {ordenadas.map((tipo) => {
+              const p = campana.prompts.find((x) => x.tipologia === tipo.id);
+              const fallida = campana.seccionesFallidas.includes(tipo.id);
+              const seleccionada = activa === tipo.id && !fallida;
               const avisos = p?.advertencias.length ?? 0;
               return (
-                <li key={t.id}>
+                <li key={tipo.id}>
                   <button
                     type="button"
                     disabled={fallida}
                     onClick={() => {
-                      setActiva(t.id);
+                      setActiva(tipo.id);
                       setPanel("prompt");
                     }}
                     className={cn(
@@ -286,12 +288,12 @@ export function VistaCampana({
                   >
                     <span className="flex items-baseline gap-2 min-w-0">
                       <span className="mono-sm text-smoke">
-                        {String(t.numero).padStart(2, "0")}
+                        {String(tipo.numero).padStart(2, "0")}
                       </span>
-                      <span className="etiqueta truncate">{t.nombre}</span>
+                      <span className="etiqueta truncate">{t(tipo.nombre)}</span>
                     </span>
                     {fallida ? (
-                      <Badge tono="peligro">falló</Badge>
+                      <Badge tono="peligro">{t("falló")}</Badge>
                     ) : avisos > 0 ? (
                       <Badge tono="aviso">{avisos}</Badge>
                     ) : (
@@ -319,7 +321,7 @@ export function VistaCampana({
                   {prompt.requiereImagenReferencia && (
                     <Badge tono="maquina">
                       <Paperclip className="size-3" />
-                      adjunta la foto del producto
+                      {t("adjunta la foto del producto")}
                     </Badge>
                   )}
                   <Boton
@@ -339,11 +341,11 @@ export function VistaCampana({
                     tamano="sm"
                     disabled={!sucio}
                     cargando={guardando}
-                    textoCargando="Guardando…"
+                    textoCargando={t("Guardando…")}
                     onClick={guardar}
                   >
                     <FloppyDisk  />
-                    {sucio ? "Guardar cambios" : "Guardado"}
+                    {sucio ? t("Guardar cambios") : "Guardado"}
                   </Boton>
                 </div>
               </div>
@@ -377,22 +379,20 @@ export function VistaCampana({
               <div className="flex flex-wrap items-center gap-3 border-t border-[var(--scale)] pt-6">
                 <Boton variante="contorno" disabled={!generacionImagenesActiva}>
                   <ImageBroken  />
-                  Generar la imagen
+                  {t("Generar la imagen")}
                 </Boton>
                 {!generacionImagenesActiva && (
                   <p className="cuerpo text-slag max-w-[52ch]">
-                    La generación de imágenes todavía no está conectada en esta versión. El
-                    prompt ya está listo: cópialo y córrelo donde quieras.
+                    {t("La generación de imágenes todavía no está conectada en esta versión. El prompt ya está listo: cópialo y córrelo donde quieras.")}
                   </p>
                 )}
               </div>
             </>
           ) : (
             <div className="m-auto max-w-[40ch] text-center">
-              <h2 className="display-md">Esta campaña no tiene prompts</h2>
+              <h2 className="display-md">{t("Esta campaña no tiene prompts")}</h2>
               <p className="mt-3 cuerpo text-smoke">
-                Todas las secciones fallaron y sus créditos volvieron a tu cuenta. Vuelve a
-                intentarlo desde una campaña nueva.
+                {t("Todas las secciones fallaron y sus créditos volvieron a tu cuenta. Vuelve a intentarlo desde una campaña nueva.")}
               </p>
             </div>
           )}

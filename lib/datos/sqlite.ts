@@ -325,30 +325,6 @@ export class RepositorioSQLite implements Repositorio {
     return u;
   }
 
-  async devolverCreditos(
-    usuarioId: string,
-    cantidad: number,
-    campanaId: string | null,
-    campanaNombre: string,
-  ): Promise<Usuario> {
-    const bd = conexion();
-    bd.exec("BEGIN IMMEDIATE");
-    try {
-      bd.prepare("UPDATE usuarios SET creditos = creditos + ? WHERE id = ?").run(
-        cantidad,
-        usuarioId,
-      );
-      this.anotar(usuarioId, campanaId, campanaNombre, cantidad, "devolucion");
-      bd.exec("COMMIT");
-    } catch (e) {
-      bd.exec("ROLLBACK");
-      throw e;
-    }
-    const u = await this.usuarioPorId(usuarioId);
-    if (!u) throw new Error("Usuario no encontrado");
-    return u;
-  }
-
   async movimientos(usuarioId: string, limite = 30): Promise<MovimientoCredito[]> {
     const filas = conexion()
       .prepare("SELECT * FROM movimientos WHERE usuario_id = ? ORDER BY fecha DESC LIMIT ?")

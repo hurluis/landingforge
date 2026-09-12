@@ -5,9 +5,14 @@ import { redirect } from "next/navigation";
 import { Wordmark } from "@/components/marketing/wordmark";
 import { usuarioActual } from "@/lib/auth/sesion";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
+import type { Traductor } from "@/lib/i18n/idioma";
 import { FormularioEntrada } from "./formulario";
 
-export const metadata: Metadata = { title: "Entrar" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await traductor();
+  return { title: t("Entrar") };
+}
 
 /**
  * Entrar — la puerta del estudio.
@@ -22,29 +27,30 @@ export const metadata: Metadata = { title: "Entrar" };
  * clave alta como en el resto del sitio, y los paños salen del mismo color.
  */
 
-const PIEZAS = [
+const piezas = (t: Traductor) => [
   {
     src: "/secciones/hero.png",
-    alt: "Sección hero de una campaña real de suplemento",
+    alt: t("Sección hero de una campaña real de suplemento"),
     clase: "h-[46vh] -rotate-[7deg] translate-x-10 translate-y-8",
   },
   {
     src: "/secciones/precios.png",
-    alt: "Sección de precios de la misma campaña",
+    alt: t("Sección de precios de la misma campaña"),
     clase: "z-10 h-[56vh]",
   },
   {
     src: "/secciones/testimonios.png",
-    alt: "Sección de testimonios de la misma campaña",
+    alt: t("Sección de testimonios de la misma campaña"),
     clase: "h-[46vh] rotate-[7deg] -translate-x-10 translate-y-8",
   },
-] as const;
+];
 
 const SOMBRA = "rgb(var(--pelicula-sombra)";
 
 export default async function Entrar() {
   // Con sesión abierta, esta pantalla no tiene nada que ofrecer.
   if (await usuarioActual()) redirect("/app");
+  const t = await traductor();
 
   return (
     <main className="grid min-h-dvh flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -58,7 +64,7 @@ export default async function Entrar() {
       </div>
 
       <aside
-        aria-label="Una campaña real, hecha con LandingForge"
+        aria-label={t("Una campaña real, hecha con LandingForge")}
         className="relative hidden overflow-hidden bg-[rgb(var(--pelicula-sombra))] lg:block"
       >
         <Image
@@ -78,7 +84,7 @@ export default async function Entrar() {
         />
 
         <div className="absolute inset-x-0 top-[12vh] flex items-center justify-center">
-          {PIEZAS.map((p) => (
+          {piezas(t).map((p) => (
             <div
               key={p.src}
               className={cn(
@@ -95,11 +101,12 @@ export default async function Entrar() {
           <div>
             <p className="flex items-center gap-3 etiqueta text-ash sobre-pelicula">
               <span aria-hidden className="h-px w-8 bg-current" />
-              Una campaña real
+              {t("Una campaña real")}
             </p>
             <p className="mt-3 max-w-sm text-lg leading-relaxed text-ash sobre-pelicula">
-              Hero, precios y testimonios de un suplemento. Tres de las nueve secciones que
-              LandingForge arma con una foto.
+              {t(
+                "Hero, precios y testimonios de un suplemento. Tres de las nueve secciones que LandingForge arma con una foto.",
+              )}
             </p>
           </div>
         </div>

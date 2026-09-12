@@ -21,6 +21,7 @@ import {
   Tabla,
 } from "@/components/panel/piezas";
 import { cn } from "@/lib/utils";
+import { traductor } from "@/lib/i18n/servidor";
 
 export const metadata: Metadata = { title: "Auditoría" };
 export const dynamic = "force-dynamic";
@@ -58,6 +59,7 @@ export default async function PaginaAuditoria({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const t = await traductor();
   const crudos = await searchParams;
   const planos = Object.fromEntries(
     Object.entries(crudos).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
@@ -81,31 +83,31 @@ export default async function PaginaAuditoria({
         fotograma="/secuencia/0144.jpg"
         encuadre="58% 50%"
         alto="media"
-        rotulo="Administración"
-        titulo="Auditoría"
-        descripcion="Toda acción del panel que cambia algo queda aquí. Este registro no se puede editar ni borrar desde ninguna parte de la aplicación."
+        rotulo={t("Administración")}
+        titulo={t("Auditoría")}
+        descripcion={t("Toda acción del panel que cambia algo queda aquí. Este registro no se puede editar ni borrar desde ninguna parte de la aplicación.")}
       >
         <Boton asChild variante="tinta" tamano="md" className="rounded-full">
           <a href={`/api/admin/auditoria?${parametrosCsv.toString()}`}>
             <DownloadSimple className="size-4" />
-            Exportar CSV
+            {t("Exportar CSV")}
           </a>
         </Boton>
       </Banda>
 
       <div className={cn(ANCHO, "mt-10")}>
         <BarraFiltros>
-          <CampoFiltro etiqueta="Acción">
+          <CampoFiltro etiqueta={t("Acción")}>
             <SelectFiltro
               name="accion"
               defaultValue={filtro.accion ?? ""}
               opciones={OPCIONES_ACCION}
             />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Desde">
+          <CampoFiltro etiqueta={t("Desde")}>
             <EntradaFiltro type="date" name="desde" defaultValue={filtro.desde ?? ""} />
           </CampoFiltro>
-          <CampoFiltro etiqueta="Hasta">
+          <CampoFiltro etiqueta={t("Hasta")}>
             <EntradaFiltro type="date" name="hasta" defaultValue={filtro.hasta ?? ""} />
           </CampoFiltro>
           <Boton type="submit" variante="tinta" tamano="md" className="rounded-full">
@@ -117,13 +119,13 @@ export default async function PaginaAuditoria({
         <div className="mt-10">
           {filas.length === 0 ? (
             <EstadoVacio
-              titulo="No hay ninguna acción registrada con estos filtros."
+              titulo={t("No hay ninguna acción registrada con estos filtros.")}
               detalle="Si el panel es nuevo, esto es lo esperado: la bitácora empieza vacía y se llena sola."
             />
           ) : (
             <>
               <Tabla
-                descripcion="Acciones administrativas con actor, objetivo, detalle y origen."
+                descripcion={t("Acciones administrativas con actor, objetivo, detalle y origen.")}
                 cabeceras={["Fecha", "Actor", "Acción", "Objetivo", "Detalle", "IP"]}
                 ancho="min-w-[960px]"
               >
@@ -133,7 +135,7 @@ export default async function PaginaAuditoria({
                         altura fija con el texto en dos líneas se desborda de su
                         propio borde. */}
                     <Celda mono className="whitespace-nowrap">
-                      {fechaCorta(e.fecha)}
+                      {fechaCorta(e.fecha, t.idioma)}
                     </Celda>
                     <Celda>
                       {e.actorId ? (
@@ -163,6 +165,7 @@ export default async function PaginaAuditoria({
               </Tabla>
 
               <Paginador
+                t={t}
                 total={total}
                 pagina={pagina}
                 porPagina={porPagina}

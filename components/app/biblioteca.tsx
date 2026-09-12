@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialogo";
 import { fechaCorta } from "@/lib/formato";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
 
 /**
  * Biblioteca — §6.3. Las campañas como carteles, no como tarjetas.
@@ -42,6 +43,7 @@ const ETIQUETA_ESTADO: Record<Campana["estado"], { texto: string; tono: "neutro"
 };
 
 export function Biblioteca({ campanas }: { campanas: Campana[] }) {
+  const t = useT();
   const router = useRouter();
   const [busqueda, setBusqueda] = React.useState("");
   const [ocupada, setOcupada] = React.useState<string | null>(null);
@@ -66,10 +68,10 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
         body: JSON.stringify({ accion: "duplicar" }),
       });
       if (!r.ok) throw new Error((await r.json()).error);
-      toast.success("Campaña duplicada");
+      toast.success(t("Campaña duplicada"));
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo duplicar.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo duplicar."));
     } finally {
       setOcupada(null);
     }
@@ -80,10 +82,10 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
     try {
       const r = await fetch(`/api/campanas/${c.id}`, { method: "DELETE" });
       if (!r.ok) throw new Error((await r.json()).error);
-      toast.success("Campaña eliminada");
+      toast.success(t("Campaña eliminada"));
       router.refresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo eliminar.");
+      toast.error(e instanceof Error ? e.message : t("No se pudo eliminar."));
     } finally {
       setOcupada(null);
     }
@@ -99,7 +101,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
     <section aria-labelledby="campanas-titulo">
       <div className="flex flex-wrap items-end justify-between gap-4 border-t border-[var(--scale)] pt-8">
         <h2 id="campanas-titulo" className="titulo">
-          Tus campañas
+          {t("Tus campañas")}
         </h2>
         <div className="relative w-full max-w-[340px]">
           <MagnifyingGlass
@@ -107,14 +109,14 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
             className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slag"
           />
           <label htmlFor="buscar" className="sr-only">
-            Buscar campañas
+            {t("Buscar campañas")}
           </label>
           <input
             id="buscar"
             type="search"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Buscar por producto o paleta"
+            placeholder={t("Buscar por producto o paleta")}
             className={cn(
               "h-10 w-full rounded-full pl-10 pr-4 text-[0.9375rem]",
               "border border-[var(--scale-hi)] bg-transparent text-ash placeholder:text-slag",
@@ -179,7 +181,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                     </Link>
                     <p className="mt-1 mono-sm text-slag">
                       {c.prompts.length} de {c.prompts.length + c.seccionesFallidas.length} secciones ·{" "}
-                      {fechaCorta(c.actualizadaEn)}
+                      {fechaCorta(c.actualizadaEn, t.idioma)}
                     </p>
                   </div>
                   <Badge tono={parcial ? "aviso" : estado.tono} className="shrink-0">
@@ -217,7 +219,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                     </DialogoDisparador>
                     <DialogoContenido
                       titulo={`Eliminar «${c.nombre}»`}
-                      descripcion="Se borran la campaña y sus prompts. No se puede deshacer, y los créditos que ya gastaste no vuelven."
+                      descripcion={t("Se borran la campaña y sus prompts. No se puede deshacer, y los créditos que ya gastaste no vuelven.")}
                     >
                       <div className="flex justify-end gap-2">
                         <DialogoCierre asChild>
@@ -225,7 +227,7 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
                         </DialogoCierre>
                         <DialogoCierre asChild>
                           <Boton variante="peligro" onClick={() => borrar(c)}>
-                            Eliminar la campaña
+                            {t("Eliminar la campaña")}
                           </Boton>
                         </DialogoCierre>
                       </div>
@@ -246,22 +248,22 @@ export function Biblioteca({ campanas }: { campanas: Campana[] }) {
  * nueve secciones de una campaña real, las mismas de la home, en fila.
  */
 function Vacia() {
+  const t = useT();
   return (
     <section aria-labelledby="vacia-titulo" className="border-t border-[var(--scale)] pt-10">
       <div className="flex flex-wrap items-end justify-between gap-8">
         <div className="max-w-xl">
-          <Rotulo className="text-smoke">Tu primera campaña</Rotulo>
+          <Rotulo className="text-smoke">{t("Tu primera campaña")}</Rotulo>
           <h2 id="vacia-titulo" className="mt-4 display-md">
-            Sube la foto de tu producto y recibe las nueve secciones.
+            {t("Sube la foto de tu producto y recibe las nueve secciones.")}
           </h2>
           <p className="mt-4 cuerpo-lg text-smoke">
-            Cuatro preguntas: qué es, para quién, dónde lo vendes y cuánto cuesta. La matriz
-            asigna la paleta y el motor construye un prompt validado por sección.
+            {t("Cuatro preguntas: qué es, para quién, dónde lo vendes y cuánto cuesta. La matriz asigna la paleta y el motor construye un prompt validado por sección.")}
           </p>
         </div>
         <Boton asChild variante="heat" tamano="lg">
           <Link href="/app/nueva">
-            Crear mi primera campaña
+            {t("Crear mi primera campaña")}
             <ArrowRight className="size-5" />
           </Link>
         </Boton>

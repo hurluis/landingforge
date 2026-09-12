@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Paleta, TipologiaSeccion } from "@/lib/datos/tipos";
+import type { Traductor } from "@/lib/i18n/idioma";
 import { cn } from "@/lib/utils";
 
 /**
@@ -7,6 +8,9 @@ import { cn } from "@/lib/utils";
  *
  * Se usa en dos sitios: la tira de contactos de la home y el paso 4 del
  * wizard. Es la misma pieza porque es la misma información.
+ *
+ * El traductor entra por prop y no por hook porque esta pieza la pintan tanto
+ * componentes de servidor como de cliente, y un hook la ataría al cliente.
  *
  * Nota honesta: F4 (generación de imágenes) está fuera de alcance en esta
  * entrega, así que la lámina dibuja la ESTRUCTURA real de cada tipología con
@@ -18,10 +22,12 @@ import { cn } from "@/lib/utils";
 export function Lamina({
   tipologia,
   paleta,
+  t,
   className,
 }: {
   tipologia: TipologiaSeccion;
   paleta: Paleta;
+  t: Traductor;
   className?: string;
 }) {
   const estilo = {
@@ -35,7 +41,7 @@ export function Lamina({
       style={estilo}
       className={cn("size-full overflow-hidden text-[0.5rem] leading-tight", className)}
     >
-      {CONTENIDO[tipologia](paleta)}
+      {CONTENIDO[tipologia](paleta, t)}
     </div>
   );
 }
@@ -88,8 +94,8 @@ function Barra({ ancho, color, alto = 3 }: { ancho: string; color: string; alto?
 
 /* Las nueve composiciones -------------------------------------------- */
 
-const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
-  hero: (p) => (
+const CONTENIDO: Record<TipologiaSeccion, (p: Paleta, t: Traductor) => React.ReactNode> = {
+  hero: (p, t) => (
     <div className="relative flex size-full flex-col justify-between p-3">
       <div
         style={{
@@ -97,21 +103,21 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
         }}
         className="absolute inset-0"
       />
-      <Titular p={p}>Piel firme en 8 semanas</Titular>
+      <Titular p={p}>{t("Piel firme en 8 semanas")}</Titular>
       <Frasco className="absolute inset-x-0 bottom-6 mx-auto h-[58%] w-auto" />
       <div className="relative flex items-end justify-between">
         <span style={{ color: p.energia }} className="mono-sm text-[0.55rem]">
           $129.900
         </span>
-        <Pastilla p={p}>contraentrega</Pastilla>
+        <Pastilla p={p}>{t("contraentrega")}</Pastilla>
       </div>
     </div>
   ),
 
-  beneficios: (p) => (
+  beneficios: (p, t) => (
     <div className="flex size-full flex-col gap-2.5 p-3">
-      <Titular p={p}>Lo que cambia</Titular>
-      {["Absorción en 20 min", "Sin sabor a pescado", "60 tomas por frasco"].map((t, i) => (
+      <Titular p={p}>{t("Lo que cambia")}</Titular>
+      {[t("Absorción en 20 min"), t("Sin sabor a pescado"), t("60 tomas por frasco")].map((linea, i) => (
         <div key={i} className="flex items-center gap-2">
           <span
             style={{ borderColor: p.acento }}
@@ -120,7 +126,7 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
             <span style={{ background: p.acento }} className="size-1.5 rounded-[1px]" />
           </span>
           <span style={{ color: p.texto }} className="text-[0.5rem] opacity-85">
-            {t}
+            {linea}
           </span>
         </div>
       ))}
@@ -130,9 +136,9 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
     </div>
   ),
 
-  "antes-despues": (p) => (
+  "antes-despues": (p, t) => (
     <div className="grid size-full grid-cols-2">
-      {["ANTES", "DESPUÉS"].map((etiqueta, i) => (
+      {[t("ANTES"), t("DESPUÉS")].map((etiqueta, i) => (
         <div
           key={etiqueta}
           style={{
@@ -159,10 +165,10 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
     </div>
   ),
 
-  "paso-a-paso": (p) => (
+  "paso-a-paso": (p, t) => (
     <div className="flex size-full flex-col gap-2 p-3">
-      <Titular p={p}>Tres pasos</Titular>
-      {["Agita el frasco", "Sirve una medida", "Toma en ayunas"].map((t, i) => (
+      <Titular p={p}>{t("Tres pasos")}</Titular>
+      {[t("Agita el frasco"), t("Sirve una medida"), t("Toma en ayunas")].map((linea, i) => (
         <div key={i} className="flex items-start gap-2">
           <span
             style={{ color: p.acento }}
@@ -172,7 +178,7 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
           </span>
           <div className="flex flex-1 flex-col gap-1 pt-0.5">
             <span style={{ color: p.texto }} className="text-[0.48rem] opacity-85">
-              {t}
+              {linea}
             </span>
             <span
               style={{ background: p.secundario }}
@@ -184,9 +190,9 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
     </div>
   ),
 
-  testimonios: (p) => (
+  testimonios: (p, t) => (
     <div className="flex size-full flex-col gap-2 p-3">
-      <Titular p={p}>Quién ya lo usa</Titular>
+      <Titular p={p}>{t("Quién ya lo usa")}</Titular>
       <div className="grid flex-1 grid-cols-2 gap-1.5">
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <div
@@ -211,7 +217,7 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
     </div>
   ),
 
-  autoridad: (p) => (
+  autoridad: (p, t) => (
     <div className="flex size-full flex-col p-3">
       <div
         style={{ background: p.secundario }}
@@ -228,21 +234,21 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
       </div>
       <div className="mt-2 flex flex-col gap-1">
         <span style={{ color: p.texto }} className="text-[0.48rem] italic opacity-85">
-          «El colágeno tipo I con vitamina C sí tiene evidencia.»
+          {t("«El colágeno tipo I con vitamina C sí tiene evidencia.»")}
         </span>
         <span style={{ color: p.energia }} className="mono-sm text-[0.42rem]">
-          Dra. Elena Restrepo · dermatóloga
+          {t("Dra. Elena Restrepo · dermatóloga")}
         </span>
       </div>
     </div>
   ),
 
-  confianza: (p) => (
+  confianza: (p, t) => (
     <div className="flex size-full flex-col items-center justify-center gap-3 p-3">
-      <Titular p={p}>Compra sin riesgo</Titular>
+      <Titular p={p}>{t("Compra sin riesgo")}</Titular>
       <div className="flex gap-2">
-        {["COD", "INVIMA", "30d"].map((t) => (
-          <div key={t} className="flex flex-col items-center gap-1">
+        {["COD", "INVIMA", "30d"].map((sello) => (
+          <div key={sello} className="flex flex-col items-center gap-1">
             <span
               style={{
                 background: `linear-gradient(135deg, ${p.energia}, ${p.acento} 46%, ${p.secundario})`,
@@ -255,20 +261,20 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
               />
             </span>
             <span style={{ color: p.texto }} className="mono-sm text-[0.4rem] opacity-75">
-              {t}
+              {sello}
             </span>
           </div>
         ))}
       </div>
       <span style={{ color: p.energia }} className="mono-sm text-[0.42rem]">
-        Pagas cuando lo recibes
+        {t("Pagas cuando lo recibes")}
       </span>
     </div>
   ),
 
-  precios: (p) => (
+  precios: (p, t) => (
     <div className="flex size-full flex-col gap-2 p-3">
-      <Titular p={p}>Elige tu tratamiento</Titular>
+      <Titular p={p}>{t("Elige tu tratamiento")}</Titular>
       <div className="flex flex-1 items-center gap-1.5">
         {[
           { n: "1", precio: "$129.900", alto: "68%" },
@@ -297,12 +303,12 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
         style={{ background: p.acento, color: p.fondo }}
         className="rounded-[3px] py-1 text-center text-[0.45rem] font-medium"
       >
-        Pedir ahora
+        {t("Pedir ahora")}
       </span>
     </div>
   ),
 
-  "estilo-de-vida": (p) => (
+  "estilo-de-vida": (p, t) => (
     <div className="relative size-full">
       <div
         style={{
@@ -317,7 +323,7 @@ const CONTENIDO: Record<TipologiaSeccion, (p: Paleta) => React.ReactNode> = {
       <Frasco className="absolute bottom-[16%] right-[14%] h-[30%] w-auto" />
       <div className="absolute inset-x-3 bottom-3">
         <span style={{ color: p.texto }} className="text-[0.5rem] opacity-90">
-          Cada mañana, antes del café
+          {t("Cada mañana, antes del café")}
         </span>
       </div>
     </div>

@@ -18,6 +18,7 @@ import { RevealLineas } from "@/components/motion/reveal";
 import { Parallax } from "@/components/motion/interacciones";
 import { Lamina } from "@/components/marketing/lamina";
 import { asignarPaleta } from "@/lib/metodologia/paletas";
+import { useT } from "@/lib/i18n/cliente";
 import { cn } from "@/lib/utils";
 
 /**
@@ -39,6 +40,7 @@ const PALETAS_FONDO = [
 ];
 
 export function EstudioVivo() {
+  const t = useT();
   const [descripcion, setDescripcion] = React.useState("");
   const [tipologia, setTipologia] = React.useState("hero");
   const [cargando, setCargando] = React.useState(false);
@@ -61,11 +63,11 @@ export function EstudioVivo() {
       const datos = await respuesta.json();
       if (!respuesta.ok) {
         if (datos.codigo === "ya-usado") setAgotado(true);
-        throw new Error(datos.error ?? "No se pudo construir el prompt.");
+        throw new Error(datos.error ?? t("No se pudo construir el prompt."));
       }
       setPrompt(datos.prompt);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo construir el prompt.");
+      setError(e instanceof Error ? e.message : t("No se pudo construir el prompt."));
     } finally {
       setCargando(false);
     }
@@ -75,7 +77,7 @@ export function EstudioVivo() {
     if (!prompt) return;
     await navigator.clipboard.writeText(prompt.texto);
     setCopiado(true);
-    toast.success("Prompt copiado");
+    toast.success(t("Prompt copiado"));
     setTimeout(() => setCopiado(false), 1600);
   }
 
@@ -95,7 +97,7 @@ export function EstudioVivo() {
           {FONDO.map((id, i) => (
             <div key={id} className="w-[240px] shrink-0 blur-[2px]">
               <div className="aspect-[9/16] overflow-hidden rounded-[14px]">
-                <Lamina tipologia={id} paleta={PALETAS_FONDO[i]} />
+                <Lamina tipologia={id} paleta={PALETAS_FONDO[i]} t={t} />
               </div>
             </div>
           ))}
@@ -106,16 +108,16 @@ export function EstudioVivo() {
           as="h2"
           id="estudio-titulo"
           className="display-lg max-w-[16ch]"
-          lineas={["Pruébalo con tu producto", "ahora."]}
+          lineas={t("Pruébalo con tu producto|ahora.").split("|")}
         />
 
         {agotado && !prompt ? (
           <div className="mt-12 max-w-[560px]">
             <p className="cuerpo-lg text-smoke">
-              Ya viste cómo se ve. Crea tu cuenta para generar la campaña de nueve secciones.
+              {t("Ya viste cómo se ve. Crea tu cuenta para generar la campaña de nueve secciones.")}
             </p>
             <Boton asChild variante="heat" tamano="lg" className="mt-6">
-              <Link href="/entrar?modo=registro">Crear mi cuenta</Link>
+              <Link href="/entrar?modo=registro">{t("Crear mi cuenta")}</Link>
             </Boton>
           </div>
         ) : (
@@ -123,7 +125,7 @@ export function EstudioVivo() {
             <form onSubmit={generar} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <label htmlFor="prueba-desc" className="etiqueta text-ash">
-                  Describe tu producto en una línea
+                  {t("Describe tu producto en una línea")}
                 </label>
                 <textarea
                   id="prueba-desc"
@@ -133,7 +135,7 @@ export function EstudioVivo() {
                   minLength={6}
                   maxLength={200}
                   rows={3}
-                  placeholder="Faja reductora de compresión media para uso diario"
+                  placeholder={t("Faja reductora de compresión media para uso diario")}
                   className={cn(
                     "w-full resize-none rounded-[10px] p-3 text-[1.0625rem]",
                     "bg-[var(--anvil)] text-ash placeholder:text-slag",
@@ -147,16 +149,16 @@ export function EstudioVivo() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="prueba-tipo" className="etiqueta text-ash">
-                  Qué sección quieres ver
+                  {t("Qué sección quieres ver")}
                 </label>
                 <Select value={tipologia} onValueChange={setTipologia}>
-                  <SelectTrigger id="prueba-tipo" aria-label="Tipología de sección">
+                  <SelectTrigger id="prueba-tipo" aria-label={t("Tipología de sección")}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TIPOLOGIAS.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.nombre}
+                    {TIPOLOGIAS.map((tipo) => (
+                      <SelectItem key={tipo.id} value={tipo.id}>
+                        {t(tipo.nombre)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -168,13 +170,13 @@ export function EstudioVivo() {
                 variante="heat"
                 tamano="lg"
                 cargando={cargando}
-                textoCargando="Construyendo…"
+                textoCargando={t("Construyendo…")}
                 className="self-start"
               >
-                Generar un prompt
+                {t("Generar un prompt")}
               </Boton>
 
-              <p className="mono-sm text-slag">un prompt por visitante · sin cuenta</p>
+              <p className="mono-sm text-slag">{t("un prompt por visitante · sin cuenta")}</p>
 
               {error && !agotado && (
                 <p role="alert" className="cuerpo text-[var(--danger)]">
@@ -195,7 +197,10 @@ export function EstudioVivo() {
                 <>
                   <div className="flex items-center justify-between gap-4 pb-3">
                     <span className="mono-sm text-slag">
-                      {prompt.palabras} palabras · {prompt.advertencias.length} avisos
+                      {t("{palabras} palabras · {avisos} avisos", {
+                        palabras: prompt.palabras,
+                        avisos: prompt.advertencias.length,
+                      })}
                     </span>
                     <button
                       type="button"
@@ -210,7 +215,7 @@ export function EstudioVivo() {
                       ) : (
                         <Copy className="size-3.5" />
                       )}
-                      {copiado ? "Copiado" : "Copiar"}
+                      {copiado ? t("Copiado") : t("Copiar")}
                     </button>
                   </div>
                   <pre className="mono-sm whitespace-pre-wrap text-smoke leading-relaxed">
@@ -220,8 +225,10 @@ export function EstudioVivo() {
               ) : (
                 <p className="m-auto max-w-[36ch] text-center cuerpo text-smoke">
                   {cargando
-                    ? "Construyendo el prompt con la metodología…"
-                    : "El prompt aparece aquí, en prosa narrativa y con su bloque de paleta al inicio."}
+                    ? t("Construyendo el prompt con la metodología…")
+                    : t(
+                        "El prompt aparece aquí, en prosa narrativa y con su bloque de paleta al inicio.",
+                      )}
                 </p>
               )}
             </div>

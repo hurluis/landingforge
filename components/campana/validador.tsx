@@ -8,6 +8,8 @@ import {
   MIN_PALABRAS,
 } from "@/lib/metodologia/reglas-prompt";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/cliente";
+import type { Traductor } from "@/lib/i18n/idioma";
 
 /**
  * El validador — §7.1. Esto es lo que demuestra que hay ingeniería debajo y no
@@ -17,14 +19,14 @@ import { cn } from "@/lib/utils";
  * error» no serviría de nada, que es justo lo que §3.3 prohíbe.
  */
 
-const NOMBRE_REGLA: Record<Advertencia["regla"], string> = {
-  "limite-25-caracteres": `Límite de ${LIMITE_CARACTERES_TEXTO} caracteres`,
-  "palabra-prohibida": "Lista negra",
-  "sin-bloque-paleta": "Bloque de paleta",
-  "sin-bloque-iluminacion": "Bloque de iluminación",
-  longitud: `Longitud ${MIN_PALABRAS}–${MAX_PALABRAS}`,
-  "estilo-keywords": "Prosa narrativa",
-};
+const nombreRegla = (t: Traductor): Record<Advertencia["regla"], string> => ({
+  "limite-25-caracteres": t("Límite de {n} caracteres", { n: LIMITE_CARACTERES_TEXTO }),
+  "palabra-prohibida": t("Lista negra"),
+  "sin-bloque-paleta": t("Bloque de paleta"),
+  "sin-bloque-iluminacion": t("Bloque de iluminación"),
+  longitud: t("Longitud {min}–{max}", { min: MIN_PALABRAS, max: MAX_PALABRAS }),
+  "estilo-keywords": t("Prosa narrativa"),
+});
 
 export function Validador({
   advertencias,
@@ -33,6 +35,7 @@ export function Validador({
   advertencias: Advertencia[];
   palabras: number;
 }) {
+  const t = useT();
   const bloqueos = advertencias.filter((a) => a.severidad === "bloqueo");
   const avisos = advertencias.filter((a) => a.severidad === "aviso");
 
@@ -40,7 +43,7 @@ export function Validador({
     <section aria-labelledby="validador-titulo" className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-4">
         <h3 id="validador-titulo" className="etiqueta text-smoke">
-          Validación
+          {t("Validación")}
         </h3>
         <span className="mono-sm text-slag tabular-nums">
           {palabras} palabras · {advertencias.length}{" "}
@@ -51,7 +54,7 @@ export function Validador({
       {advertencias.length === 0 ? (
         <p className="flex items-center gap-2 cuerpo text-[var(--ok)]">
           <CheckCircle  className="size-4 shrink-0" />
-          Pasa las siete reglas. Listo para generar.
+          {t("Pasa las siete reglas. Listo para generar.")}
         </p>
       ) : (
         <ul className="flex flex-col gap-2">
@@ -78,7 +81,7 @@ export function Validador({
                   )}
                 />
                 <div className="min-w-0">
-                  <p className="mono-sm text-slag">{NOMBRE_REGLA[a.regla]}</p>
+                  <p className="mono-sm text-slag">{nombreRegla(t)[a.regla]}</p>
                   <p className="mt-1 cuerpo text-ash">{a.detalle}</p>
                   {a.sugerencia && <p className="mt-1 cuerpo text-smoke">{a.sugerencia}</p>}
                 </div>
