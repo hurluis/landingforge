@@ -99,8 +99,8 @@ export const PRODUCTO: Record<string, string> = {
   "adjunta la foto del producto": "attach the product photo",
   "Guardando…": "Saving…",
   "Generar la imagen": "Generate the image",
-  "La generación de imágenes todavía no está conectada en esta versión. El prompt ya está listo: cópialo y córrelo donde quieras.":
-    "Image generation isn't connected in this version yet. The prompt is ready: copy it and run it wherever you like.",
+  "El generador de imágenes no está activo en esta instancia. Tu prompt ya está listo: cópialo y córrelo donde quieras mientras tanto.":
+    "The image generator isn't switched on in this instance. Your prompt is ready: copy it and run it wherever you like in the meantime.",
   "Esta campaña no tiene prompts": "This campaign has no prompts",
   "Todas las secciones fallaron y sus créditos volvieron a tu cuenta. Vuelve a intentarlo desde una campaña nueva.":
     "Every section failed and their credits went back to your account. Try again from a new campaign.",

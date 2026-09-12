@@ -149,6 +149,12 @@ const TEMAS: Tema[] = [
     ofrece: "propiedad",
   },
   {
+    id: "imagen",
+    patron: /(imagen|im[aá]genes|foto|render|image|photo|picture)/,
+    es: "Cada sección llega con las dos piezas: su prompt construido y validado, y su imagen vertical 9:16 en calidad máxima. El prompt se arma con la metodología —paleta, iluminación, señales de tu mercado— y esa es la entrada con la que se genera la imagen. Y como el prompt también es tuyo, puedes editarlo y volver a generar esa sección las veces que quieras.",
+    en: "Every section arrives with both pieces: its prompt, built and validated, and its vertical 9:16 image at full quality. The prompt is assembled with the method — palette, lighting, your market's signals — and that is the input the image is generated from. And since the prompt is yours too, you can edit it and regenerate that section as many times as you like.",
+  },
+  {
     id: "propiedad",
     patron: /(prompt|m[ií]o|export|propiedad|llev|own|mine|export)/,
     es: "Los prompts son tuyos. Se exportan en .md y .json, los editas, los versionas y los corres en el generador que quieras. Si mañana dejas de pagar LandingForge, tu trabajo sigue siendo tuyo: esa es la diferencia entre llevarte las imágenes y llevarte la receta.",
@@ -160,12 +166,6 @@ const TEMAS: Tema[] = [
     patron: /(me sirve|mi categor|limitac|qu[eé] no es|hosting|is it for|does it work for|limitation)/,
     es: "Es honesto decir qué no es: no construye el sitio ni da hosting, entrega las piezas. Y la matriz está calibrada para suplementos, cosmética, dispositivos de belleza y electrónica de consumo; fuera de ahí funciona pero pierde precisión. Lo mejor es probarlo con las 5 secciones gratis antes de pagar un plan.",
     en: "It is fair to say what it is not: it does not build the site and it does not host it, it delivers the pieces. And the matrix is calibrated for supplements, cosmetics, beauty devices and consumer electronics; outside that it works but loses precision. The best move is to try it with the 5 free sections before paying for a plan.",
-  },
-  {
-    id: "imagen",
-    patron: /(generar imagen|generaci[oó]n de im|nano banana|image generation)/,
-    es: "En esta versión LandingForge construye y valida los prompts; la generación de la imagen todavía no está conectada. Lo decimos así de claro porque preferimos eso a prometerlo. El prompt que recibes ya es utilizable en cualquier generador.",
-    en: "In this version LandingForge builds and validates the prompts; image generation is not connected yet. We say it plainly because we would rather do that than promise it. The prompt you get is already usable in any generator.",
   },
 ];
 

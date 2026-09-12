@@ -375,7 +375,11 @@ export function VistaCampana({
                 palabras={validado.palabras}
               />
 
-              {/* F4: interfaz construida, deshabilitada tras bandera (§7). */}
+              {/* El generador de imágenes se enciende con
+                  FEATURE_GENERACION_IMAGENES. La nota de abajo habla de ESTA
+                  instancia, no del producto: LandingForge genera la imagen de
+                  cada sección, y así lo dice la página. Lo que aquí puede
+                  estar apagado es el interruptor de este despliegue. */}
               <div className="flex flex-wrap items-center gap-3 border-t border-[var(--scale)] pt-6">
                 <Boton variante="contorno" disabled={!generacionImagenesActiva}>
                   <ImageBroken  />
@@ -383,7 +387,7 @@ export function VistaCampana({
                 </Boton>
                 {!generacionImagenesActiva && (
                   <p className="cuerpo text-slag max-w-[52ch]">
-                    {t("La generación de imágenes todavía no está conectada en esta versión. El prompt ya está listo: cópialo y córrelo donde quieras.")}
+                    {t("El generador de imágenes no está activo en esta instancia. Tu prompt ya está listo: cópialo y córrelo donde quieras mientras tanto.")}
                   </p>
                 )}
               </div>

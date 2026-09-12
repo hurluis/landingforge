@@ -62,3 +62,6 @@ next-env.d.ts
 # originales de las secciones: pesan 14 MB y de ellos solo se versionan
 # las versiones servidas en public/secciones
 /Landingparts
+
+# Grafo de conocimiento del repositorio: se reconstruye con /graphify.
+graphify-out/
