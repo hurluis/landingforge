@@ -9,6 +9,7 @@ import {
   PLANES,
   consumoPorUso,
   esPorUso,
+  excedentePorUso,
   facturadoPorUso,
   plan as definicionPlan,
 } from "@/lib/planes";
@@ -40,7 +41,7 @@ const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
  * de lo que ya tienes. Debajo, el saldo en grande, los planes como columnas
  * comparables separadas por filetes y el historial.
  *
- * Con el plan de pago por uso no hay saldo que enseñar —no hay cupo—, así que
+ * El plan por uso sí tiene secciones incluidas, pero no tiene tope, así que
  * el mismo bloque cambia de pregunta: en vez de «cuánto te queda» responde
  * «cuánto llevas» y cuánto se factura al cierre del ciclo.
  *
@@ -60,11 +61,9 @@ export function Cuenta({
   const [cambiando, setCambiando] = React.useState<string | null>(null);
   const def = definicionPlan(usuario.plan);
   const porUso = esPorUso(usuario.plan);
-  const consumo = consumoPorUso(usuario.creditosDisponibles);
-  const porcentaje =
-    def.creditosMes === 0
-      ? 0
-      : Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
+  const consumo = consumoPorUso(usuario.plan, usuario.creditosDisponibles);
+  const excedente = excedentePorUso(usuario.creditosDisponibles);
+  const porcentaje = Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
 
   async function cambiarPlan(id: string) {
     setCambiando(id);
@@ -123,7 +122,7 @@ export function Cuenta({
               </span>
               <span className="mono-sm text-slag">
                 {porUso
-                  ? `· ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} acumulados`
+                  ? `de ${def.creditosMes} incluidas · ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} acumulados`
                   : `de ${def.creditosMes} créditos`}
               </span>
             </p>
@@ -140,7 +139,7 @@ export function Cuenta({
             )}
             <p className={cn("cuerpo text-smoke medida", porUso ? "mt-6" : "mt-5")}>
               {porUso
-                ? `Sin cuota y sin cupo: se factura lo que crees, a ${formatoUSD(def.precioSeccionUSD ?? 0)} por sección.`
+                ? `${formatoUSD(def.precioMensualUSD)} de cuota con ${def.creditosMes} secciones incluidas, y a partir de ahí ${formatoUSD(def.precioSeccionUSD ?? 0)} por sección, sin tope.${excedente > 0 ? ` Llevas ${excedente} de excedente.` : ""}`
                 : "Un crédito es una sección lista para publicar. Los del plan no se acumulan entre meses; los que compras aparte, sí."}
             </p>
           </div>
@@ -181,13 +180,15 @@ export function Cuenta({
                     )}
                   </div>
                   <p className="mt-5 font-[family-name:var(--font-round)] text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">
-                    {formatoUSD(suelto ? (p.precioSeccionUSD ?? 0) : p.precioMensualUSD)}
+                    {formatoUSD(p.precioMensualUSD)}
                     <span className="ml-1.5 mono-sm font-normal tracking-normal text-slag">
-                      {suelto ? "/ sección" : "/ mes"}
+                      / mes
                     </span>
                   </p>
                   <p className="mt-3 mono-sm text-smoke">
-                    {suelto ? "sin cuota ni cupo" : `${p.creditosMes} secciones al mes`}
+                    {suelto
+                      ? `${p.creditosMes} incluidas · ${formatoUSD(p.precioSeccionUSD ?? 0)} por sección extra`
+                      : `${p.creditosMes} secciones al mes`}
                   </p>
                   <div className="mt-auto pt-8">
                     {actual ? (

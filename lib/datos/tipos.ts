@@ -30,8 +30,9 @@ export type TipologiaSeccion =
   | "estilo-de-vida";
 
 /**
- * Los tres planes con secciones incluidas, y el de pago por uso, que no
- * tiene cupo: se factura lo que se consume. Ver `lib/planes.ts`.
+ * Los tres planes con secciones incluidas, y el de pago por uso, que trae
+ * cuota y secciones pero no tiene tope: pasadas las incluidas se factura el
+ * excedente. Ver `lib/planes.ts`.
  */
 export type Plan = "semilla" | "estudio" | "agencia" | "fundicion";
 

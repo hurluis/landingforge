@@ -156,14 +156,11 @@ export class RepositorioPostgres implements Repositorio {
         enUnMes(),
         usuarioId,
       ]);
-      /* Sin recarga que anotar en el plan por uso: no hay cupo. */
-      if (def.creditosMes > 0) {
-        await c.query(
-          `INSERT INTO movimientos (id, usuario_id, campana_id, campana_nombre, delta, motivo, fecha)
-           VALUES ($1, $2, NULL, $3, $4, 'recarga-plan', $5)`,
-          [id("mov"), usuarioId, `Plan ${def.nombre}`, def.creditosMes, new Date().toISOString()],
-        );
-      }
+      await c.query(
+        `INSERT INTO movimientos (id, usuario_id, campana_id, campana_nombre, delta, motivo, fecha)
+         VALUES ($1, $2, NULL, $3, $4, 'recarga-plan', $5)`,
+        [id("mov"), usuarioId, `Plan ${def.nombre}`, def.creditosMes, new Date().toISOString()],
+      );
     });
     const u = await this.usuarioPorId(usuarioId);
     if (!u) throw new Error("Usuario no encontrado tras el cambio de plan");
@@ -185,7 +182,7 @@ export class RepositorioPostgres implements Repositorio {
     campanaNombre: string,
   ): Promise<Usuario> {
     await enTransaccion(async (c) => {
-      /* El plan por uso no tiene cupo: su saldo baja a negativo y ese
+      /* El plan por uso no tiene tope: su saldo baja a negativo y ese
          negativo es lo que se factura al cierre del ciclo. El `FOR UPDATE`
          bloquea la fila, así que dos generaciones a la vez siguen contando
          las dos. */

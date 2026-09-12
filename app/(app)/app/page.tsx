@@ -65,7 +65,7 @@ export default async function PaginaBiblioteca() {
           {esPorUso(usuario.plan) ? (
             <Cifra
               etiqueta="Secciones este ciclo"
-              valor={consumoPorUso(usuario.creditosDisponibles)}
+              valor={consumoPorUso(usuario.plan, usuario.creditosDisponibles)}
               nota={`${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} · se factura el ${fechaCorta(usuario.renuevaEn)}`}
               tono="calor"
             />

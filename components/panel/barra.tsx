@@ -52,11 +52,11 @@ export function Barra({ usuario, modo }: { usuario: Usuario; modo: "app" | "admi
   const [menu, setMenu] = React.useState(false);
   const enlaces = ENLACES[modo];
   const def = definicionPlan(usuario.plan);
-  /* El plan por uso no tiene cupo, así que no tiene barra: lo que se enseña
-     es lo consumido en el ciclo y lo que va facturado. */
+  /* El plan por uso no tiene tope, así que la barra no diría nada: lo que se
+     enseña es lo consumido en el ciclo y lo que va facturado. */
   const porUso = esPorUso(usuario.plan);
-  const consumo = consumoPorUso(usuario.creditosDisponibles);
-  const lleno = def.creditosMes === 0 ? 0 : Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
+  const consumo = consumoPorUso(usuario.plan, usuario.creditosDisponibles);
+  const lleno = Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
 
   React.useEffect(() => {
     if (!menu) return;

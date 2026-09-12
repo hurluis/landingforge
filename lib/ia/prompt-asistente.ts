@@ -40,11 +40,12 @@ Formato por defecto: vertical 9:16, calidad máxima.
 
 === PLANES ===
 Precios en dólares.
-Semilla US$17/mes, 40 secciones, 5 campañas guardadas.
-Estudio US$39/mes, 150 secciones, campañas ilimitadas, 3 marcas.
-Agencia US$109/mes, 450 secciones, marcas ilimitadas.
-Fundición: sin cuota y sin cupo, US$0,49 por sección, se factura lo que se use
-al cierre de cada ciclo. Es el plan de quien tiene meses muy distintos.
+Semilla US$12/mes, 30 secciones, 5 campañas guardadas.
+Estudio US$35/mes, 120 secciones, campañas ilimitadas, 3 marcas.
+Agencia US$99/mes, 400 secciones, marcas ilimitadas.
+Fundición US$200/mes con 900 secciones incluidas y US$0,18 por sección
+adicional, sin tope: es el plan de agencias con picos, donde la factura crece
+con el uso.
 Paquete suelto de 50 secciones por US$17.
 Un crédito equivale a una sección lista para publicar, con su prompt validado y
 su imagen 9:16. Una campaña completa son nueve secciones. Los créditos del plan

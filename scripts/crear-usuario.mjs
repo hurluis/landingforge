@@ -31,9 +31,9 @@ const [
 ] = process.argv.slice(2);
 
 /* Los mismos números que lib/planes.ts. */
-const CREDITOS = { semilla: 30, estudio: 120, agencia: 400 };
+const CREDITOS = { semilla: 30, estudio: 120, agencia: 400, fundicion: 900 };
 if (!CREDITOS[plan]) {
-  console.error(`Plan desconocido: ${plan}. Usa semilla, estudio o agencia.`);
+  console.error(`Plan desconocido: ${plan}. Usa semilla, estudio, agencia o fundicion.`);
   process.exit(1);
 }
 if (!["usuario", "admin"].includes(rol)) {

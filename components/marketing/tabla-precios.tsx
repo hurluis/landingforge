@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check } from "@phosphor-icons/react/dist/ssr";
-import { PLANES, PAQUETE_EXTRA, campanasPorMes, SECCIONES_POR_CAMPANA } from "@/lib/planes";
+import { PLANES, PAQUETE_EXTRA } from "@/lib/planes";
 import { formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import { RevealLineas, RevealBloque } from "@/components/motion/reveal";
@@ -37,23 +37,21 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
         <RevealBloque retraso={0.18}>
           <p className="mt-8 medida cuerpo-lg text-smoke">
             Cada crédito es una sección lista para publicar, con su prompt y su imagen 9:16.
-            Una campaña completa son {SECCIONES_POR_CAMPANA}. Y si tu volumen cambia cada mes,
-            Fundición no tiene plan: pagas solo lo que creas.
+            Empieza por el plan que te quede corto y súbelo cuando el trabajo lo pida. Y si tu
+            volumen no cabe en ninguno, Fundición no tiene techo.
           </p>
         </RevealBloque>
 
         <div className="mt-16 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {PLANES.map((p, i) => {
             const porUso = p.medida === "por-uso";
-            /* Etiquetas cortas a propósito: en cuatro columnas, «Campañas
-               completas» se partía en dos líneas y la tabla se leía sucia. */
+            /* Etiquetas cortas a propósito: en cuatro columnas, las largas se
+               partían en dos líneas y la tabla se leía sucia. */
             const filas = [
-              porUso
-                ? fila("Secciones al mes", "Sin límite")
-                : fila("Secciones al mes", String(p.creditosMes)),
-              porUso
-                ? fila("Campañas al mes", "Sin límite")
-                : fila("Campañas al mes", `≈ ${campanasPorMes(p.id)}`),
+              fila("Secciones al mes", String(p.creditosMes)),
+              ...(porUso
+                ? [fila("Secciones extra", `${formatoUSD(p.precioSeccionUSD ?? 0)} c/u`)]
+                : []),
               fila(
                 "Guardadas",
                 p.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(p.campanasGuardadas),
@@ -78,13 +76,10 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                 <h3 className="display-md">{p.nombre}</h3>
                 <p className="mt-4 flex items-baseline gap-2">
                   <span className="font-[family-name:var(--font-round)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
-                    {formatoUSD(porUso ? (p.precioSeccionUSD ?? 0) : p.precioMensualUSD)}
+                    {formatoUSD(p.precioMensualUSD)}
                   </span>
-                  <span className="mono-sm text-smoke">{porUso ? "/ sección" : "/ mes"}</span>
+                  <span className="mono-sm text-smoke">/ mes</span>
                 </p>
-                {porUso && (
-                  <p className="mt-2 mono-sm text-slag">sin cuota mensual</p>
-                )}
 
                 <ul className="mt-6 flex flex-col gap-3 border-t border-[var(--scale)] pt-6">
                   {filas.map((f) => (
@@ -103,7 +98,7 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                   </li>
                 </ul>
 
-                <div className="mt-8 pt-2">
+                <div className="mt-auto pt-10">
                   <Boton
                     asChild
                     variante={p.destacado ? "heat" : "contorno"}

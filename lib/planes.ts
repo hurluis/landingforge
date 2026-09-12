@@ -3,44 +3,58 @@ import type { Plan } from "@/lib/datos/tipos";
 /**
  * Planes — §8.2 del brief.
  *
- * ⚠️ LO QUE SIGUE ES INTERNO. Los números de costo de este archivo no se
- * publican en ninguna pantalla: al comprador no le interesa lo que nos cuesta
- * un token, y contarle que cobramos por sección «porque a veces hay que
- * repetirla» es regalarle una objeción antes de que la tenga. En la página se
- * habla de lo que recibe —secciones listas para publicar— y el detalle exacto
- * del consumo vive donde tiene que vivir: en la política de créditos.
+ * ⚠️ LOS NÚMEROS DE COSTO DE ESTE ARCHIVO SON INTERNOS. No se publican en
+ * ninguna pantalla: al comprador no le interesa lo que nos cuesta un token, y
+ * contarle que una sección puede necesitar varios intentos es regalarle una
+ * objeción antes de que la tenga.
  *
  * QUÉ SE COBRA. Secciones. Cada sección que la plataforma produce consume un
- * crédito, la pidas dentro de una campaña de nueve o suelta.
+ * crédito.
  *
- * CUÁNTO NOS CUESTA (tarifas de septiembre de 2026, por sección):
+ * ── EL COSTO, EN EL PEOR CASO ──────────────────────────────────────────
  *
- *   Prompt con Claude Opus 5      ≈ US$0,021   2.000 tokens de entrada a $5/M
- *                                              + 450 de salida a $25/M
- *   Imagen con Gemini Flash Image ≈ US$0,039
- *   ────────────────────────────────────────
- *   Total                         ≈ US$0,06
+ * El precio no se calcula sobre lo que cuesta un día bueno, sino sobre el
+ * techo: si el mes malo también deja margen, el bueno no da sustos.
  *
- * Es el pipeline que se va a desplegar: Opus redacta el prompt —es el que
- * planea y mira el encargo desde todos los ángulos— y el modelo de imagen lo
- * renderiza. Con Nano Banana Pro la imagen sube a ~US$0,13 y la sección a
- * ~US$0,15, así que la calidad alta es una decisión de producto, no un
- * interruptor que el usuario encienda sin que se note en el margen.
+ *                                   esperado     peor caso
+ *   Prompt con Claude Opus 5        US$0,021     US$0,055
+ *     (2.000 entrada + 450 salida)  $5 / $25 M   modo rápido, $10 / $50 M
+ *   Imagen 9:16                     US$0,039     US$0,039
+ *     (Gemini Flash Image)
+ *   Reintentos internos             —            +15 %
+ *   ──────────────────────────────────────────────────────
+ *   Coste por sección               US$0,06      US$0,11
  *
- * DÓNDE ESTÁ EL MERCADO: Pebblely US$19/200 imágenes, Flair US$49/500,
- * AdCreative desde US$39. Ellos venden la imagen; aquí va además el prompt
- * construido con la metodología y la campaña entera adaptada al país. El
- * plan de entrada se queda deliberadamente por debajo de lo que cuesta una
- * suscripción corriente de IA: US$17 es una decisión de posicionamiento.
+ * Y un tercer escenario que conviene tener a mano: si se enruta la imagen al
+ * modelo premium —Nano Banana Pro, ~US$0,13— la sección sube a ~US$0,21. Los
+ * planes de abajo NO lo asumen: la calidad alta es una decisión de producto
+ * que hay que volver a costear antes de encenderla.
  *
- * MARGEN BRUTO que dejan estos precios, antes de pasarela e impuestos:
- * 86 % en Semilla, 77 % en Estudio, 75 % en Agencia y 88 % en Fundición. La
- * suscripción no vive de cubrir el costo: vive de esa diferencia.
+ * ── MARGEN BRUTO QUE DEJAN ESTOS PRECIOS ───────────────────────────────
  *
- * FUNDICIÓN, el de pago por uso. Sin cuota y sin cupo: se factura cada
- * sección a US$0,49. Por debajo de unas 35 secciones al mes sale más barato
- * que Semilla y por encima de unas 80 sale más caro que Estudio, que es
- * exactamente lo que promete: pagas lo que usas, para bien y para mal.
+ *                 por sección   peor caso   esperado
+ *   Semilla        US$0,400        72 %       85 %
+ *   Estudio        US$0,292        62 %       79 %
+ *   Agencia        US$0,248        56 %       76 %
+ *   Fundición      US$0,222        50 %       73 %   (en su volumen incluido)
+ *     excedente    US$0,180        39 %       67 %
+ *
+ * Todo antes de pasarela, impuestos e infraestructura. Incluso en el peor
+ * caso ningún plan baja del 39 %, que es la holgura que se buscaba.
+ *
+ * ── POR QUÉ ESTA ESCALERA ──────────────────────────────────────────────
+ *
+ * La puerta de entrada es barata a propósito: US$12 está por debajo de
+ * cualquier suscripción corriente de IA, y quien solo quiere probar el
+ * producto entra sin pensarlo aunque se lleve pocas secciones. De ahí para
+ * arriba, cada plan baja el precio por sección, que es lo que premia quedarse.
+ *
+ * FUNDICIÓN lleva cuota base a propósito. Sin ella, un plan «paga lo que
+ * uses» se come a los otros tres: cualquiera que consuma poco se pasaría a
+ * él. Con US$200 de base solo compensa por encima de unas 800 secciones al
+ * mes, que es justo el cliente para el que está pensado —agencias con picos—,
+ * y a partir de ahí no tiene techo: la factura puede irse a miles y el
+ * excedente sigue siendo el precio por sección más bajo del catálogo.
  */
 
 export interface DefinicionPlan {
@@ -48,11 +62,11 @@ export interface DefinicionPlan {
   nombre: string;
   /** En centavos de dólar, para no arrastrar decimales flotantes. */
   precioMensualUSD: number;
-  /** Secciones incluidas al mes. Cero en el plan por uso. */
+  /** Secciones incluidas al mes. */
   creditosMes: number;
-  /** `incluidas`: cupo mensual. `por-uso`: sin cupo, se factura lo consumido. */
+  /** `incluidas`: al agotarlas se para. `por-uso`: se siguen facturando. */
   medida: "incluidas" | "por-uso";
-  /** Solo en el plan por uso: centavos por sección. */
+  /** Solo en el plan por uso: centavos por sección pasada la cuota. */
   precioSeccionUSD?: number;
   campanasGuardadas: number | "ilimitadas";
   paletasAlternativas: number;
@@ -66,8 +80,8 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "semilla",
     nombre: "Semilla",
-    precioMensualUSD: 1700,
-    creditosMes: 40,
+    precioMensualUSD: 1200,
+    creditosMes: 30,
     medida: "incluidas",
     campanasGuardadas: 5,
     paletasAlternativas: 1,
@@ -78,8 +92,8 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "estudio",
     nombre: "Estudio",
-    precioMensualUSD: 3900,
-    creditosMes: 150,
+    precioMensualUSD: 3500,
+    creditosMes: 120,
     medida: "incluidas",
     campanasGuardadas: "ilimitadas",
     paletasAlternativas: 3,
@@ -90,8 +104,8 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "agencia",
     nombre: "Agencia",
-    precioMensualUSD: 10900,
-    creditosMes: 450,
+    precioMensualUSD: 9900,
+    creditosMes: 400,
     medida: "incluidas",
     campanasGuardadas: "ilimitadas",
     paletasAlternativas: 3,
@@ -102,10 +116,10 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "fundicion",
     nombre: "Fundición",
-    precioMensualUSD: 0,
-    creditosMes: 0,
+    precioMensualUSD: 20000,
+    creditosMes: 900,
     medida: "por-uso",
-    precioSeccionUSD: 49,
+    precioSeccionUSD: 18,
     campanasGuardadas: "ilimitadas",
     paletasAlternativas: 3,
     marcas: "ilimitadas",
@@ -116,9 +130,6 @@ export const PLANES: readonly DefinicionPlan[] = [
 
 /** Secciones sueltas, para el mes que se queda corto. No caducan. */
 export const PAQUETE_EXTRA = { creditos: 50, precioUSD: 1700 };
-
-/** Las secciones de una campaña completa. */
-export const SECCIONES_POR_CAMPANA = 9;
 
 /** Créditos de prueba al registrarse, sin tarjeta. */
 export const CREDITOS_BIENVENIDA = 5;
@@ -138,21 +149,22 @@ export function limiteCampanas(id: Plan): number {
   return c === "ilimitadas" ? Number.POSITIVE_INFINITY : c;
 }
 
-/** Campañas completas que salen con las secciones del plan. */
-export function campanasPorMes(id: Plan): number {
-  return Math.floor(plan(id).creditosMes / SECCIONES_POR_CAMPANA);
+/**
+ * Secciones consumidas en el ciclo. El saldo arranca en las incluidas del
+ * plan y baja; en el plan por uso puede pasar de cero, y ahí el negativo es
+ * el excedente.
+ */
+export function consumoPorUso(id: Plan, creditosDisponibles: number): number {
+  return Math.max(0, plan(id).creditosMes - creditosDisponibles);
 }
 
-/**
- * Lo consumido en el ciclo por una cuenta de pago por uso. Su saldo no es un
- * cupo: arranca en cero y baja, así que el negativo ES el consumo.
- */
-export function consumoPorUso(creditosDisponibles: number): number {
+/** Secciones por encima de las incluidas: lo que se factura aparte. */
+export function excedentePorUso(creditosDisponibles: number): number {
   return Math.max(0, -creditosDisponibles);
 }
 
-/** Lo que lleva facturado este ciclo una cuenta de pago por uso, en centavos. */
+/** Lo que lleva facturado el ciclo: la cuota base más el excedente, en centavos. */
 export function facturadoPorUso(id: Plan, creditosDisponibles: number): number {
   const p = plan(id);
-  return consumoPorUso(creditosDisponibles) * (p.precioSeccionUSD ?? 0);
+  return p.precioMensualUSD + excedentePorUso(creditosDisponibles) * (p.precioSeccionUSD ?? 0);
 }

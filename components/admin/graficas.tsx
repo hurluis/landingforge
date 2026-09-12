@@ -175,7 +175,7 @@ const TONO_PLAN: Record<Plan, string> = {
   estudio: "var(--forged)",
   agencia: "var(--forged-hi)",
   /* Fundición no es un escalón más de la rampa: es otra forma de pagar, sin
-     cupo. Por eso sale del temple, que en este sistema significa información,
+     tope. Por eso sale del temple, que en este sistema significa información,
      y no del metal templado, que ordena los planes por tamaño. */
   fundicion: "var(--quench)",
 };

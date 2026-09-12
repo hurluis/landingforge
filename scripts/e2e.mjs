@@ -305,10 +305,10 @@ seccion("7 · Cambio de plan simulado");
   afirmar(r.status === 200, "el cambio de plan responde");
   afirmar(datos.simulado === true, "la respuesta se declara simulada");
   afirmar(datos.usuario.plan === "estudio", "el plan cambió");
-  /* 150 es `plan("estudio").creditosMes` en lib/planes.ts. Si allí cambia el
-     número de generaciones incluidas, aquí falla y hay que actualizarlo: es
-     el aviso de que el cambio de plan y la recarga siguen atados. */
-  afirmar(datos.usuario.creditosDisponibles === 150, "los créditos se recargaron al tope del plan");
+  /* 120 es `plan("estudio").creditosMes` en lib/planes.ts. Si allí cambia el
+     número de secciones incluidas, aquí falla y hay que actualizarlo: es el
+     aviso de que el cambio de plan y la recarga siguen atados. */
+  afirmar(datos.usuario.creditosDisponibles === 120, "los créditos se recargaron al tope del plan");
 }
 
 seccion("8 · Asistente (F3)");

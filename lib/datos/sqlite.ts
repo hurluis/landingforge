@@ -248,11 +248,7 @@ export class RepositorioSQLite implements Repositorio {
         enUnMes(),
         usuarioId,
       );
-      /* En el plan por uso no hay recarga que anotar: el saldo arranca en
-         cero y de ahí baja con lo que se consuma. */
-      if (def.creditosMes > 0) {
-        this.anotar(usuarioId, null, `Plan ${def.nombre}`, def.creditosMes, "recarga-plan");
-      }
+      this.anotar(usuarioId, null, `Plan ${def.nombre}`, def.creditosMes, "recarga-plan");
       bd.exec("COMMIT");
     } catch (e) {
       bd.exec("ROLLBACK");
@@ -294,7 +290,8 @@ export class RepositorioSQLite implements Repositorio {
     const bd = conexion();
     bd.exec("BEGIN IMMEDIATE");
     try {
-      /* El plan por uso no lleva la condición de saldo: no tiene cupo. Su
+      /* El plan por uso no lleva la condición de saldo: pasadas las incluidas
+         sigue trabajando y el excedente se factura. Su
          saldo baja a negativo y ese negativo ES lo consumido en el ciclo, que
          es lo que se factura. Dejar aquí el `creditos >= ?` convertiría «sin
          límite» en un tope disfrazado. */

@@ -78,10 +78,14 @@ export default async function PaginaFichaUsuario({
             etiqueta={esPorUso(usuario.plan) ? "Secciones del ciclo" : "Créditos"}
             valor={
               esPorUso(usuario.plan)
-                ? consumoPorUso(usuario.creditosDisponibles)
+                ? consumoPorUso(usuario.plan, usuario.creditosDisponibles)
                 : usuario.creditosDisponibles
             }
-            nota={esPorUso(usuario.plan) ? "plan por uso, sin cupo" : `de ${def.creditosMes} del plan`}
+            nota={
+              esPorUso(usuario.plan)
+                ? `de ${def.creditosMes} incluidas · sin tope`
+                : `de ${def.creditosMes} del plan`
+            }
             tono="calor"
           />
           <Cifra etiqueta="Campañas" valor={usuario.campanas} />
