@@ -1,43 +1,46 @@
 import type { Plan } from "@/lib/datos/tipos";
 
 /**
- * Planes — §8.2 del brief, recalculados sobre el costo real de una generación.
+ * Planes — §8.2 del brief.
  *
- * QUÉ SE COBRA. No landings ni campañas: GENERACIONES. Una generación es una
- * sección construida y renderizada. Quien pide nueve secciones y se queda con
- * las primeras gasta nueve; quien repite la misma sección cuatro veces hasta
- * que le gusta, gasta cuatro. Es lo único que tiene costo variable para
- * nosotros, así que es lo único que se mide.
+ * ⚠️ LO QUE SIGUE ES INTERNO. Los números de costo de este archivo no se
+ * publican en ninguna pantalla: al comprador no le interesa lo que nos cuesta
+ * un token, y contarle que cobramos por sección «porque a veces hay que
+ * repetirla» es regalarle una objeción antes de que la tenga. En la página se
+ * habla de lo que recibe —secciones listas para publicar— y el detalle exacto
+ * del consumo vive donde tiene que vivir: en la política de créditos.
  *
- * CUÁNTO NOS CUESTA (tarifas de septiembre de 2026, por generación):
+ * QUÉ SE COBRA. Secciones. Cada sección que la plataforma produce consume un
+ * crédito, la pidas dentro de una campaña de nueve o suelta.
  *
- *   Prompt con Claude Opus 5     ≈ US$0,021   2.000 tokens de entrada a $5/M
- *                                             + 450 de salida a $25/M
- *   Imagen con Gemini Flash Image ≈ US$0,039   («nano banana»)
- *   ───────────────────────────────────────
- *   Total                        ≈ US$0,06
+ * CUÁNTO NOS CUESTA (tarifas de septiembre de 2026, por sección):
+ *
+ *   Prompt con Claude Opus 5      ≈ US$0,021   2.000 tokens de entrada a $5/M
+ *                                              + 450 de salida a $25/M
+ *   Imagen con Gemini Flash Image ≈ US$0,039
+ *   ────────────────────────────────────────
+ *   Total                         ≈ US$0,06
  *
  * Es el pipeline que se va a desplegar: Opus redacta el prompt —es el que
  * planea y mira el encargo desde todos los ángulos— y el modelo de imagen lo
- * renderiza. Con Nano Banana Pro en vez de Flash la imagen sube a ~US$0,13 y
- * la generación a ~US$0,15: por eso la calidad alta es una decisión de
- * producto, no un ajuste que el usuario pueda encender sin que se note en el
- * margen.
+ * renderiza. Con Nano Banana Pro la imagen sube a ~US$0,13 y la sección a
+ * ~US$0,15, así que la calidad alta es una decisión de producto, no un
+ * interruptor que el usuario encienda sin que se note en el margen.
  *
- * DÓNDE ESTÁ EL MERCADO (mismas fechas):
+ * DÓNDE ESTÁ EL MERCADO: Pebblely US$19/200 imágenes, Flair US$49/500,
+ * AdCreative desde US$39. Ellos venden la imagen; aquí va además el prompt
+ * construido con la metodología y la campaña entera adaptada al país. El
+ * plan de entrada se queda deliberadamente por debajo de lo que cuesta una
+ * suscripción corriente de IA: US$17 es una decisión de posicionamiento.
  *
- *   Pebblely      US$19 / 200 imágenes   → US$0,095 por imagen
- *   Flair         US$49 / 500 imágenes   → US$0,098
- *   AdCreative    desde US$39 con 10 descargas
+ * MARGEN BRUTO que dejan estos precios, antes de pasarela e impuestos:
+ * 86 % en Semilla, 77 % en Estudio, 75 % en Agencia y 88 % en Fundición. La
+ * suscripción no vive de cubrir el costo: vive de esa diferencia.
  *
- * Ellos venden una imagen; aquí se vende la imagen MÁS el prompt construido
- * con la metodología, validado y editable, y la campaña completa de nueve
- * secciones adaptada al país. Por eso el precio por generación queda por
- * encima de Pebblely y Flair, y el del plan por debajo de AdCreative.
- *
- * MARGEN QUE DEJAN ESTOS PRECIOS: 80 % en Semilla, 69 % en Estudio y 66 % en
- * Agencia, antes de pasarela e impuestos. Si la tarifa de la API cambia, lo
- * que se mueve es el número de generaciones incluidas, no el precio.
+ * FUNDICIÓN, el de pago por uso. Sin cuota y sin cupo: se factura cada
+ * sección a US$0,49. Por debajo de unas 35 secciones al mes sale más barato
+ * que Semilla y por encima de unas 80 sale más caro que Estudio, que es
+ * exactamente lo que promete: pagas lo que usas, para bien y para mal.
  */
 
 export interface DefinicionPlan {
@@ -45,8 +48,12 @@ export interface DefinicionPlan {
   nombre: string;
   /** En centavos de dólar, para no arrastrar decimales flotantes. */
   precioMensualUSD: number;
-  /** Generaciones incluidas al mes. Un crédito = una generación. */
+  /** Secciones incluidas al mes. Cero en el plan por uso. */
   creditosMes: number;
+  /** `incluidas`: cupo mensual. `por-uso`: sin cupo, se factura lo consumido. */
+  medida: "incluidas" | "por-uso";
+  /** Solo en el plan por uso: centavos por sección. */
+  precioSeccionUSD?: number;
   campanasGuardadas: number | "ilimitadas";
   paletasAlternativas: number;
   marcas: number | "ilimitadas";
@@ -59,8 +66,9 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "semilla",
     nombre: "Semilla",
-    precioMensualUSD: 1200,
+    precioMensualUSD: 1700,
     creditosMes: 40,
+    medida: "incluidas",
     campanasGuardadas: 5,
     paletasAlternativas: 1,
     marcas: 1,
@@ -70,8 +78,9 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "estudio",
     nombre: "Estudio",
-    precioMensualUSD: 2900,
+    precioMensualUSD: 3900,
     creditosMes: 150,
+    medida: "incluidas",
     campanasGuardadas: "ilimitadas",
     paletasAlternativas: 3,
     marcas: 3,
@@ -81,8 +90,22 @@ export const PLANES: readonly DefinicionPlan[] = [
   {
     id: "agencia",
     nombre: "Agencia",
-    precioMensualUSD: 7900,
+    precioMensualUSD: 10900,
     creditosMes: 450,
+    medida: "incluidas",
+    campanasGuardadas: "ilimitadas",
+    paletasAlternativas: 3,
+    marcas: "ilimitadas",
+    soporte: "Canal directo",
+    destacado: false,
+  },
+  {
+    id: "fundicion",
+    nombre: "Fundición",
+    precioMensualUSD: 0,
+    creditosMes: 0,
+    medida: "por-uso",
+    precioSeccionUSD: 49,
     campanasGuardadas: "ilimitadas",
     paletasAlternativas: 3,
     marcas: "ilimitadas",
@@ -91,15 +114,11 @@ export const PLANES: readonly DefinicionPlan[] = [
   },
 ] as const;
 
-/** Generaciones sueltas, para el mes que se queda corto. No caducan. */
-export const PAQUETE_EXTRA = { creditos: 50, precioUSD: 1200 };
+/** Secciones sueltas, para el mes que se queda corto. No caducan. */
+export const PAQUETE_EXTRA = { creditos: 50, precioUSD: 1700 };
 
-/**
- * Lo que gasta una campaña completa, para traducir generaciones a trabajo:
- * nueve secciones y unas cuatro repeticiones de las que no quedan a gusto a
- * la primera.
- */
-export const GENERACIONES_POR_CAMPANA = 13;
+/** Las secciones de una campaña completa. */
+export const SECCIONES_POR_CAMPANA = 9;
 
 /** Créditos de prueba al registrarse, sin tarjeta. */
 export const CREDITOS_BIENVENIDA = 5;
@@ -110,12 +129,30 @@ export function plan(id: Plan): DefinicionPlan {
   return p;
 }
 
+export function esPorUso(id: Plan): boolean {
+  return plan(id).medida === "por-uso";
+}
+
 export function limiteCampanas(id: Plan): number {
   const c = plan(id).campanasGuardadas;
   return c === "ilimitadas" ? Number.POSITIVE_INFINITY : c;
 }
 
-/** Campañas completas que salen con las generaciones del plan. */
+/** Campañas completas que salen con las secciones del plan. */
 export function campanasPorMes(id: Plan): number {
-  return Math.floor(plan(id).creditosMes / GENERACIONES_POR_CAMPANA);
+  return Math.floor(plan(id).creditosMes / SECCIONES_POR_CAMPANA);
+}
+
+/**
+ * Lo consumido en el ciclo por una cuenta de pago por uso. Su saldo no es un
+ * cupo: arranca en cero y baja, así que el negativo ES el consumo.
+ */
+export function consumoPorUso(creditosDisponibles: number): number {
+  return Math.max(0, -creditosDisponibles);
+}
+
+/** Lo que lleva facturado este ciclo una cuenta de pago por uso, en centavos. */
+export function facturadoPorUso(id: Plan, creditosDisponibles: number): number {
+  const p = plan(id);
+  return consumoPorUso(creditosDisponibles) * (p.precioSeccionUSD ?? 0);
 }

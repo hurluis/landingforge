@@ -29,7 +29,11 @@ export type TipologiaSeccion =
   | "precios"
   | "estilo-de-vida";
 
-export type Plan = "semilla" | "estudio" | "agencia";
+/**
+ * Los tres planes con secciones incluidas, y el de pago por uso, que no
+ * tiene cupo: se factura lo que se consume. Ver `lib/planes.ts`.
+ */
+export type Plan = "semilla" | "estudio" | "agencia" | "fundicion";
 
 /** Rol de plataforma. La fuente de verdad es la BD, nunca el token. */
 export type Rol = "usuario" | "admin";

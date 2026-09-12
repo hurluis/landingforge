@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation";
 import { Check } from "@phosphor-icons/react/dist/ssr";
 import { toast } from "sonner";
 import type { MovimientoCredito, Usuario } from "@/lib/datos/tipos";
-import { PLANES, plan as definicionPlan } from "@/lib/planes";
+import {
+  PLANES,
+  consumoPorUso,
+  esPorUso,
+  facturadoPorUso,
+  plan as definicionPlan,
+} from "@/lib/planes";
 import { fechaCorta, fechaLarga, formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import {
@@ -34,6 +40,10 @@ const MOTIVO: Record<MovimientoCredito["motivo"], string> = {
  * de lo que ya tienes. Debajo, el saldo en grande, los planes como columnas
  * comparables separadas por filetes y el historial.
  *
+ * Con el plan de pago por uso no hay saldo que enseñar —no hay cupo—, así que
+ * el mismo bloque cambia de pregunta: en vez de «cuánto te queda» responde
+ * «cuánto llevas» y cuánto se factura al cierre del ciclo.
+ *
  * El cambio de plan es una SIMULACIÓN y la pantalla lo declara con esa misma
  * palabra. Disfrazarlo de pasarela real sería mentirle al usuario y al jurado.
  */
@@ -49,7 +59,12 @@ export function Cuenta({
   const router = useRouter();
   const [cambiando, setCambiando] = React.useState<string | null>(null);
   const def = definicionPlan(usuario.plan);
-  const porcentaje = Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
+  const porUso = esPorUso(usuario.plan);
+  const consumo = consumoPorUso(usuario.creditosDisponibles);
+  const porcentaje =
+    def.creditosMes === 0
+      ? 0
+      : Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
 
   async function cambiarPlan(id: string) {
     setCambiando(id);
@@ -72,7 +87,7 @@ export function Cuenta({
   }
 
   const detalles: [string, string][] = [
-    ["Renueva el", fechaLarga(usuario.renuevaEn)],
+    [porUso ? "Se factura el" : "Renueva el", fechaLarga(usuario.renuevaEn)],
     [
       "Campañas guardadas",
       def.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(def.campanasGuardadas),
@@ -100,23 +115,33 @@ export function Cuenta({
         >
           <div>
             <h2 id="creditos-titulo" className="etiqueta text-slag">
-              Créditos este mes
+              {porUso ? "Secciones de este ciclo" : "Créditos este mes"}
             </h2>
             <p className="mt-4 flex items-baseline gap-3">
               <span className="font-[family-name:var(--font-round)] text-[5rem] font-semibold leading-none tracking-[-0.04em] tabular-nums">
-                {usuario.creditosDisponibles}
+                {porUso ? consumo : usuario.creditosDisponibles}
               </span>
-              <span className="mono-sm text-slag">de {def.creditosMes} créditos</span>
+              <span className="mono-sm text-slag">
+                {porUso
+                  ? `· ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} acumulados`
+                  : `de ${def.creditosMes} créditos`}
+              </span>
             </p>
-            <div aria-hidden className="mt-6 h-1 w-full max-w-lg overflow-hidden rounded-full bg-[var(--scale)]">
-              <span
-                style={{ width: `${porcentaje}%` }}
-                className="block h-full rounded-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
-              />
-            </div>
-            <p className="mt-5 cuerpo text-smoke medida">
-              Un crédito es una generación: una sección construida y renderizada. Los del plan
-              no se acumulan entre meses; los que compras aparte, sí.
+            {!porUso && (
+              <div
+                aria-hidden
+                className="mt-6 h-1 w-full max-w-lg overflow-hidden rounded-full bg-[var(--scale)]"
+              >
+                <span
+                  style={{ width: `${porcentaje}%` }}
+                  className="block h-full rounded-full bg-[var(--heat)] transition-[width] duration-[300ms] ease-[var(--ease-out)]"
+                />
+              </div>
+            )}
+            <p className={cn("cuerpo text-smoke medida", porUso ? "mt-6" : "mt-5")}>
+              {porUso
+                ? `Sin cuota y sin cupo: se factura lo que crees, a ${formatoUSD(def.precioSeccionUSD ?? 0)} por sección.`
+                : "Un crédito es una sección lista para publicar. Los del plan no se acumulan entre meses; los que compras aparte, sí."}
             </p>
           </div>
 
@@ -136,11 +161,12 @@ export function Cuenta({
         {/* ---------------- Planes ---------------- */}
         <Seccion
           titulo="Cambiar de plan"
-          descripcion="En esta versión el cambio es una simulación: ajusta tu plan y recarga los créditos sin cobrar nada. Todavía no hay pasarela de pago conectada."
+          descripcion="En esta versión el cambio es una simulación: ajusta tu plan y recarga las secciones sin cobrar nada. Todavía no hay pasarela de pago conectada."
         >
-          <ul className="grid gap-px overflow-hidden bg-[var(--scale)] sm:grid-cols-3">
+          <ul className="grid gap-px overflow-hidden bg-[var(--scale)] sm:grid-cols-2 xl:grid-cols-4">
             {PLANES.map((p) => {
               const actual = p.id === usuario.plan;
+              const suelto = p.medida === "por-uso";
               return (
                 <li key={p.id} className="relative flex flex-col bg-[var(--void)] p-6 sm:p-8">
                   {actual && (
@@ -155,10 +181,14 @@ export function Cuenta({
                     )}
                   </div>
                   <p className="mt-5 font-[family-name:var(--font-round)] text-[2rem] font-semibold leading-none tracking-[-0.03em] tabular-nums">
-                    {formatoUSD(p.precioMensualUSD)}
-                    <span className="ml-1.5 mono-sm font-normal tracking-normal text-slag">/ mes</span>
+                    {formatoUSD(suelto ? (p.precioSeccionUSD ?? 0) : p.precioMensualUSD)}
+                    <span className="ml-1.5 mono-sm font-normal tracking-normal text-slag">
+                      {suelto ? "/ sección" : "/ mes"}
+                    </span>
                   </p>
-                  <p className="mt-3 mono-sm text-smoke">{p.creditosMes} generaciones al mes</p>
+                  <p className="mt-3 mono-sm text-smoke">
+                    {suelto ? "sin cuota ni cupo" : `${p.creditosMes} secciones al mes`}
+                  </p>
                   <div className="mt-auto pt-8">
                     {actual ? (
                       <p className="cuerpo text-slag">Es tu plan.</p>

@@ -12,7 +12,7 @@ import type {
   Usuario,
 } from "@/lib/datos/tipos";
 import type { Repositorio } from "@/lib/datos/repositorio";
-import { CREDITOS_BIENVENIDA, plan as definicionPlan } from "@/lib/planes";
+import { CREDITOS_BIENVENIDA, esPorUso, plan as definicionPlan } from "@/lib/planes";
 import { id } from "@/lib/utils";
 import { productoGuardado } from "@/lib/datos/producto";
 
@@ -248,7 +248,11 @@ export class RepositorioSQLite implements Repositorio {
         enUnMes(),
         usuarioId,
       );
-      this.anotar(usuarioId, null, `Plan ${def.nombre}`, def.creditosMes, "recarga-plan");
+      /* En el plan por uso no hay recarga que anotar: el saldo arranca en
+         cero y de ahí baja con lo que se consuma. */
+      if (def.creditosMes > 0) {
+        this.anotar(usuarioId, null, `Plan ${def.nombre}`, def.creditosMes, "recarga-plan");
+      }
       bd.exec("COMMIT");
     } catch (e) {
       bd.exec("ROLLBACK");
@@ -290,9 +294,21 @@ export class RepositorioSQLite implements Repositorio {
     const bd = conexion();
     bd.exec("BEGIN IMMEDIATE");
     try {
-      const r = bd
-        .prepare("UPDATE usuarios SET creditos = creditos - ? WHERE id = ? AND creditos >= ?")
-        .run(cantidad, usuarioId, cantidad);
+      /* El plan por uso no lleva la condición de saldo: no tiene cupo. Su
+         saldo baja a negativo y ese negativo ES lo consumido en el ciclo, que
+         es lo que se factura. Dejar aquí el `creditos >= ?` convertiría «sin
+         límite» en un tope disfrazado. */
+      const fila = bd.prepare("SELECT plan FROM usuarios WHERE id = ?").get(usuarioId) as
+        | { plan: string }
+        | undefined;
+      const porUso = fila ? esPorUso(fila.plan as Plan) : false;
+      const r = porUso
+        ? bd
+            .prepare("UPDATE usuarios SET creditos = creditos - ? WHERE id = ?")
+            .run(cantidad, usuarioId)
+        : bd
+            .prepare("UPDATE usuarios SET creditos = creditos - ? WHERE id = ? AND creditos >= ?")
+            .run(cantidad, usuarioId, cantidad);
       if (r.changes === 0) {
         bd.exec("ROLLBACK");
         throw new Error("CREDITOS_INSUFICIENTES");

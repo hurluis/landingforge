@@ -40,6 +40,7 @@ const OPCIONES_PLAN = [
   { valor: "semilla", texto: "Semilla" },
   { valor: "estudio", texto: "Estudio" },
   { valor: "agencia", texto: "Agencia" },
+  { valor: "fundicion", texto: "Fundición" },
 ];
 
 const OPCIONES_ROL = [

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Check } from "@phosphor-icons/react/dist/ssr";
-import { PLANES, PAQUETE_EXTRA, campanasPorMes } from "@/lib/planes";
+import { PLANES, PAQUETE_EXTRA, campanasPorMes, SECCIONES_POR_CAMPANA } from "@/lib/planes";
 import { formatoUSD } from "@/lib/formato";
 import { Boton } from "@/components/ui/boton";
 import { RevealLineas, RevealBloque } from "@/components/motion/reveal";
@@ -8,9 +8,13 @@ import { Spotlight } from "@/components/motion/interacciones";
 import { cn } from "@/lib/utils";
 
 /**
- * Precios — §6.2.8. Tres columnas. La del medio es el ancla visual, pero se
- * destaca con superficie más clara y hairline en --heat, NO con un badge de
- * «Más popular».
+ * Precios — §6.2.8. Cuatro columnas: tres con secciones incluidas y una de
+ * pago por uso. La de Estudio es el ancla visual, y se destaca con superficie
+ * más clara y hairline en --heat, NO con un badge de «Más popular».
+ *
+ * Lo que se enseña es lo que el comprador recibe: secciones listas para
+ * publicar. Lo que cuesta producirlas es cuenta nuestra y vive en los
+ * comentarios de `lib/planes.ts`.
  *
  * Aquí no se usa clip-path: son elementos comparables y el ojo debe poder
  * recorrerlos, así que entran con stagger de 60ms (§5.3).
@@ -28,22 +32,26 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
           as="h2"
           id="precios-titulo"
           className="display-lg max-w-[16ch]"
-          lineas={["Pagas por", "generación,", "no por landing."]}
+          lineas={["Elige cuántas", "secciones necesitas."]}
         />
         <RevealBloque retraso={0.18}>
           <p className="mt-8 medida cuerpo-lg text-smoke">
-            Un crédito es una generación: una sección construida con la metodología y
-            renderizada en 9:16. Si repites una sección hasta que quede como la quieres,
-            gastas lo que repitas —y nada más—. Una campaña de nueve secciones sale, con sus
-            repeticiones, por unas trece.
+            Cada crédito es una sección lista para publicar, con su prompt y su imagen 9:16.
+            Una campaña completa son {SECCIONES_POR_CAMPANA}. Y si tu volumen cambia cada mes,
+            Fundición no tiene plan: pagas solo lo que creas.
           </p>
         </RevealBloque>
 
-        <div className="mt-16 grid gap-5 md:grid-cols-3">
+        <div className="mt-16 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {PLANES.map((p, i) => {
+            const porUso = p.medida === "por-uso";
             const filas = [
-              fila("Generaciones al mes", String(p.creditosMes)),
-              fila("Campañas completas", `≈ ${campanasPorMes(p.id)} al mes`),
+              porUso
+                ? fila("Secciones", "Las que quieras")
+                : fila("Secciones al mes", String(p.creditosMes)),
+              porUso
+                ? fila("Campañas completas", "Sin límite")
+                : fila("Campañas completas", `≈ ${campanasPorMes(p.id)} al mes`),
               fila(
                 "Campañas guardadas",
                 p.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(p.campanasGuardadas),
@@ -62,18 +70,19 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                 className={cn(
                   "flex h-full flex-col rounded-[14px] p-8",
                   // Elevación declarada una sola vez: borde, sin sombra.
-                  p.destacado
-                    ? "vidrio border-[var(--heat)]"
-                    : "vidrio",
+                  p.destacado ? "vidrio border-[var(--heat)]" : "vidrio",
                 )}
               >
                 <h3 className="display-md">{p.nombre}</h3>
                 <p className="mt-4 flex items-baseline gap-2">
                   <span className="font-[family-name:var(--font-round)] text-[2rem] font-[350] tracking-[-0.02em] tabular-nums">
-                    {formatoUSD(p.precioMensualUSD)}
+                    {formatoUSD(porUso ? (p.precioSeccionUSD ?? 0) : p.precioMensualUSD)}
                   </span>
-                  <span className="mono-sm text-smoke">/ mes</span>
+                  <span className="mono-sm text-smoke">{porUso ? "/ sección" : "/ mes"}</span>
                 </p>
+                {porUso && (
+                  <p className="mt-2 mono-sm text-slag">sin cuota mensual</p>
+                )}
 
                 <ul className="mt-6 flex flex-col gap-3 border-t border-[var(--scale)] pt-6">
                   {filas.map((f) => (
@@ -112,13 +121,13 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
         {!compacta && (
           <div className="mt-8 grid gap-4 border-t border-[var(--scale)] pt-8 sm:grid-cols-2">
             <p className="medida cuerpo text-smoke">
-              Generaciones adicionales: paquete de {PAQUETE_EXTRA.creditos} por{" "}
-              <span className="mono-sm text-ash">{formatoUSD(PAQUETE_EXTRA.precioUSD)}</span>. Las
-              del plan no se acumulan entre meses; las que compras aparte, sí.
+              ¿Un mes con más trabajo del previsto? Paquete de {PAQUETE_EXTRA.creditos} secciones
+              por <span className="mono-sm text-ash">{formatoUSD(PAQUETE_EXTRA.precioUSD)}</span>.
+              Las del plan no se acumulan entre meses; las que compras aparte, sí.
             </p>
             <p className="medida cuerpo text-slag">
-              Prueba con 5 generaciones gratis al registrarte, sin tarjeta. Suficientes para
-              ver la calidad antes de pagar.
+              Prueba con 5 secciones gratis al registrarte, sin tarjeta. Suficientes para ver la
+              calidad antes de pagar.
             </p>
           </div>
         )}

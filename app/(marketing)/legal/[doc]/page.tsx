@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PAQUETE_EXTRA, PLANES, CREDITOS_BIENVENIDA } from "@/lib/planes";
+
 import { formatoUSD } from "@/lib/formato";
 
 /**
@@ -153,12 +154,14 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
           <ul className="mt-4 flex flex-col gap-2">
             {PLANES.map((p) => (
               <li key={p.id} className="mono-sm text-smoke">
-                {p.nombre} · {formatoUSD(p.precioMensualUSD)} / mes · {p.creditosMes} generaciones
+                {p.medida === "por-uso"
+                  ? `${p.nombre} · ${formatoUSD(p.precioSeccionUSD ?? 0)} por sección · sin cuota ni cupo`
+                  : `${p.nombre} · ${formatoUSD(p.precioMensualUSD)} / mes · ${p.creditosMes} secciones`}
               </li>
             ))}
             <li className="mono-sm text-smoke">
               Paquete extra · {formatoUSD(PAQUETE_EXTRA.precioUSD)} · {PAQUETE_EXTRA.creditos}{" "}
-              créditos
+              secciones
             </li>
             <li className="mono-sm text-smoke">
               Registro · {CREDITOS_BIENVENIDA} créditos gratis, sin tarjeta

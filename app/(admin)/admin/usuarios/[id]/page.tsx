@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { exigirAdminEnPagina } from "@/lib/auth/admin";
 import { repositorioAdmin } from "@/lib/datos";
-import { plan as definicionPlan } from "@/lib/planes";
+import { consumoPorUso, esPorUso, plan as definicionPlan } from "@/lib/planes";
 import { fechaCorta, fechaLarga, fechaRelativa } from "@/lib/formato";
 import {
   ETIQUETA_ACCION,
@@ -75,9 +75,13 @@ export default async function PaginaFichaUsuario({
       <div className={cn(ANCHO, "mt-10 flex flex-col gap-16")}>
         <Cifras>
           <Cifra
-            etiqueta="Créditos"
-            valor={usuario.creditosDisponibles}
-            nota={`de ${def.creditosMes} del plan`}
+            etiqueta={esPorUso(usuario.plan) ? "Secciones del ciclo" : "Créditos"}
+            valor={
+              esPorUso(usuario.plan)
+                ? consumoPorUso(usuario.creditosDisponibles)
+                : usuario.creditosDisponibles
+            }
+            nota={esPorUso(usuario.plan) ? "plan por uso, sin cupo" : `de ${def.creditosMes} del plan`}
             tono="calor"
           />
           <Cifra etiqueta="Campañas" valor={usuario.campanas} />

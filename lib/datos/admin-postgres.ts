@@ -68,7 +68,7 @@ const POR_PAGINA = 25;
 const DIAS_SERIE = 30;
 
 const ESTADOS: EstadoCampana[] = ["borrador", "generando", "lista", "error"];
-const PLANES_IDS: Plan[] = ["semilla", "estudio", "agencia"];
+const PLANES_IDS: Plan[] = ["semilla", "estudio", "agencia", "fundicion"];
 
 const REGLAS: ReglaAdvertencia[] = [
   "sin-bloque-paleta",

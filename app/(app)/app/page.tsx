@@ -3,7 +3,8 @@ import Link from "next/link";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { usuarioActual } from "@/lib/auth/sesion";
 import { repositorio } from "@/lib/datos";
-import { plan as definicionPlan } from "@/lib/planes";
+import { consumoPorUso, esPorUso, facturadoPorUso, plan as definicionPlan } from "@/lib/planes";
+import { formatoUSD } from "@/lib/formato";
 import { fechaCorta } from "@/lib/formato";
 import { Biblioteca } from "@/components/app/biblioteca";
 import { Boton } from "@/components/ui/boton";
@@ -61,12 +62,21 @@ export default async function PaginaBiblioteca() {
             }
           />
           <Cifra etiqueta="Prompts" valor={prompts} nota="listos para copiar" />
-          <Cifra
-            etiqueta="Créditos"
-            valor={usuario.creditosDisponibles}
-            nota={`de ${def.creditosMes} · vuelven el ${fechaCorta(usuario.renuevaEn)}`}
-            tono="calor"
-          />
+          {esPorUso(usuario.plan) ? (
+            <Cifra
+              etiqueta="Secciones este ciclo"
+              valor={consumoPorUso(usuario.creditosDisponibles)}
+              nota={`${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))} · se factura el ${fechaCorta(usuario.renuevaEn)}`}
+              tono="calor"
+            />
+          ) : (
+            <Cifra
+              etiqueta="Créditos"
+              valor={usuario.creditosDisponibles}
+              nota={`de ${def.creditosMes} · vuelven el ${fechaCorta(usuario.renuevaEn)}`}
+              tono="calor"
+            />
+          )}
           <Cifra
             etiqueta="Plan"
             valor={def.nombre}

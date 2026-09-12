@@ -13,7 +13,7 @@ import { esquemaTipologia } from "@/lib/esquemas";
  */
 
 export const esquemaRol = z.enum(["usuario", "admin"]);
-export const esquemaPlanAdmin = z.enum(["semilla", "estudio", "agencia"]);
+export const esquemaPlanAdmin = z.enum(["semilla", "estudio", "agencia", "fundicion"]);
 export const esquemaEstadoCampana = z.enum(["borrador", "generando", "lista", "error"]);
 
 export const esquemaAccionAuditoria = z.enum([

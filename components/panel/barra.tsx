@@ -6,7 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, List, ShieldCheck, SignOut, X } from "@phosphor-icons/react/dist/ssr";
 import { Wordmark } from "@/components/marketing/wordmark";
 import type { Usuario } from "@/lib/datos/tipos";
-import { plan as definicionPlan } from "@/lib/planes";
+import { consumoPorUso, esPorUso, facturadoPorUso, plan as definicionPlan } from "@/lib/planes";
+import { formatoUSD } from "@/lib/formato";
 import { cn } from "@/lib/utils";
 
 /**
@@ -51,7 +52,11 @@ export function Barra({ usuario, modo }: { usuario: Usuario; modo: "app" | "admi
   const [menu, setMenu] = React.useState(false);
   const enlaces = ENLACES[modo];
   const def = definicionPlan(usuario.plan);
-  const lleno = Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
+  /* El plan por uso no tiene cupo, así que no tiene barra: lo que se enseña
+     es lo consumido en el ciclo y lo que va facturado. */
+  const porUso = esPorUso(usuario.plan);
+  const consumo = consumoPorUso(usuario.creditosDisponibles);
+  const lleno = def.creditosMes === 0 ? 0 : Math.min(100, (usuario.creditosDisponibles / def.creditosMes) * 100);
 
   React.useEffect(() => {
     if (!menu) return;
@@ -117,12 +122,18 @@ export function Barra({ usuario, modo }: { usuario: Usuario; modo: "app" | "admi
               title={`Plan ${def.nombre}`}
             >
               <span className="mono-sm text-ash tabular-nums">
-                {usuario.creditosDisponibles}
-                <span className="text-slag"> / {def.creditosMes} créditos</span>
+                {porUso ? consumo : usuario.creditosDisponibles}
+                <span className="text-slag">
+                  {porUso
+                    ? ` secciones · ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))}`
+                    : ` / ${def.creditosMes} créditos`}
+                </span>
               </span>
-              <span aria-hidden className="h-0.5 w-full overflow-hidden rounded-full bg-[var(--scale)]">
-                <span style={{ width: `${lleno}%` }} className="block h-full bg-[var(--heat)]" />
-              </span>
+              {!porUso && (
+                <span aria-hidden className="h-0.5 w-full overflow-hidden rounded-full bg-[var(--scale)]">
+                  <span style={{ width: `${lleno}%` }} className="block h-full bg-[var(--heat)]" />
+                </span>
+              )}
             </Link>
           ) : (
             <span className="hidden max-w-[220px] truncate mono-sm text-slag lg:inline" title={usuario.email}>
@@ -196,7 +207,10 @@ export function Barra({ usuario, modo }: { usuario: Usuario; modo: "app" | "admi
           <div className="mt-8 flex flex-col gap-5">
             {modo === "app" && (
               <p className="mono-sm text-smoke">
-                Plan {def.nombre} · {usuario.creditosDisponibles} de {def.creditosMes} créditos
+                Plan {def.nombre} ·{" "}
+                {porUso
+                  ? `${consumo} secciones este ciclo · ${formatoUSD(facturadoPorUso(usuario.plan, usuario.creditosDisponibles))}`
+                  : `${usuario.creditosDisponibles} de ${def.creditosMes} créditos`}
               </p>
             )}
             {modo === "app" && usuario.rol === "admin" && (

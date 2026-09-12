@@ -112,5 +112,5 @@ export const esquemaPruebaPublica = z.object({
 });
 
 export const esquemaPlan = z.object({
-  plan: z.enum(["semilla", "estudio", "agencia"]),
+  plan: z.enum(["semilla", "estudio", "agencia", "fundicion"]),
 });

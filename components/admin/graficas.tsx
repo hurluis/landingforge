@@ -174,16 +174,21 @@ const TONO_PLAN: Record<Plan, string> = {
   semilla: "var(--forged-lo)",
   estudio: "var(--forged)",
   agencia: "var(--forged-hi)",
+  /* Fundición no es un escalón más de la rampa: es otra forma de pagar, sin
+     cupo. Por eso sale del temple, que en este sistema significa información,
+     y no del metal templado, que ordena los planes por tamaño. */
+  fundicion: "var(--quench)",
 };
 
 const NOMBRE_PLAN: Record<Plan, string> = {
   semilla: "Semilla",
   estudio: "Estudio",
   agencia: "Agencia",
+  fundicion: "Fundición",
 };
 
 export function RepartoPorPlan({ reparto }: { reparto: Record<Plan, number> }) {
-  const orden: Plan[] = ["semilla", "estudio", "agencia"];
+  const orden: Plan[] = ["semilla", "estudio", "agencia", "fundicion"];
   const total = orden.reduce((s, p) => s + reparto[p], 0);
 
   if (total === 0) {
