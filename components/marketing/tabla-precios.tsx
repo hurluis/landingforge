@@ -45,15 +45,17 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
         <div className="mt-16 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {PLANES.map((p, i) => {
             const porUso = p.medida === "por-uso";
+            /* Etiquetas cortas a propósito: en cuatro columnas, «Campañas
+               completas» se partía en dos líneas y la tabla se leía sucia. */
             const filas = [
               porUso
-                ? fila("Secciones", "Las que quieras")
+                ? fila("Secciones al mes", "Sin límite")
                 : fila("Secciones al mes", String(p.creditosMes)),
               porUso
-                ? fila("Campañas completas", "Sin límite")
-                : fila("Campañas completas", `≈ ${campanasPorMes(p.id)} al mes`),
+                ? fila("Campañas al mes", "Sin límite")
+                : fila("Campañas al mes", `≈ ${campanasPorMes(p.id)}`),
               fila(
-                "Campañas guardadas",
+                "Guardadas",
                 p.campanasGuardadas === "ilimitadas" ? "Ilimitadas" : String(p.campanasGuardadas),
               ),
               fila("Paletas alternativas", String(p.paletasAlternativas)),
@@ -87,7 +89,7 @@ export function TablaPrecios({ compacta = false }: { compacta?: boolean }) {
                 <ul className="mt-6 flex flex-col gap-3 border-t border-[var(--scale)] pt-6">
                   {filas.map((f) => (
                     <li key={f.etiqueta} className="flex items-baseline justify-between gap-4">
-                      <span className="cuerpo text-smoke">{f.etiqueta}</span>
+                      <span className="cuerpo text-smoke whitespace-nowrap">{f.etiqueta}</span>
                       <span className="mono-sm text-ash text-right">{f.valor}</span>
                     </li>
                   ))}
